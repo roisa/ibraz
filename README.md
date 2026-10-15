@@ -1,6 +1,6 @@
-# Ibraz Markets
+# Ibraz
 
-Live crypto, gold and Bitcoin insights priced in USD and Rupiah. One static page, no build step.
+Ibraz: creative ventures from Indonesia, Ibraz Capital, a live markets desk and Vision 2045. One static page, no build step.
 
 ## Data sources
 - Binance public market data (`data-api.binance.vision`) — prices, 30-day and 12-month charts, monthly history

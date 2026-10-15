@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ibraz Markets</title>
-<meta name="description" content="Live crypto, gold and Bitcoin insights priced in USD and Rupiah.">
+<title>Ibraz</title>
+<meta name="description" content="Ibraz builds and backs creative businesses from Indonesia: type, design, education, media and a live markets desk.">
+<meta property="og:title" content="Ibraz">
+<meta property="og:description" content="Creative businesses from Indonesia, a live markets desk, and a vision for 2045.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -99,6 +101,47 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 .result{background:var(--ink);border-radius:12px;padding:18px}
 .result .v{font:600 28px var(--mono);font-variant-numeric:tabular-nums;margin-top:6px}
 
+/* Ibraz group sections */
+.ventures{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:40px}
+.venture{display:flex;flex-direction:column;gap:12px}
+.venture .tags{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tag{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid var(--line2);color:#B9C3BE}
+.tag.op{color:var(--up);border-color:#2C4A37}
+.tag.gold{color:var(--gold);border-color:var(--gold-soft)}
+.venture h3{font-weight:700;font-size:24px;margin-top:8px}
+.venture p{margin:0;color:var(--muted)}
+.venture a.go{margin-top:auto;font-weight:600}
+.venture.capital{border-color:var(--gold-soft);background:#16201C}
+.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:56px}
+.figures div{background:var(--band);padding:24px}
+.figures b{display:block;font:700 40px/1 var(--display);letter-spacing:-.02em}
+.figures span{display:block;color:var(--muted);font-size:14px;margin-top:8px}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;flex:1 1 520px}
+.principles .card h3{font-size:19px;font-weight:700;margin:0 0 6px}
+.principles .card p{margin:0;color:var(--muted);font-size:15px}
+.cta{display:inline-flex;align-items:center;min-height:48px;padding:0 22px;border-radius:999px;font-weight:700}
+.cta.solid{background:var(--fg);color:var(--ink)}
+.cta.line{border:1px solid var(--line2);color:var(--fg)}
+.cta:hover{text-decoration:none}
+.mini{display:block;color:var(--fg);max-width:340px}
+.mini:hover{text-decoration:none;border-color:var(--gold-soft)}
+.timeline{list-style:none;padding:0;margin:48px 0 0;position:relative}
+.timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--gold) 0 46%, var(--line2) 46%)}
+.timeline li{position:relative;padding:0 0 36px 44px;max-width:720px}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:0;top:4px;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--ink)}
+.timeline li.next::before{background:var(--ink);border:2px solid var(--gold);box-sizing:border-box}
+.timeline .yr{font:600 14px var(--mono);color:var(--gold);letter-spacing:.06em}
+.timeline li.next .yr{color:var(--muted)}
+.timeline h3{font-size:22px;font-weight:700;margin:6px 0 6px}
+.timeline p{margin:0;color:var(--muted)}
+.timeline li.horizon h3{font-size:clamp(26px,3vw,34px)}
+.mission{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:40px}
+.mission .card b{font:700 19px var(--display);display:block;margin-bottom:6px}
+.mission .card p{margin:0;color:var(--muted);font-size:15px}
+.quote{font:700 clamp(26px,3.4vw,40px)/1.15 var(--display);letter-spacing:-.02em;max-width:24ch;margin:0}
+.quote em{font-style:normal;color:var(--gold)}
+
 footer{border-top:1px solid var(--line);padding-block:48px 40px;color:var(--muted);font-size:14px}
 footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px 24px}
 .note{font:400 12px var(--mono);color:var(--faint);margin-top:14px}
@@ -113,7 +156,7 @@ footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;
       IBRAZ
     </a>
     <nav aria-label="Sections">
-      <a href="#pulse">Pulse</a><a href="#bitcoin">Bitcoin</a><a href="#sentiment">Sentiment</a><a href="#machine">Time Machine</a><a href="#stress">Stress Lab</a>
+      <a href="#portfolio">Portfolio</a><a href="#capital">Ibraz Capital</a><a href="#pulse">Markets</a><a href="#vision">Vision 2045</a>
     </nav>
     <div class="live" aria-live="polite"><span class="dot" id="liveDot"></span><span id="liveText">Connecting…</span></div>
   </div>
@@ -122,24 +165,99 @@ footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;
 <main id="top">
   <div class="wrap hero">
     <div class="hero-grid">
-      <div>
-        <div class="eyebrow">Live markets · USD &amp; Rupiah</div>
-        <h1 style="margin-top:18px">Markets, in plain sight.</h1>
-        <p class="lead">Real prices, refreshed every minute. Bitcoin, gold and the dollar, with the numbers that put them in context.</p>
+      <div style="flex:1 1 560px">
+        <div class="eyebrow">Creative holding · Indonesia · Since 2019</div>
+        <h1 style="margin-top:18px;max-width:15ch">We build and back creative businesses from Indonesia.</h1>
+        <p class="lead">Ibraz owns and runs ventures in type design, creative production, education and digital media, and invests its own capital for the long term.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:32px">
+          <a class="cta solid" href="#portfolio">Explore the portfolio</a>
+          <a class="cta line" href="#vision">Our vision for 2045</a>
+        </div>
       </div>
-      <div aria-live="polite">
-        <div class="eyebrow" style="color:var(--muted)">Bitcoin now</div>
-        <div class="btc-big" id="heroUsd" style="margin-top:10px">—</div>
+      <a class="card mini" href="#pulse" aria-live="polite">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span class="eyebrow">Ibraz Capital desk</span><span class="small muted">Live</span></div>
+        <div class="small muted" style="margin-top:14px">Bitcoin now</div>
+        <div class="btc-big" id="heroUsd" style="margin-top:6px;font-size:clamp(30px,4vw,44px)">—</div>
         <div class="btc-idr" id="heroIdr">—</div>
         <div class="chg" id="heroChg"><span class="skel">24h —</span></div>
-      </div>
+        <div class="small" style="margin-top:16px;color:var(--gold);font-weight:600">See the markets →</div>
+      </a>
+    </div>
+    <div class="figures">
+      <div><b>2019</b><span>Year the studio began</span></div>
+      <div><b>20+</b><span>Designers in the studio</span></div>
+      <div><b>6</b><span>Ventures across 4 pillars</span></div>
+      <div><b>380k+</b><span>Font downloads on DaFont</span></div>
     </div>
   </div>
 
+  <section id="portfolio" class="band">
+    <div class="wrap">
+      <div class="eyebrow">Portfolio</div>
+      <h2>Four pillars, one group.</h2>
+      <p class="lead">Every venture is owned or run by Ibraz. The label shows where each one stands today.</p>
+      <div class="ventures">
+        <article class="card venture">
+          <div class="tags"><span class="tag">Type &amp; design</span><span class="tag op">Operating</span></div>
+          <h3>IbraCreative</h3>
+          <p>Font foundry and design studio. Display, script and brand typefaces used by designers worldwide.</p>
+          <a class="go" href="https://ibracreative.com" target="_blank" rel="noopener">ibracreative.com →</a>
+        </article>
+        <article class="card venture">
+          <div class="tags"><span class="tag">Creative production</span><span class="tag op">Operating</span></div>
+          <h3>Ibra Studio</h3>
+          <p>Branding, illustration, 2D/3D animation and content production, delivered by a team of 20+ designers.</p>
+          <a class="go" href="https://ibracreative.com" target="_blank" rel="noopener">See the work →</a>
+        </article>
+        <article class="card venture">
+          <div class="tags"><span class="tag">Kids edtech</span><span class="tag op">Operating</span></div>
+          <h3>Baby Mo</h3>
+          <p>Islamic early-learning brand with educational apps and content for young children.</p>
+          <a class="go" href="https://babymo.id" target="_blank" rel="noopener">babymo.id →</a>
+        </article>
+        <article class="card venture">
+          <div class="tags"><span class="tag">Talent</span><span class="tag op">Since 2024</span></div>
+          <h3>Ibraz Academy</h3>
+          <p>Vocational and university students learn by doing real design work in a working studio: vector, type, animation and presentation design.</p>
+          <a class="go" href="https://ibracreative.com" target="_blank" rel="noopener">Learn more →</a>
+        </article>
+        <article class="card venture">
+          <div class="tags"><span class="tag">Media</span><span class="tag gold">Growing</span></div>
+          <h3>Quiz Pop</h3>
+          <p>Quiz and brain-game channel on YouTube, building toward digital products.</p>
+          <a class="go" href="https://www.youtube.com/@quizpopuniverse" target="_blank" rel="noopener">@quizpopuniverse →</a>
+        </article>
+        <article class="card venture capital">
+          <div class="tags"><span class="tag gold">Treasury</span><span class="tag op">Active</span></div>
+          <h3>Ibraz Capital</h3>
+          <p>The group's own capital, invested for the long term in digital assets, Indonesian equities and our own ventures.</p>
+          <a class="go" href="#capital">Our approach →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="capital">
+    <div class="wrap split">
+      <div style="flex:1 1 340px">
+        <div class="eyebrow">Ibraz Capital</div>
+        <h2>Patient capital, our own money.</h2>
+        <p class="lead">Profits from the studio fund a long-term treasury. We invest only the group's own capital. We don't manage outside money or sell investment products.</p>
+        <p class="lead" style="font-size:16px">The markets desk below is the same live view we use ourselves.</p>
+      </div>
+      <div class="principles">
+        <div class="card"><h3>Build first</h3><p>Our best asset is the businesses we run. They get capital before markets do.</p></div>
+        <div class="card"><h3>Understand it or skip it</h3><p>Digital assets and listed Indonesian companies we can explain in one sentence.</p></div>
+        <div class="card"><h3>Thesis before trade</h3><p>Every position is written down first: why, how much, and what would make us exit.</p></div>
+        <div class="card"><h3>Sized to last</h3><p>No single bet is big enough to hurt the studio, the team or the families behind it.</p></div>
+      </div>
+    </div>
+  </section>
+
   <section id="pulse" class="band">
     <div class="wrap">
-      <div class="eyebrow">Market pulse</div>
-      <h2>Today at a glance.</h2>
+      <div class="eyebrow">Markets desk · Live</div>
+      <h2>Markets, in plain sight.</h2>
       <p class="lead">24-hour change and the last 30 days for each asset. Rupiah prices use today's USD/IDR rate.</p>
       <div class="grid" id="tiles"></div>
     </div>
@@ -218,18 +336,72 @@ footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;
       </div>
     </div>
   </section>
+
+  <section id="vision">
+    <div class="wrap">
+      <div class="eyebrow">Vision 2045</div>
+      <h2 style="max-width:18ch">From one studio to a creative group Indonesia can grow on.</h2>
+      <p class="lead">In 2045 Indonesia turns 100. The young people starting school today will be running the country's companies by then. We want them to arrive with real work behind them, not just certificates.</p>
+
+      <ol class="timeline">
+        <li>
+          <div class="yr">2019</div>
+          <h3>The studio begins</h3>
+          <p>IbraCreative starts with typefaces and design work, and grows into a studio of 20+ designers.</p>
+        </li>
+        <li>
+          <div class="yr">2024</div>
+          <h3>Ibraz Academy opens</h3>
+          <p>Students join live client projects inside the studio and leave with a portfolio of shipped work.</p>
+        </li>
+        <li>
+          <div class="yr">2025</div>
+          <h3>Ibraz Group is formed</h3>
+          <p>The ventures come together under one holding, with Ibraz Capital investing the group's own capital.</p>
+        </li>
+        <li class="next">
+          <div class="yr">2030</div>
+          <h3>A talent pipeline, city by city</h3>
+          <p>Academy cohorts beyond our home city, working with partner schools, and graduates hired into the studio and the industry.</p>
+        </li>
+        <li class="next">
+          <div class="yr">2035</div>
+          <h3>Indonesian creative work, exported</h3>
+          <p>Fonts, animation and digital products made in Indonesia, sold to clients and audiences around the world.</p>
+        </li>
+        <li class="next horizon">
+          <div class="yr">2045 · Indonesia at 100</div>
+          <h3>A generation that learned by building</h3>
+          <p>Thousands of young Indonesians who did real design work early, now leading studios, brands and companies of their own.</p>
+        </li>
+      </ol>
+
+      <div style="margin-top:72px">
+        <p class="quote">Real briefs. Real clients. <em>Real experience</em> before graduation.</p>
+        <div class="mission">
+          <div class="card"><b>Work on live projects</b><p>Students contribute to real client and product work from day one, reviewed by working designers.</p></div>
+          <div class="card"><b>Learn from a working studio</b><p>Mentors are the same 20+ designers who ship for clients every week.</p></div>
+          <div class="card"><b>Leave with proof</b><p>Every student graduates with published work and a portfolio that gets them hired.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <div class="eyebrow">Data sources</div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;align-items:flex-end;padding-bottom:36px;margin-bottom:36px;border-bottom:1px solid var(--line)">
+      <p class="quote" style="font-size:clamp(24px,3vw,34px);color:var(--fg)">Building creative businesses from Indonesia, since 2019.</p>
+      <nav aria-label="Footer" style="gap:20px"><a href="#portfolio">Portfolio</a><a href="#capital">Ibraz Capital</a><a href="#pulse">Markets</a><a href="#vision">Vision 2045</a></nav>
+    </div>
+    <div class="eyebrow">Market data sources</div>
     <ul>
       <li><a href="https://data-api.binance.vision" target="_blank" rel="noopener">Binance public market data</a> · prices &amp; history</li>
       <li><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a> · USD/IDR, daily</li>
       <li><a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener">Alternative.me</a> · Fear &amp; Greed</li>
       <li><a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · block height</li>
     </ul>
-    <p style="margin:28px 0 0;max-width:90ch;font-size:13px;line-height:1.6">Gold is tracked through PAX Gold (PAXG), a token backed by one troy ounce of gold. Information only. Nothing on this page is a recommendation to buy or sell any asset.</p>
+    <p style="margin:28px 0 0;max-width:90ch;font-size:13px;line-height:1.6">Gold is tracked through PAX Gold (PAXG), a token backed by one troy ounce of gold. Ibraz invests only its own capital and does not manage funds for others. Market information is for reference only; nothing on this page is a recommendation to buy or sell any asset.</p>
   </div>
 </footer>
 
