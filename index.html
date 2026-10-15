@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ibraz Markets</title>
+<meta name="description" content="Live crypto, gold and Bitcoin insights priced in USD and Rupiah.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one dark editorial column, data bands alternate ground; gold marks what to read first */
+:root{
+  --ink:#0B1210; --band:#0F1815; --card:#121C19; --line:#1F2C28; --line2:#2A3A35;
+  --fg:#EDEFEA; --muted:#A3AEA8; --faint:#6F7C76;
+  --gold:#D8B35A; --gold-soft:#4A3F25;
+  --up:#5FCB8A; --down:#F0776B; --chart:#7FA7FF;
+  --display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'Manrope',ui-sans-serif,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ink);color:var(--fg);font:16px/1.55 var(--body);-webkit-font-smoothing:antialiased}
+a{color:var(--gold);text-decoration:none}a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.band{background:var(--band);border-block:1px solid var(--line)}
+section{padding-block:80px}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h2{font-weight:700;font-size:clamp(30px,4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-top:12px}
+.lead{color:var(--muted);font-size:18px;max-width:60ch;margin:16px 0 0}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.skel{color:var(--faint)}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(11,18,16,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--fg);font:800 18px var(--display);letter-spacing:.08em}
+.brand:hover{text-decoration:none}
+nav{display:flex;flex-wrap:wrap;gap:20px;font-size:14px}
+nav a{color:#C9D1CC}
+.live{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 rgba(95,203,138,.6);animation:pulse 2s infinite}
+.dot.off{background:var(--down);animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(95,203,138,0)}100%{box-shadow:0 0 0 0 rgba(95,203,138,0)}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+
+.hero{padding-block:72px 64px}
+.hero h1{font-weight:800;font-size:clamp(40px,6.4vw,84px);line-height:.98;letter-spacing:-.035em;max-width:14ch}
+.hero-grid{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-end;justify-content:space-between}
+.hero-grid>div{min-width:0}
+.btc-big{font:600 clamp(34px,5vw,56px)/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.btc-idr{font:500 18px var(--mono);color:var(--muted);margin-top:10px}
+.chg{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font:600 15px var(--mono);padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:36px}
+.tile .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tile .sym{font:700 16px var(--display)}
+.tile .name{font-size:13px;color:var(--muted)}
+.tile .px{font:600 22px var(--mono);font-variant-numeric:tabular-nums;margin-top:12px}
+.tile .sub{font:400 13px var(--mono);color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.tile svg{display:block;width:100%;height:40px;margin-top:12px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:36px}
+.stat{background:var(--card);padding:22px}
+.stat .v{font:600 30px var(--mono);font-variant-numeric:tabular-nums;margin-top:8px}
+.stat .k{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.stat .d{font-size:13px;color:var(--muted);margin-top:6px}
+.chartbox{margin-top:16px;overflow-x:auto}
+.chartbox svg{display:block;width:100%;min-width:560px;height:auto}
+
+.split{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}
+.split>*{min-width:0}
+.gauge-wrap{flex:1 1 320px}
+.fng-bars{display:flex;align-items:flex-end;gap:3px;height:90px;margin-top:20px}
+.fng-bars span{flex:1;border-radius:2px 2px 0 0;min-height:4px}
+
+label{font-weight:600;font-size:14px}
+.field{display:flex;flex-direction:column;gap:8px}
+input[type=number],select{min-height:48px;background:var(--ink);color:var(--fg);border:1px solid var(--line2);border-radius:10px;padding:0 14px;font:500 16px var(--mono);width:100%}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:#C9D1CC;font:600 14px var(--mono);cursor:pointer}
+.pill[aria-pressed=true]{background:var(--fg);color:var(--ink);border-color:var(--fg)}
+.pill:disabled{opacity:.35;cursor:not-allowed}
+.bars{display:flex;flex-direction:column;gap:14px;margin-top:24px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.bar .lbl{width:90px;font-weight:700}
+.bar .track{flex:1 1 220px;height:30px;background:var(--ink);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;border-radius:6px;transition:width .5s ease}
+.bar .val{width:150px;text-align:right;font:600 16px var(--mono);font-variant-numeric:tabular-nums}
+@media (max-width:520px){.bar .val{width:auto;text-align:left}}
+.result{background:var(--ink);border-radius:12px;padding:18px}
+.result .v{font:600 28px var(--mono);font-variant-numeric:tabular-nums;margin-top:6px}
+
+footer{border-top:1px solid var(--line);padding-block:48px 40px;color:var(--muted);font-size:14px}
+footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px 24px}
+.note{font:400 12px var(--mono);color:var(--faint);margin-top:14px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Home">
+      <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" fill="none" stroke="#D8B35A" stroke-width="2"/><path d="M12 9v16M19 9l5 8-5 8" fill="none" stroke="#EDEFEA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      IBRAZ
+    </a>
+    <nav aria-label="Sections">
+      <a href="#pulse">Pulse</a><a href="#bitcoin">Bitcoin</a><a href="#sentiment">Sentiment</a><a href="#machine">Time Machine</a><a href="#stress">Stress Lab</a>
+    </nav>
+    <div class="live" aria-live="polite"><span class="dot" id="liveDot"></span><span id="liveText">Connecting…</span></div>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Live markets · USD &amp; Rupiah</div>
+        <h1 style="margin-top:18px">Markets, in plain sight.</h1>
+        <p class="lead">Real prices, refreshed every minute. Bitcoin, gold and the dollar, with the numbers that put them in context.</p>
+      </div>
+      <div aria-live="polite">
+        <div class="eyebrow" style="color:var(--muted)">Bitcoin now</div>
+        <div class="btc-big" id="heroUsd" style="margin-top:10px">—</div>
+        <div class="btc-idr" id="heroIdr">—</div>
+        <div class="chg" id="heroChg"><span class="skel">24h —</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="pulse" class="band">
+    <div class="wrap">
+      <div class="eyebrow">Market pulse</div>
+      <h2>Today at a glance.</h2>
+      <p class="lead">24-hour change and the last 30 days for each asset. Rupiah prices use today's USD/IDR rate.</p>
+      <div class="grid" id="tiles"></div>
+    </div>
+  </section>
+
+  <section id="bitcoin">
+    <div class="wrap">
+      <div class="eyebrow">Bitcoin insight</div>
+      <h2>Where Bitcoin stands.</h2>
+      <div class="stats">
+        <div class="stat"><div class="k">From all-time high</div><div class="v" id="sAth">—</div><div class="d" id="sAthD">&nbsp;</div></div>
+        <div class="stat"><div class="k">1-year return</div><div class="v" id="s1y">—</div><div class="d" id="s1yD">&nbsp;</div></div>
+        <div class="stat"><div class="k">30-day volatility</div><div class="v" id="sVol">—</div><div class="d">Annualized, from daily moves</div></div>
+        <div class="stat"><div class="k">Next halving</div><div class="v" id="sHalv">—</div><div class="d" id="sHalvD">&nbsp;</div></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+          <h3 style="font-size:20px">Bitcoin price, last 12 months</h3>
+          <span class="small muted num" id="chartRange">&nbsp;</span>
+        </div>
+        <div class="chartbox" id="btcChart"><p class="skel">Loading chart…</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sentiment" class="band">
+    <div class="wrap split">
+      <div style="flex:1 1 320px">
+        <div class="eyebrow">Crypto sentiment</div>
+        <h2>Fear or greed?</h2>
+        <p class="lead">A daily 0–100 reading of crypto market mood, built from volatility, momentum, social activity and Bitcoin dominance.</p>
+      </div>
+      <div class="card gauge-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+          <div><div class="num" id="fngVal" style="font-size:56px;font-weight:600;line-height:1">—</div><div id="fngLbl" style="font:700 20px var(--display);margin-top:8px">&nbsp;</div></div>
+          <div class="small muted num" id="fngPrev" style="text-align:right">&nbsp;</div>
+        </div>
+        <div class="fng-bars" id="fngBars" role="img" aria-label="Last 30 days of the Fear and Greed index"></div>
+        <div style="display:flex;justify-content:space-between" class="note"><span>30 days ago</span><span>Today</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="machine">
+    <div class="wrap">
+      <div class="eyebrow">Time machine</div>
+      <h2>If you had bought in January…</h2>
+      <p class="lead">Real monthly prices. Pick a year and an amount to see what it would be worth today.</p>
+      <div class="card" style="margin-top:32px">
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end">
+          <div class="field" style="flex:0 1 220px"><label for="tmAmount">Amount invested (USD)</label><input id="tmAmount" type="number" min="1" step="100" value="1000" inputmode="decimal"></div>
+          <div class="field" style="flex:1 1 320px"><span style="font-weight:600;font-size:14px" id="yrLbl">Start year</span><div class="pills" id="years" role="group" aria-labelledby="yrLbl"></div></div>
+        </div>
+        <div class="bars" id="tmBars"><p class="skel">Loading price history…</p></div>
+        <p class="note" id="tmNote">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="stress" class="band">
+    <div class="wrap split">
+      <div style="flex:1 1 320px">
+        <div class="eyebrow">Stress lab</div>
+        <h2>What would a big move cost?</h2>
+        <p class="lead">Enter a portfolio size, how much is in crypto, and a Bitcoin move. The rest of the portfolio is held steady.</p>
+      </div>
+      <div class="card" style="flex:1 1 460px;display:flex;flex-direction:column;gap:20px">
+        <div class="field"><label for="stTotal">Portfolio value (IDR)</label><input id="stTotal" type="number" min="0" step="1000000" value="100000000" inputmode="numeric"></div>
+        <div class="field"><label for="stShare" style="display:flex;justify-content:space-between"><span>Share in crypto</span><span class="num" id="stShareV">60%</span></label><input id="stShare" type="range" min="0" max="100" step="5" value="60"></div>
+        <div class="field"><label for="stMove" style="display:flex;justify-content:space-between"><span>Bitcoin price move</span><span class="num" id="stMoveV">−30%</span></label><input id="stMove" type="range" min="-80" max="100" step="5" value="-30"></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+          <div class="result"><div class="eyebrow" style="color:var(--muted)">Portfolio after</div><div class="v" id="stAfter">—</div></div>
+          <div class="result"><div class="eyebrow" style="color:var(--muted)">Change</div><div class="v" id="stDelta">—</div></div>
+        </div>
+        <p class="small muted" id="stBtc" style="margin:0">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="eyebrow">Data sources</div>
+    <ul>
+      <li><a href="https://data-api.binance.vision" target="_blank" rel="noopener">Binance public market data</a> · prices &amp; history</li>
+      <li><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a> · USD/IDR, daily</li>
+      <li><a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener">Alternative.me</a> · Fear &amp; Greed</li>
+      <li><a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · block height</li>
+    </ul>
+    <p style="margin:28px 0 0;max-width:90ch;font-size:13px;line-height:1.6">Gold is tracked through PAX Gold (PAXG), a token backed by one troy ounce of gold. Information only. Nothing on this page is a recommendation to buy or sell any asset.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var API = 'https://data-api.binance.vision/api/v3';
+  var ASSETS = [
+    {sym:'BTCUSDT', code:'BTC', name:'Bitcoin'},
+    {sym:'ETHUSDT', code:'ETH', name:'Ethereum'},
+    {sym:'SOLUSDT', code:'SOL', name:'Solana'},
+    {sym:'BNBUSDT', code:'BNB', name:'BNB'},
+    {sym:'PAXGUSDT', code:'GOLD', name:'Gold (PAXG, per oz)'}
+  ];
+  var TM = [
+    {sym:'BTCUSDT', label:'Bitcoin', color:'var(--gold)'},
+    {sym:'ETHUSDT', label:'Ethereum', color:'var(--chart)'},
+    {sym:'PAXGUSDT', label:'Gold', color:'#9AA59F'}
+  ];
+  var OZ_G = 31.1035;
+  var state = {idr:null, tickers:{}, monthly:{}, year:null};
+
+  function $(id){ return document.getElementById(id); }
+  function getJSON(url){
+    return fetch(url, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function usd(n, d){ if(n==null||isNaN(n)) return '—'; d = d==null ? (n<10?4:n<1000?2:0) : d; return '$' + n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function idr(n){ if(n==null||isNaN(n)) return '—'; return 'Rp ' + Math.round(n).toLocaleString('en-US'); }
+  function idrShort(n){
+    if(n==null||isNaN(n)) return '—';
+    var a = Math.abs(n), s = n<0?'−':'';
+    if(a>=1e9) return s+'Rp '+(a/1e9).toFixed(2)+' B';
+    if(a>=1e6) return s+'Rp '+(a/1e6).toFixed(1)+' M';
+    return s+'Rp '+Math.round(a).toLocaleString('en-US');
+  }
+  function pct(n, d){ if(n==null||isNaN(n)) return '—'; d = d==null?2:d; return (n>0?'+':n<0?'−':'') + Math.abs(n).toFixed(d) + '%'; }
+  function cls(n){ return n>0?'up':n<0?'down':''; }
+  function svgEl(tag, attrs){ var e = document.createElementNS('http://www.w3.org/2000/svg', tag); for(var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function clear(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  function setLive(ok){
+    $('liveDot').className = ok ? 'dot' : 'dot off';
+    $('liveText').textContent = ok ? 'Live · ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : 'Data unavailable, retrying';
+  }
+
+  /* ---------- Pulse tiles ---------- */
+  function buildTiles(){
+    var wrap = $('tiles'); clear(wrap);
+    ASSETS.concat([{sym:'FX', code:'USD/IDR', name:'Rupiah per dollar'}]).forEach(function(a){
+      var t = document.createElement('article'); t.className = 'card tile'; t.id = 'tile-'+a.sym;
+      t.innerHTML = '<div class="row"><div><div class="sym"></div><div class="name"></div></div><div class="num chg-s small">—</div></div><div class="px">—</div><div class="sub">&nbsp;</div><svg viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"></svg>';
+      t.querySelector('.sym').textContent = a.code;
+      t.querySelector('.name').textContent = a.name;
+      wrap.appendChild(t);
+    });
+  }
+  function spark(svg, closes, up){
+    clear(svg);
+    if(!closes || closes.length<2) return;
+    var min = Math.min.apply(null, closes), max = Math.max.apply(null, closes), r = (max-min)||1;
+    var pts = closes.map(function(c,i){ return (i/(closes.length-1)*200).toFixed(1)+','+(36-(c-min)/r*32).toFixed(1); });
+    var color = up ? 'var(--up)' : 'var(--down)';
+    svg.appendChild(svgEl('polygon',{points:'0,40 '+pts.join(' ')+' 200,40', fill:color, 'fill-opacity':'0.12'}));
+    svg.appendChild(svgEl('polyline',{points:pts.join(' '), fill:'none', stroke:color, 'stroke-width':'1.8', 'vector-effect':'non-scaling-stroke'}));
+  }
+  function renderTiles(){
+    ASSETS.forEach(function(a){
+      var tk = state.tickers[a.sym]; if(!tk) return;
+      var t = $('tile-'+a.sym), p = +tk.lastPrice, ch = +tk.priceChangePercent;
+      t.querySelector('.px').textContent = usd(p);
+      var c = t.querySelector('.chg-s'); c.textContent = pct(ch); c.className = 'num chg-s small ' + cls(ch);
+      var sub = '';
+      if(state.idr){ sub = a.sym==='PAXGUSDT' ? idr(p/OZ_G*state.idr)+' / gram' : idrShort(p*state.idr); }
+      t.querySelector('.sub').textContent = sub || ' ';
+    });
+    var fx = $('tile-FX');
+    if(state.idr){
+      fx.querySelector('.px').textContent = 'Rp ' + state.idr.toLocaleString('en-US',{maximumFractionDigits:0});
+      fx.querySelector('.sub').textContent = 'Daily reference rate';
+      fx.querySelector('.chg-s').textContent = '';
+    }
+    var b = state.tickers.BTCUSDT;
+    if(b){
+      var p = +b.lastPrice, ch = +b.priceChangePercent;
+      $('heroUsd').textContent = usd(p,0);
+      $('heroIdr').textContent = state.idr ? idr(p*state.idr) : '—';
+      $('heroChg').innerHTML = '';
+      var s1 = document.createElement('span'); s1.className = cls(ch); s1.textContent = pct(ch);
+      var s2 = document.createElement('span'); s2.className = 'muted'; s2.textContent = 'last 24 hours';
+      $('heroChg').appendChild(s1); $('heroChg').appendChild(s2);
+    }
+    renderStress();
+  }
+  function loadTickers(){
+    var syms = encodeURIComponent(JSON.stringify(ASSETS.map(function(a){return a.sym;})));
+    return getJSON(API+'/ticker/24hr?symbols='+syms).then(function(list){
+      list.forEach(function(t){ state.tickers[t.symbol] = t; });
+      renderTiles(); setLive(true);
+    }).catch(function(){ setLive(false); });
+  }
+  function loadSparks(){
+    ASSETS.forEach(function(a){
+      getJSON(API+'/klines?symbol='+a.sym+'&interval=1d&limit=30').then(function(k){
+        var closes = k.map(function(r){return +r[4];});
+        spark($('tile-'+a.sym).querySelector('svg'), closes, closes[closes.length-1] >= closes[0]);
+      }).catch(function(){});
+    });
+  }
+  function loadFx(){
+    return getJSON('https://open.er-api.com/v6/latest/USD').then(function(j){
+      if(j && j.rates && j.rates.IDR){ state.idr = j.rates.IDR; renderTiles(); }
+    }).catch(function(){});
+  }
+
+  /* ---------- Bitcoin insight ---------- */
+  function renderBtcChart(k){
+    var box = $('btcChart'); clear(box);
+    var W=800, H=300, L=64, R=20, T=20, B=36;
+    var closes = k.map(function(r){return +r[4];}), times = k.map(function(r){return r[0];});
+    var hi = Math.max.apply(null, closes), lo = Math.min.apply(null, closes);
+    var pad = (hi-lo)*0.08, ymax = hi+pad, ymin = Math.max(0, lo-pad);
+    var x = function(i){ return L + i/(closes.length-1)*(W-L-R); };
+    var y = function(v){ return T + (ymax-v)/(ymax-ymin)*(H-T-B); };
+    var svg = svgEl('svg',{viewBox:'0 0 '+W+' '+H, role:'img', 'aria-label':'Bitcoin daily closing price over the last 12 months'});
+    // gridlines + y labels
+    for(var g=0; g<=4; g++){
+      var v = ymin + (ymax-ymin)*g/4, yy = y(v);
+      svg.appendChild(svgEl('line',{x1:L, x2:W-R, y1:yy, y2:yy, stroke:'#1F2C28', 'stroke-width':'1'}));
+      var tl = svgEl('text',{x:L-10, y:yy+4, 'text-anchor':'end', fill:'#A3AEA8', 'font-size':'11', 'font-family':'JetBrains Mono, monospace'});
+      tl.textContent = '$'+Math.round(v/1000)+'k'; svg.appendChild(tl);
+    }
+    // month labels
+    var lastM = -1;
+    times.forEach(function(t,i){
+      var d = new Date(t), m = d.getUTCMonth();
+      if(m!==lastM && d.getUTCDate()<=7 && i>3 && i<times.length-4){
+        var tx = svgEl('text',{x:x(i), y:H-12, 'text-anchor':'middle', fill:'#A3AEA8', 'font-size':'11', 'font-family':'JetBrains Mono, monospace'});
+        tx.textContent = d.toLocaleString('en-US',{month:'short', timeZone:'UTC'}) + (m===0 ? " '"+String(d.getUTCFullYear()).slice(2) : '');
+        svg.appendChild(tx); lastM = m;
+      }
+    });
+    var pts = closes.map(function(c,i){ return x(i).toFixed(1)+','+y(c).toFixed(1); });
+    svg.appendChild(svgEl('polygon',{points:x(0)+','+y(ymin)+' '+pts.join(' ')+' '+x(closes.length-1)+','+y(ymin), fill:'#7FA7FF', 'fill-opacity':'0.10'}));
+    svg.appendChild(svgEl('polyline',{points:pts.join(' '), fill:'none', stroke:'#7FA7FF', 'stroke-width':'2', 'stroke-linejoin':'round'}));
+    // 12-month high marker
+    var hiI = closes.indexOf(hi);
+    svg.appendChild(svgEl('line',{x1:L, x2:W-R, y1:y(hi), y2:y(hi), stroke:'#D8B35A', 'stroke-dasharray':'4 4', 'stroke-width':'1'}));
+    var ht = svgEl('text',{x:Math.min(Math.max(x(hiI), L+60), W-R-60), y:y(hi)-8, 'text-anchor':'middle', fill:'#D8B35A', 'font-size':'12', 'font-family':'JetBrains Mono, monospace'});
+    ht.textContent = '12-mo high '+usd(hi,0); svg.appendChild(ht);
+    // last point
+    var lx = x(closes.length-1), ly = y(closes[closes.length-1]);
+    svg.appendChild(svgEl('circle',{cx:lx, cy:ly, r:'5', fill:'#7FA7FF', stroke:'#0B1210', 'stroke-width':'2'}));
+    box.appendChild(svg);
+    var d0 = new Date(times[0]), d1 = new Date(times[times.length-1]);
+    $('chartRange').textContent = d0.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' – ' + d1.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' · daily close';
+
+    var first = closes[0], last = closes[closes.length-1], r1 = (last/first-1)*100;
+    $('s1y').textContent = pct(r1,1); $('s1y').className = 'v ' + cls(r1);
+    $('s1yD').textContent = 'From ' + usd(first,0) + ' a year ago';
+    var rets = []; for(var i=closes.length-30; i<closes.length; i++){ if(i>0) rets.push(Math.log(closes[i]/closes[i-1])); }
+    var mean = rets.reduce(function(s,v){return s+v;},0)/rets.length;
+    var sd = Math.sqrt(rets.reduce(function(s,v){return s+(v-mean)*(v-mean);},0)/(rets.length-1));
+    $('sVol').textContent = (sd*Math.sqrt(365)*100).toFixed(0)+'%';
+  }
+  function renderAth(){
+    var m = state.monthly.BTCUSDT; if(!m) return;
+    var ath = Math.max.apply(null, m.map(function(r){return +r[2];}));
+    var athRow = m.filter(function(r){ return +r[2]===ath; })[0];
+    var now = state.tickers.BTCUSDT ? +state.tickers.BTCUSDT.lastPrice : +m[m.length-1][4];
+    var dd = (now/ath-1)*100;
+    $('sAth').textContent = pct(dd,1); $('sAth').className = 'v ' + (dd<-0.5?'down':'up');
+    $('sAthD').textContent = 'Peak ' + usd(ath,0) + ' in ' + new Date(athRow[0]).toLocaleString('en-US',{month:'short',year:'numeric',timeZone:'UTC'});
+  }
+  function loadHalving(){
+    getJSON('https://mempool.space/api/blocks/tip/height').then(function(h){
+      var next = 1050000, left = next - h;
+      if(left <= 0){ next = 1260000; left = next - h; }
+      var days = left*10/60/24, when = new Date(Date.now()+days*864e5);
+      $('sHalv').textContent = '~' + Math.round(days) + ' days';
+      $('sHalvD').textContent = left.toLocaleString('en-US') + ' blocks to go · around ' + when.toLocaleString('en-US',{month:'short',year:'numeric'});
+    }).catch(function(){ $('sHalvD').textContent = 'Block height unavailable'; });
+  }
+
+  /* ---------- Sentiment ---------- */
+  function fngColor(v){ return v<25?'#F0776B':v<45?'#E6A15C':v<56?'#C9C27A':v<75?'#8FCB7E':'#5FCB8A'; }
+  function loadFng(){
+    getJSON('https://api.alternative.me/fng/?limit=30').then(function(j){
+      var d = j.data; if(!d||!d.length) return;
+      var today = +d[0].value;
+      $('fngVal').textContent = today; $('fngVal').style.color = fngColor(today);
+      $('fngLbl').textContent = d[0].value_classification;
+      if(d[1]) $('fngPrev').innerHTML = 'Yesterday ' + (+d[1].value) + '<br>Week ago ' + (d[7]? +d[7].value : '—');
+      var bars = $('fngBars'); clear(bars);
+      d.slice().reverse().forEach(function(p){
+        var s = document.createElement('span'); var v = +p.value;
+        s.style.height = Math.max(4, v) + '%'; s.style.background = fngColor(v);
+        s.title = new Date(p.timestamp*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ': ' + v + ' (' + p.value_classification + ')';
+        bars.appendChild(s);
+      });
+    }).catch(function(){ $('fngLbl').textContent = 'Unavailable right now'; });
+  }
+
+  /* ---------- Time machine ---------- */
+  function janOpen(sym, year){
+    var m = state.monthly[sym]; if(!m) return null;
+    for(var i=0;i<m.length;i++){ var d = new Date(m[i][0]); if(d.getUTCFullYear()===year && d.getUTCMonth()===0) return {price:+m[i][1], t:m[i][0]}; }
+    return null;
+  }
+  function currentPrice(sym){
+    if(state.tickers[sym]) return +state.tickers[sym].lastPrice;
+    var m = state.monthly[sym]; return m ? +m[m.length-1][4] : null;
+  }
+  function buildYears(){
+    var nowY = new Date().getUTCFullYear(), wrap = $('years'); clear(wrap);
+    for(var y=2018; y<=nowY; y++){
+      (function(y){
+        var b = document.createElement('button'); b.type='button'; b.className='pill'; b.textContent = y;
+        b.disabled = !janOpen('BTCUSDT', y);
+        b.setAttribute('aria-pressed', String(y===state.year));
+        b.addEventListener('click', function(){ state.year = y; buildYears(); renderTM(); });
+        wrap.appendChild(b);
+      })(y);
+    }
+  }
+  function renderTM(){
+    var amt = parseFloat($('tmAmount').value); if(!(amt>0)) amt = 0;
+    var rows = TM.map(function(a){
+      var s = janOpen(a.sym, state.year), now = currentPrice(a.sym);
+      if(!s || !now) return {a:a, missing:true};
+      var mult = now/s.price, yrs = (Date.now()-s.t)/(365.25*864e5);
+      return {a:a, value:amt*mult, mult:mult, cagr:(Math.pow(mult, 1/yrs)-1)*100, start:s.price};
+    });
+    var max = Math.max.apply(null, rows.filter(function(r){return !r.missing;}).map(function(r){return r.value;}).concat([amt, 1]));
+    var wrap = $('tmBars'); clear(wrap);
+    rows.concat([{a:{label:'Cash', color:'var(--line2)'}, value:amt, mult:1, cash:true}]).forEach(function(r){
+      var row = document.createElement('div'); row.className='bar';
+      var l = document.createElement('span'); l.className='lbl'; l.textContent = r.a.label;
+      var tr = document.createElement('div'); tr.className='track';
+      var f = document.createElement('div'); f.className='fill'; f.style.background = r.a.color;
+      f.style.width = r.missing ? '0%' : (r.value/max*100).toFixed(1)+'%'; tr.appendChild(f);
+      var v = document.createElement('span'); v.className='val';
+      if(r.missing){ v.textContent = 'No data'; v.style.color='var(--faint)'; }
+      else { v.textContent = usd(r.value,0); }
+      row.appendChild(l); row.appendChild(tr); row.appendChild(v);
+      var d = document.createElement('div'); d.className='small muted num'; d.style.width='100%'; d.style.paddingLeft='106px';
+      if(r.cash) d.textContent = 'Kept as dollars, before inflation';
+      else if(!r.missing) d.textContent = '×'+r.mult.toFixed(2)+' · '+pct(r.cagr,1)+' a year · bought at '+usd(r.start);
+      else d.textContent = 'Not listed in January '+state.year;
+      row.appendChild(d);
+      wrap.appendChild(row);
+    });
+    $('tmNote').textContent = 'Bought at the January '+state.year+' monthly open on Binance, valued at today\'s live price. Gold via PAXG, available from 2020.';
+  }
+  function loadMonthly(){
+    return Promise.all(TM.map(function(a){
+      return getJSON(API+'/klines?symbol='+a.sym+'&interval=1M&limit=1000').then(function(k){ state.monthly[a.sym]=k; }).catch(function(){});
+    })).then(function(){
+      if(!state.monthly.BTCUSDT){ $('tmBars').innerHTML = '<p class="skel">Price history unavailable right now.</p>'; return; }
+      state.year = 2020; buildYears(); renderTM(); renderAth();
+    });
+  }
+
+  /* ---------- Stress lab ---------- */
+  function renderStress(){
+    var total = parseFloat($('stTotal').value) || 0;
+    var share = +$('stShare').value, move = +$('stMove').value;
+    $('stShareV').textContent = share+'%';
+    $('stMoveV').textContent = pct(move,0); $('stMoveV').className = 'num '+cls(move);
+    var crypto = total*share/100, after = crypto*(1+move/100) + (total-crypto), delta = after-total;
+    $('stAfter').textContent = idrShort(after);
+    $('stDelta').textContent = (delta>=0?'+':'') + idrShort(delta); $('stDelta').className = 'v '+cls(delta);
+    var b = state.tickers.BTCUSDT;
+    $('stBtc').textContent = b ? 'That move takes Bitcoin from '+usd(+b.lastPrice,0)+' to '+usd(+b.lastPrice*(1+move/100),0)+'.' : ' ';
+  }
+  ['stTotal','stShare','stMove'].forEach(function(id){ $(id).addEventListener('input', renderStress); });
+  $('tmAmount').addEventListener('input', function(){ if(state.year) renderTM(); });
+
+  /* ---------- Boot ---------- */
+  buildTiles(); renderStress();
+  loadFx().then(loadTickers).then(function(){ renderAth(); if(state.year) renderTM(); });
+  loadSparks();
+  getJSON(API+'/klines?symbol=BTCUSDT&interval=1d&limit=365').then(renderBtcChart).catch(function(){ $('btcChart').innerHTML='<p class="skel">Chart unavailable right now.</p>'; });
+  loadMonthly(); loadHalving(); loadFng();
+  setInterval(function(){ loadTickers().then(function(){ renderAth(); if(state.year) renderTM(); }); }, 60000);
+  setInterval(loadSparks, 15*60000);
+})();
+</script>
+</body>
+</html>
