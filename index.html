@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ibraz</title>
+<title>IBRAZ</title>
 <meta name="description" content="Ibraz builds and backs creative businesses from Indonesia: type, design, education, media and a live markets desk.">
-<meta property="og:title" content="Ibraz">
+<meta property="og:title" content="IBRAZ">
 <meta property="og:description" content="Creative businesses from Indonesia, a live markets desk, and a vision for 2045.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,21 @@ header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:
 .brand{display:flex;align-items:center;gap:10px;color:var(--fg);font:800 18px var(--display);letter-spacing:.08em}
 .brand:hover{text-decoration:none}
 nav{display:flex;flex-wrap:wrap;gap:20px;font-size:14px}
-nav a{color:#C9D1CC}
+nav a{color:#C9D1CC;position:relative;padding-block:6px;transition:color .3s}
+nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.16,1,.3,1)}
+nav a:hover{color:var(--fg);text-decoration:none}
+nav a:hover::after{transform:scaleX(.4)}
+nav a.active{color:var(--gold)}
+nav a.active::after{transform:scaleX(1)}
+html{scroll-padding-top:90px}
+.progress{position:absolute;left:0;top:0;height:2px;width:100%;background:linear-gradient(90deg,var(--chart),var(--gold));transform:scaleX(var(--sp,0));transform-origin:left;pointer-events:none}
+/* arrival flourish when a menu link lands on a section */
+.eyebrow{position:relative}
+section.arrive .eyebrow::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:64px;background:var(--gold);border-radius:2px;animation:sweep 1.1s cubic-bezier(.16,1,.3,1) both}
+section.arrive h2{animation:land .9s cubic-bezier(.16,1,.3,1) both}
+@keyframes sweep{0%{transform:scaleX(0);transform-origin:left;opacity:1}55%{transform:scaleX(1);transform-origin:left}100%{transform:scaleX(1);opacity:0}}
+@keyframes land{0%{transform:translateY(14px);opacity:.35;text-shadow:0 0 0 rgba(216,179,90,0)}50%{text-shadow:0 0 28px rgba(216,179,90,.35)}100%{transform:none;opacity:1;text-shadow:0 0 0 rgba(216,179,90,0)}}
+@media (prefers-reduced-motion:reduce){section.arrive .eyebrow::after,section.arrive h2{animation:none}}
 .live{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--muted)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 rgba(95,203,138,.6);animation:pulse 2s infinite}
 .dot.off{background:var(--down);animation:none}
@@ -279,6 +293,7 @@ footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;
 <body>
 
 <header class="top">
+  <div class="progress" id="scrollProg" aria-hidden="true"></div>
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Home">
       <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" fill="none" stroke="#D8B35A" stroke-width="2"/><path d="M12 9v16M19 9l5 8-5 8" fill="none" stroke="#EDEFEA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1169,6 +1184,52 @@ footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;
   window.addEventListener('scroll', function(){ if(!ticking){ ticking = true; requestAnimationFrame(onScroll); } }, {passive:true});
   window.addEventListener('resize', onScroll);
   onScroll();
+
+  /* ---------- Smooth menu scrolling, scroll progress, active section ---------- */
+  var header = document.querySelector('header.top'), prog = $('scrollProg'), anim = null;
+  function easeIO(t){ return t < .5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2; }
+  function stopAnim(){ if(anim){ cancelAnimationFrame(anim.raf); anim = null; } }
+  ['wheel', 'touchstart', 'keydown'].forEach(function(ev){ window.addEventListener(ev, stopAnim, {passive:true}); });
+  function glideTo(y, done){
+    stopAnim();
+    var start = window.scrollY, dist = y - start;
+    if(RM || Math.abs(dist) < 2){ window.scrollTo(0, y); if(done) done(); return; }
+    var dur = Math.min(1400, Math.max(650, Math.abs(dist) * .35)), t0 = null;
+    anim = {};
+    (function step(now){
+      if(!anim) return;
+      if(t0 == null) t0 = now;
+      var k = Math.min(1, (now - t0) / dur);
+      window.scrollTo(0, start + dist * easeIO(k));
+      if(k < 1) anim.raf = requestAnimationFrame(step); else { anim = null; if(done) done(); }
+    })(performance.now());
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if(!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    var id = a.getAttribute('href').slice(1), target = id ? document.getElementById(id) : null;
+    if(!target) return;
+    e.preventDefault();
+    var y = id === 'top' ? 0 : target.getBoundingClientRect().top + window.scrollY - (header ? header.offsetHeight : 0) - 4;
+    glideTo(Math.max(0, y), function(){
+      var sec = target.closest('section') || (target.tagName === 'SECTION' ? target : null);
+      if(sec && !RM){ sec.classList.remove('arrive'); void sec.offsetWidth; sec.classList.add('arrive'); setTimeout(function(){ sec.classList.remove('arrive'); }, 1300); }
+    });
+    try{ history.replaceState(null, '', id === 'top' ? location.pathname : '#' + id); }catch(err){}
+  });
+  var spy = [['portfolio','#portfolio'],['capital','#capital'],['pulse','#pulse'],['bitcoin','#pulse'],['sentiment','#pulse'],['machine','#pulse'],['stress','#pulse'],['vision','#vision']];
+  var navLinks = [].slice.call(document.querySelectorAll('header nav a'));
+  var spyTick = false;
+  function spyUpdate(){
+    spyTick = false;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    if(prog) prog.style.setProperty('--sp', max > 0 ? (window.scrollY / max).toFixed(4) : 0);
+    var line = (header ? header.offsetHeight : 0) + window.innerHeight * .3, cur = null;
+    spy.forEach(function(sv){ var n = $(sv[0]); if(n && n.getBoundingClientRect().top <= line) cur = sv[1]; });
+    navLinks.forEach(function(l){ l.classList.toggle('active', l.getAttribute('href') === cur); });
+  }
+  window.addEventListener('scroll', function(){ if(!spyTick){ spyTick = true; requestAnimationFrame(spyUpdate); } }, {passive:true});
+  spyUpdate();
 })();
 </script>
 </body>
