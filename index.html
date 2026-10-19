@@ -643,6 +643,23 @@ header nav a.active{color:#fff}
 .install b{color:var(--fg)}
 .install button{margin-left:auto;flex:none;border:0;border-radius:999px;padding:9px 16px;min-height:38px;font:700 13px var(--body);color:#fff;background:linear-gradient(135deg,#2F7BFF,#4DA8FF 60%,#5BE1FF);cursor:pointer}
 .install .x{background:none;color:var(--muted);padding:6px;min-height:auto;margin-left:0}
+
+/* ---------- Markets sub-menu ---------- */
+#markets{position:relative}
+.subnav{display:block;position:sticky;top:var(--hdr,64px);z-index:4;padding-block:10px;transition:background .3s,box-shadow .3s}
+.subnav .wrap{min-width:0}
+.subnav.stuck{background:rgba(5,7,13,.6);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);box-shadow:0 1px 0 rgba(255,255,255,.06)}
+[data-theme="light"] .subnav.stuck{background:rgba(244,246,251,.72);box-shadow:0 1px 0 rgba(15,23,42,.07)}
+.subnav-pills{position:relative;display:flex;gap:2px;width:max-content;max-width:100%;margin:0 auto;padding:4px;border-radius:999px;overflow-x:auto;scrollbar-width:none;background:rgba(127,127,127,.1);border:1px solid rgba(127,127,127,.16)}
+.subnav-pills::-webkit-scrollbar{display:none}
+.subnav-pills a{position:relative;z-index:1;flex:none;padding:7px 14px;border-radius:999px;font:600 13px var(--body);color:var(--muted);white-space:nowrap;transition:color .3s}
+.subnav-pills a:hover{color:var(--fg);text-decoration:none}
+.subnav-pills a::after{display:none}
+.subnav-pills a.on{color:#fff}
+.sub-lens{position:absolute;z-index:0;top:4px;bottom:4px;left:0;width:0;border-radius:999px;background:linear-gradient(135deg,#2F7BFF,#4DA8FF 60%,#5BE1FF);box-shadow:0 6px 16px -6px rgba(47,123,255,.9),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .5s cubic-bezier(.34,1.3,.5,1),width .5s cubic-bezier(.34,1.3,.5,1)}
+#markets > section#pulse{padding-top:40px}
+@media (max-width:640px){.subnav-pills a{padding:7px 11px;font-size:12px}}
+@media (prefers-reduced-motion:reduce){.sub-lens{transition:none}}
 </style>
 </head>
 <body>
@@ -762,6 +779,10 @@ header nav a.active{color:#fff}
     </div>
   </section>
 
+  <div id="markets">
+  <nav class="subnav" id="subnav" aria-label="Markets sections">
+    <div class="wrap"><div class="subnav-pills"><span class="sub-lens" aria-hidden="true"></span><a href="#pulse">Overview</a><a href="#weather">Weather</a><a href="#bigTrades">Trades</a><a href="#bitcoin">Bitcoin</a><a href="#sentiment">Sentiment</a><a href="#machine">Tools</a></div></div>
+  </nav>
   <section id="pulse" class="band">
     <div class="wrap">
       <div class="eyebrow">Markets desk · Live</div>
@@ -769,7 +790,7 @@ header nav a.active{color:#fff}
       <p class="lead">24-hour change and the last 30 days for each asset. Rupiah prices use today's USD/IDR rate.</p>
       <div class="grid" id="tiles"></div>
       <div class="insight-row">
-        <div class="card hm-card">
+        <div class="card hm-card" id="weather">
           <div class="ins-head"><h3>Market weather</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
           <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Green zones are up today, red and orange zones are down. The glowing white line is 0%: it separates rising coins from falling ones, with light pulses running along it. White streaks show the “wind” blowing from falling coins toward rising ones. A ripple means that coin’s price just moved. Hover or tap for details.</p>
           <div class="wx" id="heatmap" role="img" aria-label="Weather-style heatmap of 24 cryptocurrencies by 24-hour change"><canvas id="wxCanvas"></canvas><div class="wx-tip" id="wxTip"></div></div>
@@ -873,6 +894,7 @@ header nav a.active{color:#fff}
       </div>
     </div>
   </section>
+  </div>
 
   <section id="vision">
     <div class="ghost" aria-hidden="true">2045</div>
@@ -1668,7 +1690,9 @@ header nav a.active{color:#fff}
     var id = a.getAttribute('href').slice(1), target = id ? document.getElementById(id) : null;
     if(!target) return;
     e.preventDefault();
-    var y = id === 'top' ? 0 : target.getBoundingClientRect().top + window.scrollY - (header ? header.offsetHeight : 0) - 4;
+    if(target.classList.contains('pre')){ target.style.transition = 'none'; target.classList.remove('pre'); void target.offsetWidth; target.style.transition = ''; }
+    var sub = document.getElementById('subnav'), inMk = target.closest && target.closest('#markets');
+    var y = id === 'top' ? 0 : target.getBoundingClientRect().top + window.scrollY - (header ? header.offsetHeight : 0) - (inMk && sub ? sub.offsetHeight + 6 : 4);
     glideTo(Math.max(0, y), function(){
       var sec = target.closest('section') || (target.tagName === 'SECTION' ? target : null);
       if(sec && !RM){ sec.classList.remove('arrive'); void sec.offsetWidth; sec.classList.add('arrive'); setTimeout(function(){ sec.classList.remove('arrive'); }, 1300); }
@@ -1695,6 +1719,32 @@ header nav a.active{color:#fff}
   }
   window.addEventListener('scroll', function(){ if(!spyTick){ spyTick = true; requestAnimationFrame(spyUpdate); } }, {passive:true});
   spyUpdate();
+
+  /* ---------- Markets sub-menu: sticky pills with a sliding lens ---------- */
+  var subnav = $('subnav');
+  if(subnav){
+    var pinned = null;
+    var pills = subnav.querySelector('.subnav-pills'), slens = subnav.querySelector('.sub-lens'), sLinks = [].slice.call(pills.querySelectorAll('a')), subTick = false, lastAct = null;
+    function setHdr(){ document.documentElement.style.setProperty('--hdr', (header ? header.offsetHeight : 0) + 'px'); }
+    setHdr(); window.addEventListener('resize', function(){ setHdr(); subSpy(); });
+    function subSpy(){
+      subTick = false;
+      var line = (header ? header.offsetHeight : 0) + subnav.offsetHeight + window.innerHeight * .25, act = sLinks[0];
+      var actTop = -Infinity;
+      sLinks.forEach(function(a){ var t = $(a.getAttribute('href').slice(1)); if(!t) return; var tt = t.getBoundingClientRect().top; if(tt <= line && Math.abs(tt - actTop) > 3){ act = a; actTop = tt; } else if(tt <= line && pinned === a){ act = a; } });
+      sLinks.forEach(function(a){ a.classList.toggle('on', a === act); });
+      slens.style.width = act.offsetWidth + 'px'; slens.style.transform = 'translateX(' + act.offsetLeft + 'px)';
+      var r = subnav.getBoundingClientRect(); subnav.classList.toggle('stuck', r.top <= (header ? header.offsetHeight : 0) + 1);
+      if(act !== lastAct){
+        lastAct = act;
+        var pl = pills.scrollLeft, aw = act.offsetLeft, target = aw - (pills.clientWidth - act.offsetWidth) / 2;
+        if(Math.abs(target - pl) > 4){ try{ pills.scrollTo({left: target, behavior: RM ? 'auto' : 'smooth'}); }catch(e){ pills.scrollLeft = target; } }
+      }
+    }
+    pills.addEventListener('click', function(e){ var a = e.target.closest('a'); if(a){ pinned = a; setTimeout(subSpy, 60); setTimeout(subSpy, 1500); } });
+    window.addEventListener('scroll', function(){ if(!subTick){ subTick = true; requestAnimationFrame(subSpy); } }, {passive:true});
+    subSpy();
+  }
 
   /* ---------- Theme: dark (default) / light, with a circular reveal ---------- */
   var tbtn = $('themeToggle'), tmeta = document.querySelector('meta[name="theme-color"]'), root = document.documentElement;
