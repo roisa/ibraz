@@ -580,6 +580,23 @@ header nav a.active{color:#fff}
 .hm-foot .hm-legend{margin:0}
 @media (max-width:640px){.hx{--sym:40px;--tot:52px}.hx-head,.hx-row{gap:6px}.hx-cells{gap:1px}.hx-c{border-radius:2px}.hx-row .hx-sym{font-size:10px}.hx-tot{font-size:10px}.hx-t{font-size:8px}.ins-head .seg{margin-top:6px}}
 @media (prefers-reduced-motion:reduce){.hx-c{transform:none;opacity:1;transition:none}.hx-row{transition:none}.hx.go .hx-row .hx-c:last-child,.hx-c.blink{animation:none}.seg-thumb{transition:none}}
+
+/* ---------- Market weather map ---------- */
+.wx{position:relative;flex:1 1 auto;min-height:440px;border-radius:16px;overflow:hidden;cursor:crosshair;box-shadow:inset 0 0 0 1px rgba(127,127,127,.14)}
+@media (max-width:640px){.wx{min-height:480px;flex:none}}
+.wx canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wx::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 60%,rgba(0,0,0,.18));}
+[data-theme="light"] .wx::after{background:radial-gradient(120% 90% at 50% 40%,transparent 60%,rgba(15,23,42,.06))}
+.wx-tip{position:absolute;z-index:3;transform:translate(-50%,-100%);pointer-events:none;opacity:0;padding:9px 13px;border-radius:12px;background:var(--card);border:1px solid var(--line2);box-shadow:0 14px 30px -12px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:2px;white-space:nowrap;transition:opacity .15s,left .12s ease-out,top .12s ease-out}
+.wx-tip.on{opacity:1}
+.wx-tip b{font:700 13px var(--display)}
+.wx-tip span{font:700 13px var(--mono)}
+.wx-tip small{font:500 11px var(--mono);color:var(--muted)}
+.wx-legend{display:flex;align-items:center;gap:8px;font:500 11px var(--mono);color:var(--muted)}
+.wx-legend i{display:block;width:80px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgb(160,16,60),rgb(236,64,96),rgb(255,140,66),rgb(255,206,110),rgb(226,230,168))}
+.wx-legend i.r{background:linear-gradient(90deg,rgb(226,230,168),rgb(150,232,206),rgb(60,214,160),rgb(22,186,120),rgb(8,140,96))}
+[data-theme="light"] .wx-legend i{background:linear-gradient(90deg,rgb(160,16,60),rgb(236,64,96),rgb(255,140,66),rgb(255,206,110),rgb(226,230,168))}
+[data-theme="light"] .wx-legend i.r{background:linear-gradient(90deg,rgb(226,230,168),rgb(150,232,206),rgb(60,214,160),rgb(22,186,120),rgb(8,140,96))}
 </style>
 </head>
 <body>
@@ -706,12 +723,10 @@ header nav a.active{color:#fff}
       <div class="grid" id="tiles"></div>
       <div class="insight-row">
         <div class="card hm-card">
-          <div class="ins-head"><h3>Market heatmap</h3>
-            <div class="seg" id="hxSeg" role="group" aria-label="Time range"><span class="seg-thumb" aria-hidden="true"></span><button type="button" data-mode="h" aria-pressed="true">24 hours</button><button type="button" data-mode="d" aria-pressed="false">30 days</button></div>
-          </div>
-          <p class="small muted ins-sub" id="hxSub">Each cell is one hour, in Jakarta time. Green means the coin rose that hour, red means it fell. Biggest movers sit at the top.</p>
-          <div class="hx" id="heatmap" role="img" aria-label="Heatmap of 24 cryptocurrencies, hour by hour"><p class="skel">Loading market history…</p></div>
-          <div class="hm-foot"><span class="small muted" id="hmBreadth">&nbsp;</span><div class="hm-legend" aria-hidden="true"><span id="hxLo">−1.5%</span><i></i><span id="hxHi">+1.5%</span></div></div>
+          <div class="ins-head"><h3>Market weather</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
+          <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Greens mean it is rising today, warm reds and oranges mean it is falling, and the colours blend where zones meet. Hover or tap for details.</p>
+          <div class="wx" id="heatmap" role="img" aria-label="Weather-style heatmap of 24 cryptocurrencies by 24-hour change"><canvas id="wxCanvas"></canvas><div class="wx-tip" id="wxTip"></div></div>
+          <div class="hm-foot"><span class="small muted">Contour bands every 0.5%</span><div class="wx-legend" aria-hidden="true"><span>−6%</span><i></i><span>0</span><i class="r"></i><span>+6%</span></div></div>
         </div>
         <div class="card bt-card" id="bigTrades">
           <div class="ins-head"><h3>Big trades</h3><span class="bt-live"><span class="dot off" id="btDot"></span><span id="btStatus">Connecting…</span></span></div>
@@ -1642,163 +1657,172 @@ header nav a.active{color:#fff}
   }
   function pct(n){ return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(Math.abs(n) >= 10 ? 1 : 2) + '%'; }
 
-  /* ================= Market heatmap: coins x time ================= */
+  /* ================= Market weather map ================= */
   var COINS = ['BTC','ETH','BNB','SOL','XRP','DOGE','ADA','TRX','AVAX','LINK','TON','DOT','SUI','LTC','BCH','NEAR','UNI','APT','PEPE','SHIB','XLM','HBAR','QNT','ATOM'];
-  var MODES = {
-    h: {interval:'1h', n:24, cap:1.5, every:3, refresh:60000, label:'hour', sub:'Each cell is one hour, in Jakarta time. Green means the coin rose that hour, red means it fell. Biggest movers sit at the top.'},
-    d: {interval:'1d', n:30, cap:6, every:5, refresh:300000, label:'day', sub:'Each cell is one day. Green means the coin closed higher than it opened, red means lower. Biggest movers sit at the top.'}
-  };
-  var hx = $('heatmap'), mode = 'h', data = {}, view = null, shown = false, timer = null, ROWH = 24, GAPTOP = 10;
-  function when(t, m){
-    var d = new Date(t);
-    return m === 'h' ? d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta'})
-                     : d.toLocaleDateString('en-GB', {day:'numeric', month:'short', timeZone:'Asia/Jakarta'});
-  }
-  function loadMode(m){
-    var M = MODES[m];
-    return Promise.all(COINS.map(function(c){
-      return getJSON(API + '/klines?symbol=' + c + 'USDT&interval=' + M.interval + '&limit=' + M.n)
-        .then(function(k){ return [c, k.map(function(r){ return {t:r[0], o:+r[1], c:+r[4]}; })]; })
-        .catch(function(){ return null; });
-    })).then(function(list){
-      var out = {};
-      list.forEach(function(x){ if(x && x[1].length >= Math.min(6, MODES[m].n)) out[x[0]] = x[1]; });
-      return out;
+  function tickers(syms){
+    return getJSON(API + '/ticker/24hr?symbols=' + encodeURIComponent(JSON.stringify(syms))).catch(function(){
+      return Promise.all(syms.map(function(x){ return getJSON(API + '/ticker/24hr?symbol=' + x).catch(function(){ return null; }); }))
+        .then(function(list){ return list.filter(Boolean); });
     });
   }
-  function shade(node, v, cap){
-    if(v == null || isNaN(v)){ node.className = node.className.replace(/ ?(pos|neg)/g, '') + ' na'; return; }
-    node.classList.remove('na');
-    node.classList.toggle('pos', v >= 0); node.classList.toggle('neg', v < 0);
-    node.style.setProperty('--mix', Math.round(8 + Math.min(1, Math.abs(v) / cap) * 82) + '%');
+  function worst(row, w){
+    var s2 = 0, mx = 0, mn = Infinity;
+    row.forEach(function(r){ s2 += r.a; if(r.a > mx) mx = r.a; if(r.a < mn) mn = r.a; });
+    return Math.max(w * w * mx / (s2 * s2), (s2 * s2) / (w * w * mn));
   }
-  function build(m){
-    var M = MODES[m], syms = Object.keys(data);
-    var n = M.n, times = (data.BTC || data[syms[0]] || []).map(function(r){ return r.t; });
-    hx.textContent = ''; hx.classList.remove('go');
-    hx.style.setProperty('--n', n);
-    var narrow = hx.clientWidth < 520, every = narrow ? (m === 'h' ? 4 : 7) : M.every;
-    var head = el('div', 'hx-head'); head.appendChild(el('span', 'hx-sym'));
-    var hc = el('div', 'hx-cells');
-    for(var i = 0; i < n; i++){
-      var lab = el('span', 'hx-t');
-      if(i === n - 1) { lab.textContent = m === 'h' ? 'now' : 'today'; lab.classList.add('now'); }
-      else if((n - 1 - i) % every === 0 && (n - 1 - i) >= every * .6 && times[i]) lab.textContent = when(times[i], m);
-      hc.appendChild(lab);
+  function squarify(items, x, y, w, h){
+    var out = [], rest = items.slice();
+    while(rest.length){
+      var side = Math.min(w, h), row = [rest[0]], i = 1;
+      while(i < rest.length && worst(row.concat([rest[i]]), side) <= worst(row, side)){ row.push(rest[i]); i++; }
+      var sum = row.reduce(function(t, r){ return t + r.a; }, 0);
+      if(w >= h){ var cw = sum / h, cy = y; row.forEach(function(r){ var rh = r.a / cw; out.push({it:r, x:x, y:cy, w:cw, h:rh}); cy += rh; }); x += cw; w -= cw; }
+      else { var ch = sum / w, cx = x; row.forEach(function(r){ var rw = r.a / ch; out.push({it:r, x:cx, y:y, w:rw, h:ch}); cx += rw; }); y += ch; h -= ch; }
+      rest = rest.slice(i);
     }
-    head.appendChild(hc); head.appendChild(el('span', 'hx-tot', m === 'h' ? '24h' : '30d'));
-    hx.appendChild(head);
-    var body = el('div', 'hx-body'); hx.appendChild(body);
-    var tip = el('div', 'hx-tip'); hx.appendChild(tip);
-    var rows = {};
-    ['ALL'].concat(syms).forEach(function(sym, ri){
-      var r = el('div', 'hx-row' + (sym === 'ALL' ? ' all' : ''));
-      r.appendChild(el('span', 'hx-sym', sym === 'ALL' ? 'Market' : sym));
-      var cells = el('div', 'hx-cells'), list = [];
-      for(var c = 0; c < n; c++){
-        var cell = el('i', 'hx-c'); cell.style.setProperty('--c', c); cell.style.setProperty('--r', ri);
-        cell.setAttribute('data-s', sym); cell.setAttribute('data-c', c);
-        cells.appendChild(cell); list.push(cell);
-      }
-      r.appendChild(cells);
-      var tot = el('span', 'hx-tot'); r.appendChild(tot);
-      body.appendChild(r);
-      rows[sym] = {el:r, cells:list, tot:tot, pos:-1};
-    });
-    body.style.height = ((syms.length + 1) * ROWH + GAPTOP) + 'px';
-    view = {m:m, rows:rows, body:body, tip:tip, times:times, n:n, vals:{}};
-    hover(view);
+    return out;
   }
-  function update(animateSort){
-    if(!view) return;
-    var M = MODES[view.m], n = view.n, syms = Object.keys(data), tot = {}, colSum = [], colCnt = [];
-    syms.forEach(function(sym){
-      var k = data[sym], off = n - k.length, vals = [];
-      for(var c = 0; c < n; c++){
-        var r = k[c - off], v = r ? (r.c / r.o - 1) * 100 : null;
-        vals.push(v);
-        if(v != null){ colSum[c] = (colSum[c] || 0) + v; colCnt[c] = (colCnt[c] || 0) + 1; }
+  var wx = $('heatmap'), cv = $('wxCanvas'), tipEl = $('wxTip');
+  var ctx = cv && cv.getContext ? cv.getContext('2d') : null;
+  var pts = [], tick = null, W = 0, H = 0, bloom = RM ? 1 : 0, bloomT = null, running = false, onScreen = false, hoverPt = null, lastDraw = 0;
+  var off = document.createElement('canvas'), octx = off.getContext('2d');
+  var RAMP = [[-6,[160,16,60]],[-3.5,[236,64,96]],[-1.6,[255,140,66]],[-.5,[255,206,110]],[0,null],[.5,[150,232,206]],[1.6,[60,214,160]],[3.5,[22,186,120]],[6,[8,140,96]]];
+  function neutral(){ return [226,230,168]; }
+  function ramp(v){
+    var n = neutral(), st = RAMP.map(function(r){ return [r[0], r[1] || n]; });
+    if(v <= st[0][0]) return st[0][1];
+    for(var i = 1; i < st.length; i++){
+      if(v <= st[i][0]){
+        var a = st[i - 1], b2 = st[i], k = (v - a[0]) / (b2[0] - a[0]);
+        return [a[1][0] + (b2[1][0] - a[1][0]) * k, a[1][1] + (b2[1][1] - a[1][1]) * k, a[1][2] + (b2[1][2] - a[1][2]) * k];
       }
-      view.vals[sym] = vals;
-      tot[sym] = k.length ? (k[k.length - 1].c / k[0].o - 1) * 100 : 0;
+    }
+    return st[st.length - 1][1];
+  }
+  function layout(){
+    if(!wx || !tick) return;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = wx.clientWidth; H = wx.clientHeight; if(!W || !H) return;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var old = {}; pts.forEach(function(p){ old[p.sym] = p; });
+    var items = tick.map(function(t){ return {sym:t.symbol.replace('USDT',''), ch:+t.priceChangePercent, p:+t.lastPrice, vol:+t.quoteVolume, v:Math.pow(Math.max(+t.quoteVolume, 1), .62)}; })
+      .sort(function(a, b2){ return b2.v - a.v; });
+    var total = items.reduce(function(s2, r){ return s2 + r.v; }, 0);
+    items.forEach(function(r){ r.a = r.v / total * W * H; });
+    pts = squarify(items, 0, 0, W, H).map(function(rc, i){
+      var r = rc.it, o = old[r.sym];
+      return {sym:r.sym, ch:r.ch, cur:o ? o.cur : r.ch, p:r.p, vol:r.vol, x:rc.x + rc.w / 2, y:rc.y + rc.h / 2, w:rc.w, h:rc.h,
+              sig:Math.max(18, Math.sqrt(rc.w * rc.h) * .5), ph:i * 1.7};
     });
-    view.vals.ALL = colSum.map(function(sv, c){ return colCnt[c] ? sv / colCnt[c] : null; });
-    tot.ALL = syms.reduce(function(s2, x){ return s2 + tot[x]; }, 0) / (syms.length || 1);
-    var order = syms.slice().sort(function(a2, b2){ return tot[b2] - tot[a2]; });
-    ['ALL'].concat(order).forEach(function(sym, idx){
-      var R = view.rows[sym]; if(!R) return;
-      var y = idx === 0 ? 0 : idx * ROWH + GAPTOP;
-      R.el.style.transform = 'translateY(' + y + 'px)';
-      var vals = view.vals[sym];
-      R.cells.forEach(function(cell, c){
-        var before = cell._v, v = vals[c];
-        shade(cell, v, M.cap);
-        if(before != null && v != null && Math.abs(v - before) > .01 && !RM){
-          cell.classList.remove('blink'); void cell.offsetWidth; cell.classList.add('blink');
+    draw(performance.now(), true);
+  }
+  function draw(now, force){
+    if(!ctx || !pts.length) return;
+    if(!force && now - lastDraw < 40) return; lastDraw = now;
+    var g = 8, gw = Math.ceil(W / g) + 1, gh = Math.ceil(H / g) + 1, F = 2, fw = Math.ceil(W / F), fh = Math.ceil(H / F), STEP = .5;
+    if(off.width !== fw || off.height !== fh){ off.width = fw; off.height = fh; }
+    var P = pts.map(function(p){
+      p.cur += (p.ch - p.cur) * .08;
+      var dx = RM ? 0 : Math.sin(now / 2600 + p.ph) * 5, dy = RM ? 0 : Math.cos(now / 3100 + p.ph) * 4;
+      return {x:(p.x + dx) / g, y:(p.y + dy) / g, s2:2 * Math.pow(p.sig / g, 2), v:p.cur * bloom};
+    });
+    var V = new Float32Array(gw * gh);
+    for(var y = 0; y < gh; y++){
+      for(var x = 0; x < gw; x++){
+        var ws = 0, vs = 0;
+        for(var i = 0; i < P.length; i++){
+          var q = P[i], ddx = x - q.x, ddy = y - q.y, w = Math.exp(-(ddx * ddx + ddy * ddy) / q.s2);
+          ws += w; vs += w * q.v;
         }
-        cell._v = v;
-      });
-      R.tot.textContent = pct(tot[sym]);
-      R.tot.className = 'hx-tot ' + (tot[sym] >= 0 ? 'up' : 'down');
-    });
-    var up = order.filter(function(x){ return tot[x] >= 0; }).length;
-    $('hmBreadth').textContent = up + ' of ' + order.length + ' coins up over the last ' + (view.m === 'h' ? '24 hours' : '30 days');
-    $('hxLo').textContent = '−' + M.cap + '%'; $('hxHi').textContent = '+' + M.cap + '%';
-  }
-  function hover(v){
-    var tip = v.tip;
-    function show(cell){
-      var sym = cell.getAttribute('data-s'), c = +cell.getAttribute('data-c'), val = v.vals[sym] ? v.vals[sym][c] : null;
-      [].forEach.call(hx.querySelectorAll('.hot'), function(x){ x.classList.remove('hot'); });
-      Object.keys(v.rows).forEach(function(k){ var cc = v.rows[k].cells[c]; if(cc) cc.classList.add('hot'); });
-      v.rows[sym].el.classList.add('hot');
-      var t = v.times[c - (v.n - v.times.length)] || v.times[c];
-      tip.textContent = '';
-      tip.appendChild(el('b', null, (sym === 'ALL' ? 'Whole market' : sym) + ' · ' + (t ? when(t, v.m) + (v.m === 'h' ? ' WIB' : '') : '')));
-      var vv = el('span', val == null ? '' : (val >= 0 ? 'up' : 'down'), val == null ? 'No data' : pct(val) + ' that ' + MODES[v.m].label);
-      tip.appendChild(vv);
-      var hr = hx.getBoundingClientRect(), cr = cell.getBoundingClientRect();
-      var x = cr.left - hr.left + cr.width / 2, y = cr.top - hr.top;
-      tip.style.left = Math.max(80, Math.min(hr.width - 80, x)) + 'px'; tip.style.top = y + 'px';
-      tip.classList.add('on');
+        V[y * gw + x] = ws > 1e-6 ? vs / ws : 0;
+      }
     }
-    hx.onmouseover = function(e){ var c = e.target.closest && e.target.closest('.hx-c'); if(c) show(c); };
-    hx.onclick = function(e){ var c = e.target.closest && e.target.closest('.hx-c'); if(c) show(c); };
-    hx.onmouseleave = function(){ tip.classList.remove('on'); [].forEach.call(hx.querySelectorAll('.hot'), function(x){ x.classList.remove('hot'); }); };
-  }
-  function start(m, first){
-    mode = m;
-    $('hxSub').textContent = MODES[m].sub;
-    hx.setAttribute('aria-label', 'Heatmap of ' + COINS.length + ' cryptocurrencies, ' + (m === 'h' ? 'hour by hour' : 'day by day'));
-    hx.classList.add('loading');
-    return loadMode(m).then(function(d){
-      if(mode !== m) return;
-      if(!Object.keys(d).length){ hx.innerHTML = '<p class="skel">Market history unavailable right now.</p>'; return; }
-      data = d; build(m); update(false);
-      hx.classList.remove('loading');
-      if(shown || first === false) requestAnimationFrame(function(){ requestAnimationFrame(function(){ hx.classList.add('go'); }); });
-      clearInterval(timer);
-      timer = setInterval(function(){
-        if(document.hidden || mode !== m) return;
-        loadMode(m).then(function(d2){ if(mode === m && Object.keys(d2).length){
-          var same = Object.keys(d2).length === Object.keys(data).length && view && d2.BTC && data.BTC && d2.BTC[0].t === data.BTC[0].t;
-          data = d2;
-          if(same) update(true); else { build(m); update(false); hx.classList.add('go'); }
-        } });
-      }, MODES[m].refresh);
+    var img = octx.createImageData(fw, fh), d = img.data, band = new Int16Array(fw * fh), r = g / F;
+    for(var fy = 0; fy < fh; fy++){
+      var gy = fy / r, y0 = Math.min(gh - 2, Math.floor(gy)), ty = gy - y0;
+      for(var fx = 0; fx < fw; fx++){
+        var gx = fx / r, x0 = Math.min(gw - 2, Math.floor(gx)), tx = gx - x0, o0 = y0 * gw + x0;
+        var v = (V[o0] * (1 - tx) + V[o0 + 1] * tx) * (1 - ty) + (V[o0 + gw] * (1 - tx) + V[o0 + gw + 1] * tx) * ty;
+        var bi = Math.round(v / STEP), c = ramp(bi * STEP * .85 + v * .15), o = fy * fw + fx;
+        band[o] = bi; d[o * 4] = c[0]; d[o * 4 + 1] = c[1]; d[o * 4 + 2] = c[2]; d[o * 4 + 3] = 255;
+      }
+    }
+    for(var y2 = 0; y2 < fh - 1; y2++){
+      for(var x2 = 0; x2 < fw - 1; x2++){
+        var o2 = y2 * fw + x2;
+        if(band[o2] !== band[o2 + 1] || band[o2] !== band[o2 + fw]){ d[o2 * 4] *= .86; d[o2 * 4 + 1] *= .86; d[o2 * 4 + 2] *= .86; }
+      }
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(off, 0, 0, fw * F, fh * F);
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    pts.forEach(function(p, i){
+      var area = Math.sqrt(p.w * p.h), fs = Math.max(10, Math.min(28, area / 7)), dx = RM ? 0 : Math.sin(now / 2600 + p.ph) * 5, dy = RM ? 0 : Math.cos(now / 3100 + p.ph) * 4;
+      var cx = p.x + dx, cy = p.y + dy, col = ramp(p.cur * bloom), lum = (col[0] * .299 + col[1] * .587 + col[2] * .114) / 255;
+      var ink = lum > .62 ? 'rgba(11,18,32,.92)' : 'rgba(255,255,255,.96)', shadow = lum > .62 ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.45)';
+      ctx.textAlign = 'center'; ctx.shadowColor = shadow; ctx.shadowBlur = 6;
+      if(area > 34){
+        ctx.fillStyle = ink; ctx.font = '800 ' + fs + 'px "Bricolage Grotesque", ui-sans-serif, sans-serif';
+        ctx.fillText(p.sym, cx, cy - (area > 60 ? fs * .15 : -fs * .3));
+        if(area > 60){ ctx.font = '600 ' + Math.max(10, fs * .55) + 'px "JetBrains Mono", ui-monospace, monospace'; ctx.fillText(pct(p.cur), cx, cy + fs * .72); }
+      }
+      ctx.shadowBlur = 0;
+      if(hoverPt === p){
+        ctx.strokeStyle = light ? 'rgba(11,18,32,.75)' : 'rgba(255,255,255,.85)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, Math.max(16, area * .38), 0, 6.283); ctx.stroke();
+      }
     });
   }
-  if(hx){
-    start('h', true).then(function(){ seen(hx, function(){ shown = true; hx.classList.add('go'); }, .15); });
-    var seg = $('hxSeg'), thumb = seg.querySelector('.seg-thumb');
-    function placeThumb(){ var act = seg.querySelector('button[aria-pressed="true"]'); if(act){ thumb.style.width = act.offsetWidth + 'px'; thumb.style.transform = 'translateX(' + act.offsetLeft + 'px)'; } }
-    placeThumb(); window.addEventListener('resize', placeThumb);
-    seg.addEventListener('click', function(e){
-      var btn = e.target.closest('button'); if(!btn || btn.getAttribute('aria-pressed') === 'true') return;
-      [].forEach.call(seg.querySelectorAll('button'), function(b2){ b2.setAttribute('aria-pressed', String(b2 === btn)); });
-      placeThumb();
-      start(btn.getAttribute('data-mode'), false);
+  function frame(now){
+    if(bloomT != null && bloom < 1){ bloom = Math.min(1, (now - bloomT) / 1600); bloom = 1 - Math.pow(1 - bloom, 3); }
+    draw(now, false);
+    if(onScreen && !document.hidden && !RM) requestAnimationFrame(frame); else running = false;
+  }
+  function go(){ if(!running && !RM && onScreen){ running = true; requestAnimationFrame(frame); } }
+  function nearest(mx, my){
+    var best = null, bd = Infinity;
+    pts.forEach(function(p){ var dx = (mx - p.x) / p.sig, dy = (my - p.y) / p.sig, dd = dx * dx + dy * dy; if(dd < bd){ bd = dd; best = p; } });
+    return best;
+  }
+  function showTip(e){
+    var r = wx.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, p = nearest(mx, my);
+    if(!p) return; hoverPt = p;
+    tipEl.textContent = '';
+    tipEl.appendChild(el('b', null, p.sym + '  ' + price(p.p)));
+    tipEl.appendChild(el('span', p.ch >= 0 ? 'up' : 'down', pct(p.ch) + ' in 24h'));
+    tipEl.appendChild(el('small', null, money(p.vol) + ' traded'));
+    tipEl.style.left = Math.max(70, Math.min(W - 70, p.x)) + 'px'; tipEl.style.top = Math.max(70, p.y - 14) + 'px';
+    tipEl.classList.add('on');
+    if(RM) draw(performance.now(), true);
+  }
+  function loadWx(){
+    return tickers(COINS.map(function(c){ return c + 'USDT'; })).then(function(list){
+      if(!list || !list.length) return;
+      tick = list;
+      if(!pts.length) layout();
+      else {
+        var by = {}; list.forEach(function(t){ by[t.symbol.replace('USDT','')] = t; });
+        pts.forEach(function(p){ var t = by[p.sym]; if(t){ p.ch = +t.priceChangePercent; p.p = +t.lastPrice; p.vol = +t.quoteVolume; } });
+        if(RM) draw(performance.now(), true);
+      }
+      var up = list.filter(function(t){ return +t.priceChangePercent >= 0; }).length;
+      $('hmBreadth').textContent = up + ' of ' + list.length + ' coins up today';
+    }).catch(function(){});
+  }
+  if(wx && ctx){
+    loadWx().then(function(){
+      seen(wx, function(){ bloomT = performance.now(); go(); if(RM) draw(performance.now(), true); }, .2);
     });
+    setInterval(function(){ if(!document.hidden) loadWx(); }, 15000);
+    if('IntersectionObserver' in window) new IntersectionObserver(function(en){ onScreen = en[0].isIntersecting; if(onScreen) go(); }).observe(wx); else onScreen = true;
+    var rzT; if('ResizeObserver' in window) new ResizeObserver(function(){ clearTimeout(rzT); rzT = setTimeout(layout, 120); }).observe(wx);
+    wx.addEventListener('mousemove', showTip);
+    wx.addEventListener('click', showTip);
+    wx.addEventListener('mouseleave', function(){ hoverPt = null; tipEl.classList.remove('on'); if(RM) draw(performance.now(), true); });
+    var tobs = new MutationObserver(function(){ draw(performance.now(), true); });
+    tobs.observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
   }
 
   /* ================= Live big trades ================= */
