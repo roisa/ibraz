@@ -42,7 +42,8 @@ window.IbrazStatus = (function(){
     var now = Date.now();
     [].forEach.call(document.querySelectorAll('[data-st]'), function(n){
       var k = n.getAttribute('data-st'), c = CFG[k] || {}, x = st[k] || {}, cls = 'wait', txt = 'Connecting…';
-      if(x.fail && (!x.ok || x.fail > x.ok)){ cls = 'bad'; txt = c.live ? 'Reconnecting…' : 'Unavailable · retrying'; }
+      if(x.pause){ cls = 'wait'; txt = 'Paused · tab in background'; }
+      else if(x.fail && (!x.ok || x.fail > x.ok)){ cls = 'bad'; txt = c.live ? 'Reconnecting…' : 'Unavailable · retrying'; }
       else if(x.ok){
         var age = now - x.ok;
         if(c.live){ if(age > c.expect * 2000){ cls = 'late'; txt = 'Delayed · ' + ago(age); } else { cls = 'ok'; txt = 'Live · ' + ago(age); } }
@@ -54,13 +55,32 @@ window.IbrazStatus = (function(){
     });
   }
   document.addEventListener('DOMContentLoaded', function(){
-    paint(); setInterval(paint, 1000);
+    paint(); setInterval(function(){ if(!document.hidden) paint(); }, 1000);
   });
   return {
-    ok: function(k){ (st[k] = st[k] || {}).ok = Date.now(); },
+    ok: function(k){ var x = st[k] = st[k] || {}; x.ok = Date.now(); x.pause = 0; },
+    pause: function(k, on){ (st[k] = st[k] || {}).pause = on ? 1 : 0; },
+    age: function(k){ return st[k] && st[k].ok ? Date.now() - st[k].ok : Infinity; },
     fail: function(k){ (st[k] = st[k] || {}).fail = Date.now(); paint(); }
   };
 })();
+/* Data saving: fetch a widget's data only when it is about to scroll into view */
+window.IbrazNear = function(node, fn, margin){
+  if(!node){ return; }
+  if(!('IntersectionObserver' in window)){ fn(); return; }
+  var io = new IntersectionObserver(function(en){ if(en[0].isIntersecting){ io.disconnect(); fn(); } }, {rootMargin: (margin || 900) + 'px 0px'});
+  io.observe(node);
+};
+window.IbrazLite = !!(navigator.connection && (navigator.connection.saveData || /(^|-)2g$/.test(navigator.connection.effectiveType || '')));
+/* Sockets close after this long in a background tab and reopen when you come back */
+window.IbrazIdle = function(key, close, open){
+  var t = null, off = false;
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ t = setTimeout(function(){ off = true; close(); window.IbrazStatus && IbrazStatus.pause(key, 1); }, 20000); }
+    else { clearTimeout(t); if(off){ off = false; window.IbrazStatus && IbrazStatus.pause(key, 0); open(); } }
+  });
+  return function(){ return off; };
+};
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -712,6 +732,8 @@ header nav a.active{color:#fff}
 .mg-foot .st{margin-top:14px}
 #chartRange + .st{margin-left:8px}
 @media (prefers-reduced-motion:reduce){.st i{animation:none!important}}
+.bt-go{display:block;width:100%;margin-top:10px;padding:12px;border-radius:14px;border:1px dashed rgba(127,127,127,.35);background:transparent;color:var(--muted);font:500 13px var(--sans,inherit);cursor:pointer}
+.bt-go:hover{color:var(--fg);border-color:var(--accent,#3B82F6)}
 </style>
 </head>
 <body>
@@ -1166,6 +1188,7 @@ header nav a.active{color:#fff}
     }).catch(function(){ setLive(false); window.IbrazStatus && IbrazStatus.fail('prices'); });
   }
   function loadSparks(){
+    state.sparks = 1;
     ASSETS.forEach(function(a, ai){
       getJSON(API+'/klines?symbol='+a.sym+'&interval=1d&limit=30').then(function(k){
         var closes = k.map(function(r){return +r[4];});
@@ -1386,11 +1409,23 @@ header nav a.active{color:#fff}
   }catch(e){}
   whenSeen(document.querySelector('.stviz'), function(){ document.querySelector('.stviz').classList.add('go'); }, .4);
   loadFx().then(loadTickers).then(function(){ renderAth(); if(state.year) renderTM(); });
-  loadSparks();
-  (function btc(){ getJSON(API+'/klines?symbol=BTCUSDT&interval=1d&limit=365').then(function(k){ renderBtcChart(k); window.IbrazStatus && IbrazStatus.ok('bitcoin'); }).catch(function(){ window.IbrazStatus && IbrazStatus.fail('bitcoin'); $('btcChart').innerHTML='<p class="skel">Chart unavailable right now. Retrying…</p>'; setTimeout(btc, 30000); }); })();
-  loadMonthly(); loadHalving(); loadFng();
-  setInterval(function(){ loadTickers().then(function(){ renderAth(); if(state.year) renderTM(); }); }, 60000);
-  setInterval(loadSparks, 15*60000);
+  var near = window.IbrazNear;
+  near($('pulse'), loadSparks, 400);
+  near($('bitcoin'), function(){ (function btc(){ getJSON(API+'/klines?symbol=BTCUSDT&interval=1d&limit=365').then(function(k){ renderBtcChart(k); window.IbrazStatus && IbrazStatus.ok('bitcoin'); }).catch(function(){ window.IbrazStatus && IbrazStatus.fail('bitcoin'); $('btcChart').innerHTML='<p class="skel">Chart unavailable right now. Retrying…</p>'; setTimeout(btc, 30000); }); })(); loadMonthly(); loadHalving(); });
+  near($('sentiment'), loadFng);
+  var hidAt = 0;
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ hidAt = Date.now(); return; }
+    if(hidAt && Date.now() - hidAt > 60000) loadTickers().then(function(){ renderAth(); if(state.year) renderTM(); });
+  });
+  /* Full refresh once a minute only if the live stream is quiet; the stream already keeps prices current */
+  setInterval(function(){
+    if(document.hidden) return;
+    var a = window.IbrazStatus ? IbrazStatus.age('prices') : Infinity;
+    if(a < 45000) return;
+    loadTickers().then(function(){ renderAth(); if(state.year) renderTM(); });
+  }, 60000);
+  setInterval(function(){ if(!document.hidden && state.sparks) loadSparks(); }, 30*60000);
 })();
 </script>
 
@@ -1492,6 +1527,7 @@ header nav a.active{color:#fff}
   };
   function pollBtc(){
     if(document.hidden) return;
+    if(window.IbrazStatus && IbrazStatus.age('prices') < 15000) return;
     fetch(API + '/ticker/price?symbol=BTCUSDT', {cache:'no-store'})
       .then(function(r){ return r.json(); })
       .then(function(j){ if(j && j.price) window.IbrazHeroPrice(+j.price); })
@@ -2155,7 +2191,9 @@ header nav a.active{color:#fff}
     loadWx().then(function(){
       seen(wx, function(){ bloomT = performance.now(); go(); if(RM) draw(performance.now(), true); }, .2);
     });
-    setInterval(function(){ if(!document.hidden) loadWx(); }, 60000);
+    var wxNear = false;
+    if('IntersectionObserver' in window) new IntersectionObserver(function(en){ wxNear = en[0].isIntersecting; }, {rootMargin:'600px 0px'}).observe(wx); else wxNear = true;
+    setInterval(function(){ if(!document.hidden && wxNear && (!window.IbrazStatus || IbrazStatus.age('weather') > 50000)) loadWx(); }, 60000);
     (function live(){
       if(!('WebSocket' in window)) return;
       var streams = COINS.concat(['PAXG']).map(function(c){ return c.toLowerCase() + 'usdt@miniTicker'; }).join('/'), sock, back = 1000, last = {}, lastT = {};
@@ -2178,12 +2216,13 @@ header nav a.active{color:#fff}
             }
           }catch(e){}
         };
-        sock.onclose = function(){ setTimeout(open, back); back = Math.min(30000, back * 2); };
+        sock.onclose = function(){ if(idle()) return; window.IbrazStatus && IbrazStatus.fail('prices'); setTimeout(open, back); back = Math.min(30000, back * 2); };
         sock.onerror = function(){ try{ sock.close(); }catch(e){} };
       }
+      var idle = window.IbrazIdle('weather', function(){ try{ sock.close(); }catch(e){} window.IbrazStatus && IbrazStatus.pause('prices', 1); }, function(){ window.IbrazStatus && IbrazStatus.pause('prices', 0); loadWx(); open(); });
       open();
     })();
-    setInterval(mood, 5000);
+    setInterval(function(){ if(!document.hidden) mood(); }, 5000);
     if('IntersectionObserver' in window) new IntersectionObserver(function(en){ onScreen = en[0].isIntersecting; if(onScreen) go(); }).observe(wx); else onScreen = true;
     var rzT; if('ResizeObserver' in window) new ResizeObserver(function(){ clearTimeout(rzT); rzT = setTimeout(layout, 120); }).observe(wx);
     wx.addEventListener('mousemove', showTip);
@@ -2334,14 +2373,28 @@ header nav a.active{color:#fff}
       }catch(e){}
     };
     ws.onclose = function(){
+      if(tIdle && tIdle()) return;
       window.IbrazStatus && IbrazStatus.fail('trades');
       setTimeout(connect, retry); retry = Math.min(30000, retry * 2);
     };
     ws.onerror = function(){ try{ ws.close(); }catch(e){} };
   }
   if(feed){
-    seed().then(function(){ seen(feed, connect, .1); });
+    var tIdle = null;
+    window.IbrazNear(feed, function(){
+      seed().then(function(){
+        if(window.IbrazLite){
+          window.IbrazStatus && IbrazStatus.pause('trades', 1);
+          var b = document.createElement('button'); b.className = 'bt-go'; b.type = 'button'; b.textContent = 'Data saver is on · tap to stream live trades';
+          feed.appendChild(b); b.addEventListener('click', function(){ b.remove(); window.IbrazStatus && IbrazStatus.pause('trades', 0); connect(); });
+          return;
+        }
+        seen(feed, connect, .1);
+      });
+      tIdle = window.IbrazIdle('trades', function(){ try{ ws && ws.close(); }catch(e){} }, function(){ seed().then(connect); });
+    }, 500);
     setInterval(function(){
+      if(document.hidden) return;
       [].forEach.call(document.querySelectorAll('.bt-ago'), function(n){ n.textContent = ago(+n.getAttribute('data-t')); });
       pressure();
     }, 1000);
@@ -2428,10 +2481,10 @@ header nav a.active{color:#fff}
     }, .2);
   }
   if(grid){
-    (function mg(){ getJSON(API + '/klines?symbol=BTCUSDT&interval=1M&limit=120').then(function(k){
+    window.IbrazNear(grid, function mg(){ getJSON(API + '/klines?symbol=BTCUSDT&interval=1M&limit=120').then(function(k){
       buildGrid(k); window.IbrazStatus && IbrazStatus.ok('months');
       setInterval(function(){ buildGrid(k); }, 120000);
-    }).catch(function(){ grid.textContent = 'Monthly history unavailable right now. Retrying…'; window.IbrazStatus && IbrazStatus.fail('months'); setTimeout(mg, 30000); }); })();
+    }).catch(function(){ grid.textContent = 'Monthly history unavailable right now. Retrying…'; window.IbrazStatus && IbrazStatus.fail('months'); setTimeout(mg, 30000); }); });
   }
 })();
 </script>
