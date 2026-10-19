@@ -597,10 +597,41 @@ header nav a.active{color:#fff}
 .wx-legend i.r{background:linear-gradient(90deg,rgb(226,230,168),rgb(150,232,206),rgb(60,214,160),rgb(22,186,120),rgb(8,140,96))}
 [data-theme="light"] .wx-legend i{background:linear-gradient(90deg,rgb(160,16,60),rgb(236,64,96),rgb(255,140,66),rgb(255,206,110),rgb(226,230,168))}
 [data-theme="light"] .wx-legend i.r{background:linear-gradient(90deg,rgb(226,230,168),rgb(150,232,206),rgb(60,214,160),rgb(22,186,120),rgb(8,140,96))}
+
+/* ---------- Alive: tile ticks, whale toasts, mood light ---------- */
+.tile{transition:box-shadow .6s ease,border-color .6s ease}
+.tile.f-up{animation:tileUp 1s ease-out}
+.tile.f-down{animation:tileDown 1s ease-out}
+.tile.f-up .px{animation:pxUp 1s ease-out}
+.tile.f-down .px{animation:pxDown 1s ease-out}
+@keyframes tileUp{0%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--up) 70%,transparent),0 0 26px -8px var(--up)}100%{}}
+@keyframes tileDown{0%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--down) 70%,transparent),0 0 26px -8px var(--down)}100%{}}
+@keyframes pxUp{0%{color:var(--up);transform:translateY(-2px)}100%{}}
+@keyframes pxDown{0%{color:var(--down);transform:translateY(2px)}100%{}}
+.tile .px{display:inline-block}
+.toasts{position:fixed;z-index:50;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;width:min(420px,calc(100vw - 32px));pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;color:var(--fg);text-decoration:none;background:rgba(20,26,42,.72);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 40px -16px rgba(0,0,0,.8);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);animation:toastIn .55s cubic-bezier(.34,1.4,.5,1)}
+.toast:hover{text-decoration:none;border-color:rgba(77,168,255,.5)}
+.toast.out{animation:toastOut .45s ease-in forwards}
+.toast-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font:700 14px var(--mono);color:#fff}
+.toast.buy .toast-ic{background:linear-gradient(145deg,#34C759,#0E9F5B)}
+.toast.sell .toast-ic{background:linear-gradient(145deg,#FF6B6B,#E03E3E)}
+.toast-tx{display:flex;flex-direction:column;min-width:0}
+.toast-tx b{font:700 14px var(--display)}
+.toast-tx small{font:500 11px var(--mono);color:var(--muted)}
+[data-theme="light"] .toast{background:rgba(255,255,255,.8);border-color:rgba(15,23,42,.1);box-shadow:inset 0 1px 0 #fff,0 18px 40px -16px rgba(30,60,120,.35)}
+@keyframes toastIn{from{opacity:0;transform:translateY(24px) scale(.96)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(16px) scale(.97)}}
+.mood{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.mood i{position:absolute;inset:0;transition:opacity 3s ease}
+.mood .m-up{opacity:var(--mood-up,0);background:radial-gradient(900px 600px at 20% 0%,rgba(52,199,89,.16),rgba(52,199,89,0) 65%),radial-gradient(700px 500px at 100% 100%,rgba(48,213,200,.10),rgba(48,213,200,0) 65%)}
+.mood .m-down{opacity:var(--mood-down,0);background:radial-gradient(900px 600px at 20% 0%,rgba(255,107,107,.16),rgba(255,107,107,0) 65%),radial-gradient(700px 500px at 100% 100%,rgba(255,159,10,.10),rgba(255,159,10,0) 65%)}
+@media (prefers-reduced-motion:reduce){.tile.f-up,.tile.f-down,.tile.f-up .px,.tile.f-down .px,.toast,.toast.out{animation:none}}
 </style>
 </head>
 <body>
 
+<div class="mood" aria-hidden="true"><i class="m-up"></i><i class="m-down"></i></div>
 <header class="top">
   <div class="progress" id="scrollProg" aria-hidden="true"></div>
   <div class="wrap">
@@ -724,7 +755,7 @@ header nav a.active{color:#fff}
       <div class="insight-row">
         <div class="card hm-card">
           <div class="ins-head"><h3>Market weather</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
-          <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Green zones are up today, red and orange zones are down. The glowing white line is 0%: it separates rising coins from falling ones, with light pulses running along it. A ripple means that coin’s price just moved. Hover or tap for details.</p>
+          <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Green zones are up today, red and orange zones are down. The glowing white line is 0%: it separates rising coins from falling ones, with light pulses running along it. White streaks show the “wind” blowing from falling coins toward rising ones. A ripple means that coin’s price just moved. Hover or tap for details.</p>
           <div class="wx" id="heatmap" role="img" aria-label="Weather-style heatmap of 24 cryptocurrencies by 24-hour change"><canvas id="wxCanvas"></canvas><div class="wx-tip" id="wxTip"></div></div>
           <div class="hm-foot"><span class="small muted">Thin lines every 1% · glowing white line = 0%</span><div class="wx-legend" aria-hidden="true"><span>−6%</span><i></i><span>0</span><i class="r"></i><span>+6%</span></div></div>
         </div>
@@ -1011,6 +1042,27 @@ header nav a.active{color:#fff}
     }
     renderStress();
   }
+  /* per-second updates from the live stream (fed by the weather map's socket) */
+  var lastTick = {};
+  window.__ibrazMini = function(m){
+    var sym = m.s, tk = state.tickers[sym]; if(!tk) return;
+    var c = +m.c, o = +m.o, prev = +tk.lastPrice, now = Date.now();
+    tk.lastPrice = String(c); if(o) tk.priceChangePercent = String((c / o - 1) * 100);
+    if(lastTick[sym] && now - lastTick[sym] < 900) return; lastTick[sym] = now;
+    var t = $('tile-' + sym); if(!t) return;
+    var px = t.querySelector('.px'), ch = +tk.priceChangePercent;
+    px.textContent = usd(c);
+    var cs = t.querySelector('.chg-s'); cs.textContent = pct(ch); cs.className = 'num chg-s small ' + cls(ch);
+    if(state.idr){ t.querySelector('.sub').textContent = sym === 'PAXGUSDT' ? idr(c / OZ_G * state.idr) + ' / gram' : idrShort(c * state.idr); }
+    if(prev && c !== prev){
+      var f = c > prev ? 'f-up' : 'f-down';
+      t.classList.remove('f-up', 'f-down'); void t.offsetWidth; t.classList.add(f);
+    }
+    if(sym === 'BTCUSDT'){
+      if(window.IbrazHeroPrice) window.IbrazHeroPrice(c);
+      var hc = $('heroChg').firstChild; if(hc){ hc.textContent = pct(ch); hc.className = cls(ch); }
+    }
+  };
   function loadTickers(){
     var syms = encodeURIComponent(JSON.stringify(ASSETS.map(function(a){return a.sym;})));
     return getJSON(API+'/ticker/24hr?symbols='+syms).then(function(list){
@@ -1341,7 +1393,7 @@ header nav a.active{color:#fff}
       .then(function(j){ if(j && j.price) window.IbrazHeroPrice(+j.price); })
       .catch(function(){});
   }
-  setInterval(pollBtc, 8000);
+  setInterval(pollBtc, 20000);
 
   /* ---------- Number tweens on live values ---------- */
   var NUM = /(\d[\d,]*)(\.\d+)?/;
@@ -1463,6 +1515,20 @@ header nav a.active{color:#fff}
       ctx.beginPath(); ctx.arc(hx, hy, 4 + ph * 18, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(77,168,255,' + (0.35 * (1 - ph)).toFixed(3) + ')'; ctx.fill();
       ctx.beginPath(); ctx.arc(hx, hy, 4, 0, Math.PI * 2); ctx.fillStyle = '#4DA8FF'; ctx.fill();
+      if(prog >= 1){
+        ctx.setLineDash([3, 5]); ctx.strokeStyle = 'rgba(77,168,255,.45)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(Math.max(0, hx - W * .35), hy); ctx.lineTo(hx - 6, hy); ctx.stroke(); ctx.setLineDash([]);
+        var tagTxt = usd0(pts[pts.length - 1]);
+        ctx.font = '700 12px "JetBrains Mono", ui-monospace, monospace';
+        var tw2 = ctx.measureText(tagTxt).width + 34, tx2 = Math.max(8, hx - tw2 - 14), ty2 = Math.max(top - 10, Math.min(bot, hy)) - 13;
+        ctx.fillStyle = LT ? 'rgba(255,255,255,.92)' : 'rgba(10,16,30,.85)';
+        ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(tx2, ty2, tw2, 26, 13); else ctx.rect(tx2, ty2, tw2, 26); ctx.fill();
+        ctx.strokeStyle = 'rgba(77,168,255,.6)'; ctx.lineWidth = 1; ctx.stroke();
+        var blink = .5 + .5 * Math.sin((now || 0) / 300);
+        ctx.beginPath(); ctx.arc(tx2 + 12, ty2 + 13, 3.5, 0, Math.PI * 2); ctx.fillStyle = 'rgba(74,222,154,' + (.5 + blink * .5).toFixed(2) + ')'; ctx.fill();
+        ctx.fillStyle = LT ? '#0B1220' : '#F2F5FA'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(tagTxt, tx2 + 22, ty2 + 13.5); ctx.textBaseline = 'alphabetic';
+      }
       if(prog >= 1 && !narrow){
         var mi = pts.indexOf(hi), lx = X(mi), ly = Y(hi);
         ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fillStyle = LT ? 'rgba(15,23,42,0.55)' : 'rgba(237,239,234,0.7)'; ctx.fill();
@@ -1716,7 +1782,15 @@ header nav a.active{color:#fff}
     });
     draw(performance.now(), true);
   }
-  var rings = [];
+  function mood(){
+    if(!pts.length) return;
+    var avg = pts.reduce(function(a2, p){ return a2 + p.ch; }, 0) / pts.length;
+    var up = Math.max(0, Math.min(1, avg / 3)), dn = Math.max(0, Math.min(1, -avg / 3));
+    document.documentElement.style.setProperty('--mood-up', (up * .9).toFixed(3));
+    document.documentElement.style.setProperty('--mood-down', (dn * .9).toFixed(3));
+  }
+  var rings = [], wind = [];
+  function spawnWind(){ var mx = 60 + Math.floor(Math.random() * 80); return {x:Math.random() * W, y:Math.random() * H, life:mx, max:mx, trail:[]}; }
   function ping(p, up){ if(RM || !onScreen) return; rings.push({p:p, up:up, t0:performance.now()}); if(rings.length > 40) rings.shift(); go(); }
   window.__wxPing = function(i, up){ if(pts[i]) ping(pts[i], up); };
   function contour(V, gw, gh, g, level){
@@ -1846,6 +1920,29 @@ header nav a.active{color:#fff}
         tagPt = best;
       }
     }
+    /* wind: streaks flow from falling zones toward rising ones; faster where prices differ sharply */
+    if(!RM && bloom > .6){
+      var target = Math.round(W * H / 2600);
+      while(wind.length < target) wind.push(spawnWind());
+      if(wind.length > target) wind.length = target;
+      ctx.lineCap = 'round';
+      for(var wi = 0; wi < wind.length; wi++){
+        var pw = wind[wi], gxw = pw.x / g, gyw = pw.y / g;
+        var x0w = Math.max(0, Math.min(gw - 2, Math.floor(gxw))), y0w = Math.max(0, Math.min(gh - 2, Math.floor(gyw))), ow = y0w * gw + x0w;
+        var gx2 = (V[ow + 1] - V[ow] + V[ow + gw + 1] - V[ow + gw]) / 2, gy2 = (V[ow + gw] - V[ow] + V[ow + gw + 1] - V[ow + 1]) / 2;
+        var mag = Math.sqrt(gx2 * gx2 + gy2 * gy2), sp = Math.min(3.2, .35 + mag * 2.6);
+        var dxw = mag > 1e-4 ? gx2 / mag : .6, dyw = mag > 1e-4 ? gy2 / mag : 0;
+        pw.trail.push([pw.x, pw.y]); if(pw.trail.length > 14) pw.trail.shift();
+        pw.x += dxw * sp; pw.y += dyw * sp; pw.life--;
+        if(pw.life <= 0 || pw.x < 0 || pw.y < 0 || pw.x > W || pw.y > H){ wind[wi] = spawnWind(); continue; }
+        var fade = Math.min(1, pw.life / 20, (pw.max - pw.life) / 12);
+        for(var ti = 1; ti < pw.trail.length; ti++){
+          var a0 = pw.trail[ti - 1], a1 = pw.trail[ti];
+          ctx.strokeStyle = 'rgba(255,255,255,' + (fade * .7 * ti / pw.trail.length).toFixed(3) + ')';
+          ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(a0[0], a0[1]); ctx.lineTo(a1[0], a1[1]); ctx.stroke();
+        }
+      }
+    }
     rings = rings.filter(function(rg){
       var k3 = (now - rg.t0) / 1400; if(k3 >= 1) return false;
       var e = 1 - Math.pow(1 - k3, 2), rad = 8 + e * Math.max(30, Math.sqrt(rg.p.w * rg.p.h) * .45);
@@ -1917,6 +2014,7 @@ header nav a.active{color:#fff}
         pts.forEach(function(p){ var t = by[p.sym]; if(t){ var np = +t.lastPrice; if(p.p && np !== p.p) ping(p, np > p.p); p.ch = +t.priceChangePercent; p.p = np; p.vol = +t.quoteVolume; } });
         if(RM) draw(performance.now(), true);
       }
+      mood();
       var up = list.filter(function(t){ return +t.priceChangePercent >= 0; }).length;
       $('hmBreadth').textContent = up + ' of ' + list.length + ' coins up today';
     }).catch(function(){});
@@ -1928,13 +2026,14 @@ header nav a.active{color:#fff}
     setInterval(function(){ if(!document.hidden) loadWx(); }, 60000);
     (function live(){
       if(!('WebSocket' in window)) return;
-      var streams = COINS.map(function(c){ return c.toLowerCase() + 'usdt@miniTicker'; }).join('/'), sock, back = 1000, last = {}, lastT = {};
+      var streams = COINS.concat(['PAXG']).map(function(c){ return c.toLowerCase() + 'usdt@miniTicker'; }).join('/'), sock, back = 1000, last = {}, lastT = {};
       function open(){
         try{ sock = new WebSocket('wss://data-stream.binance.vision/stream?streams=' + streams); }catch(e){ return; }
         sock.onopen = function(){ back = 1000; };
         sock.onmessage = function(ev){
           try{
             var m = JSON.parse(ev.data).data; if(!m || !m.s) return;
+            if(window.__ibrazMini) window.__ibrazMini(m);
             var sym = m.s.replace('USDT', ''), c = +m.c, o = +m.o, now = performance.now();
             for(var i = 0; i < pts.length; i++){
               var p = pts[i]; if(p.sym !== sym) continue;
@@ -1949,8 +2048,9 @@ header nav a.active{color:#fff}
         sock.onclose = function(){ setTimeout(open, back); back = Math.min(30000, back * 2); };
         sock.onerror = function(){ try{ sock.close(); }catch(e){} };
       }
-      seen(wx, open, .1);
+      open();
     })();
+    setInterval(mood, 5000);
     if('IntersectionObserver' in window) new IntersectionObserver(function(en){ onScreen = en[0].isIntersecting; if(onScreen) go(); }).observe(wx); else onScreen = true;
     var rzT; if('ResizeObserver' in window) new ResizeObserver(function(){ clearTimeout(rzT); rzT = setTimeout(layout, 120); }).observe(wx);
     wx.addEventListener('mousemove', showTip);
@@ -2004,6 +2104,22 @@ header nav a.active{color:#fff}
     var cutoff = Date.now() - WINDOW;
     trades = trades.filter(function(x, i){ return i < MAXROWS || x.T >= cutoff; });
     if(live) render(t.id);
+    if(live && t.usd >= WHALE) whaleToast(t);
+  }
+  var toastBox = null, feedOnScreen = false;
+  if(feed && 'IntersectionObserver' in window) new IntersectionObserver(function(en){ feedOnScreen = en[0].isIntersecting; }, {threshold:.3}).observe(feed);
+  function whaleToast(t){
+    if(feedOnScreen) return;
+    if(!toastBox){ toastBox = el('div', 'toasts'); toastBox.setAttribute('aria-live', 'polite'); document.body.appendChild(toastBox); }
+    var a = el('a', 'toast ' + (t.buy ? 'buy' : 'sell')); a.href = '#bigTrades';
+    var ic = el('span', 'toast-ic', t.buy ? '▲' : '▼');
+    var tx = el('span', 'toast-tx');
+    tx.appendChild(el('b', null, 'Whale ' + (t.buy ? 'bought ' : 'sold ') + money(t.usd) + ' ' + t.coin));
+    tx.appendChild(el('small', null, 'at ' + price(t.p) + ' · just now · tap to see'));
+    a.appendChild(ic); a.appendChild(tx);
+    toastBox.insertBefore(a, toastBox.firstChild);
+    while(toastBox.children.length > 3) toastBox.removeChild(toastBox.lastChild);
+    setTimeout(function(){ a.classList.add('out'); setTimeout(function(){ if(a.parentNode) a.parentNode.removeChild(a); }, 500); }, 5500);
   }
   function fromAgg(sym, a){
     var p = +a.p, q = +a.q;
