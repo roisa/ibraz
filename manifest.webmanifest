@@ -1,0 +1,21 @@
+{
+  "name": "IBRAZ Group",
+  "short_name": "IBRAZ",
+  "description": "Creative holding from Indonesia, with a live markets desk.",
+  "id": "/",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05070D",
+  "theme_color": "#05070D",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Markets", "url": "/?source=app#pulse", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Big trades", "url": "/?source=app#bigTrades", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

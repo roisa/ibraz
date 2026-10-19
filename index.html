@@ -24,6 +24,11 @@
 <meta name="twitter:description" content="The Indonesian creative group behind IbraCreative, Ibra Studio, Baby Mo and Ibraz Academy.">
 <meta name="twitter:image" content="https://ibrazgroup.com/og-image.png">
 <meta name="theme-color" content="#05070D">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IBRAZ">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://ibrazgroup.com/#org","name":"IBRAZ","alternateName":["Ibraz Group","IBRAZ Group","Ibraz"],"url":"https://ibrazgroup.com/","logo":"https://ibrazgroup.com/icon-512.png","image":"https://ibrazgroup.com/og-image.png","description":"IBRAZ is the Indonesian creative group behind IbraCreative font foundry, Ibra Studio, Baby Mo and Ibraz Academy, with a live markets desk and a vision for 2045.","foundingDate":"2019","areaServed":"Worldwide","address":{"@type":"PostalAddress","addressCountry":"ID"},"knowsAbout":["Font design","Typography","Graphic design","2D and 3D animation","Design education","Early-childhood education apps"],"subOrganization":[{"@type":"Organization","@id":"https://ibracreative.com/#org","name":"IbraCreative","alternateName":"Ibra Creative","url":"https://ibracreative.com/","description":"Font foundry and design studio from Indonesia.","sameAs":["https://ibracreative.com/","https://www.instagram.com/ibracreative/","https://www.facebook.com/ibracreative","https://id.pinterest.com/ibracreativestd/","https://id.linkedin.com/company/ibra-creative-studio"]},{"@type":"Organization","name":"Ibra Studio","description":"Branding, illustration, 2D/3D animation and content production studio.","url":"https://ibracreative.com/"},{"@type":"Organization","name":"Baby Mo","url":"https://babymo.id/","description":"Islamic early-learning brand with educational apps for young children."},{"@type":"EducationalOrganization","name":"Ibraz Academy","foundingDate":"2022","description":"Real-project design and animation training for vocational and university students."},{"@type":"Organization","name":"Quiz Pop","sameAs":["https://www.youtube.com/@quizpopuniverse"]}]},{"@type":"WebSite","@id":"https://ibrazgroup.com/#site","url":"https://ibrazgroup.com/","name":"IBRAZ","alternateName":"Ibraz Group","publisher":{"@id":"https://ibrazgroup.com/#org"},"inLanguage":"en"}]}</script>
 <meta property="og:description" content="The Indonesian creative group behind IbraCreative, Ibra Studio, Baby Mo and Ibraz Academy, since 2019.">
 <script>(function(){var t="dark";try{var s=localStorage.getItem("ibraz-theme");if(s==="light"||s==="dark")t=s;}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
@@ -627,6 +632,17 @@ header nav a.active{color:#fff}
 .mood .m-up{opacity:var(--mood-up,0);background:radial-gradient(900px 600px at 20% 0%,rgba(52,199,89,.16),rgba(52,199,89,0) 65%),radial-gradient(700px 500px at 100% 100%,rgba(48,213,200,.10),rgba(48,213,200,0) 65%)}
 .mood .m-down{opacity:var(--mood-down,0);background:radial-gradient(900px 600px at 20% 0%,rgba(255,107,107,.16),rgba(255,107,107,0) 65%),radial-gradient(700px 500px at 100% 100%,rgba(255,159,10,.10),rgba(255,159,10,0) 65%)}
 @media (prefers-reduced-motion:reduce){.tile.f-up,.tile.f-down,.tile.f-up .px,.tile.f-down .px,.toast,.toast.out{animation:none}}
+
+/* ---------- Installed app (PWA) ---------- */
+@media (display-mode: standalone){
+  header.top{top:0;padding-top:env(safe-area-inset-top,0px)}
+  .toasts{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+.install{display:none;align-items:center;gap:10px;margin-top:24px;padding:12px 14px;border-radius:16px;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.16);font-size:13px;color:var(--muted);max-width:520px}
+.install.on{display:flex}
+.install b{color:var(--fg)}
+.install button{margin-left:auto;flex:none;border:0;border-radius:999px;padding:9px 16px;min-height:38px;font:700 13px var(--body);color:#fff;background:linear-gradient(135deg,#2F7BFF,#4DA8FF 60%,#5BE1FF);cursor:pointer}
+.install .x{background:none;color:var(--muted);padding:6px;min-height:auto;margin-left:0}
 </style>
 </head>
 <body>
@@ -917,7 +933,8 @@ header nav a.active{color:#fff}
       <p class="small muted" style="margin:10px 0 0;flex-basis:100%">IBRAZ (Ibraz Group) is the parent of <a href="https://ibracreative.com" target="_blank" rel="noopener">IbraCreative</a>, Ibra Studio, <a href="https://babymo.id" target="_blank" rel="noopener">Baby Mo</a>, Ibraz Academy and Quiz Pop.</p>
       <nav aria-label="Footer" style="gap:20px"><a href="#portfolio">Portfolio</a><a href="#capital">Ibraz Capital</a><a href="#pulse">Markets</a><a href="#vision">Vision 2045</a></nav>
     </div>
-    <div class="eyebrow">Market data sources</div>
+    <div class="install" id="installBox" role="note"><span id="installTxt"><b>Use IBRAZ like an app.</b> Add it to your Home Screen for full-screen, instant opening.</span><button type="button" id="installBtn">Install</button><button type="button" class="x" id="installX" aria-label="Dismiss">✕</button></div>
+    <div class="eyebrow" style="margin-top:28px">Market data sources</div>
     <ul>
       <li><a href="https://data-api.binance.vision" target="_blank" rel="noopener">Binance public market data</a> · prices &amp; history</li>
       <li><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a> · USD/IDR, daily</li>
@@ -1068,6 +1085,7 @@ header nav a.active{color:#fff}
     return getJSON(API+'/ticker/24hr?symbols='+syms).then(function(list){
       list.forEach(function(t){ state.tickers[t.symbol] = t; });
       renderTiles(); setLive(true); announce();
+      try{ localStorage.setItem('ibraz-snap', JSON.stringify({t:Date.now(), idr:state.idr, tickers:state.tickers})); }catch(e){}
     }).catch(function(){ setLive(false); });
   }
   function loadSparks(){
@@ -1280,6 +1298,14 @@ header nav a.active{color:#fff}
 
   /* ---------- Boot ---------- */
   buildTiles(); renderStress();
+  try{
+    var snap = JSON.parse(localStorage.getItem('ibraz-snap') || 'null');
+    if(snap && snap.tickers && Date.now() - snap.t < 7 * 864e5){
+      state.tickers = snap.tickers; if(snap.idr) state.idr = snap.idr;
+      renderTiles(); announce();
+      $('liveText').textContent = 'Last seen ' + new Date(snap.t).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) + ' · updating';
+    }
+  }catch(e){}
   whenSeen(document.querySelector('.stviz'), function(){ document.querySelector('.stviz').classList.add('go'); }, .4);
   loadFx().then(loadTickers).then(function(){ renderAth(); if(state.year) renderTM(); });
   loadSparks();
@@ -2298,6 +2324,28 @@ header nav a.active{color:#fff}
       buildGrid(k);
       setInterval(function(){ buildGrid(k); }, 120000);
     }).catch(function(){ grid.textContent = 'Monthly history unavailable right now.'; });
+  }
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  if('serviceWorker' in navigator && location.protocol === 'https:'){
+    window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); });
+  }
+  var box = document.getElementById('installBox'), btn = document.getElementById('installBtn'), txt = document.getElementById('installTxt'), x = document.getElementById('installX'), deferred = null;
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+  var dismissed = false; try{ dismissed = localStorage.getItem('ibraz-install-x') === '1'; }catch(e){}
+  if(standalone || dismissed || !box) return;
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; box.classList.add('on'); });
+  btn.addEventListener('click', function(){
+    if(deferred){ deferred.prompt(); deferred.userChoice.finally(function(){ deferred = null; box.classList.remove('on'); }); }
+  });
+  x.addEventListener('click', function(){ box.classList.remove('on'); try{ localStorage.setItem('ibraz-install-x', '1'); }catch(e){} });
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  if(ios){
+    txt.innerHTML = '<b>Use IBRAZ like an app.</b> Tap the Share button, then “Add to Home Screen”.';
+    btn.hidden = true; box.classList.add('on');
   }
 })();
 </script>
