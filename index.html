@@ -540,6 +540,46 @@ header nav a.active{color:#fff}
 .mg-wrap.go .mg-c.now{animation:nowPulse 2.2s ease-in-out 1.5s infinite}
 @keyframes nowPulse{0%,100%{box-shadow:inset 0 0 0 1.5px var(--gold)}50%{box-shadow:inset 0 0 0 1.5px var(--gold),0 0 0 4px color-mix(in srgb,var(--gold) 25%,transparent)}}
 @media (prefers-reduced-motion:reduce){.hm-tile.tick-up,.hm-tile.tick-down,.heatmap.scan::after,.mg-wrap.go .mg-c.now{animation:none}.bt-flow-wrap{display:none}}
+
+/* ---------- Market heatmap (coins x time) ---------- */
+.seg{position:relative;display:inline-flex;padding:3px;border-radius:999px;background:rgba(127,127,127,.12);border:1px solid rgba(127,127,127,.14)}
+.seg button{position:relative;z-index:1;border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:7px 14px;border-radius:999px;cursor:pointer;min-height:34px;transition:color .3s}
+.seg button[aria-pressed=true]{color:#fff}
+.seg-thumb{position:absolute;z-index:0;top:3px;bottom:3px;left:0;border-radius:999px;background:linear-gradient(135deg,#2F7BFF,#4DA8FF 60%,#5BE1FF);box-shadow:0 6px 16px -6px rgba(47,123,255,.9),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .5s cubic-bezier(.34,1.3,.5,1),width .5s cubic-bezier(.34,1.3,.5,1)}
+.hx{position:relative;flex:1 1 auto;--sym:58px;--tot:66px;transition:opacity .35s}
+.hx.loading{opacity:.35}
+.hx-head,.hx-row{display:grid;grid-template-columns:var(--sym) minmax(0,1fr) var(--tot);align-items:center;gap:10px}
+.hx-head{margin-bottom:8px}
+.hx-cells{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:2px}
+.hx-t{font:500 10px var(--mono);color:var(--faint);white-space:nowrap;overflow:visible;text-align:left}
+.hx-t.now{color:var(--gold);font-weight:700}
+.hx-body{position:relative}
+.hx-row{position:absolute;left:0;right:0;top:0;height:20px;transition:transform .9s cubic-bezier(.16,1,.3,1)}
+.hx-row .hx-sym{font:700 12px var(--display);letter-spacing:.02em;color:var(--fg)}
+.hx-row.all .hx-sym{color:var(--gold);font-size:12px}
+.hx-row.all .hx-c{height:20px}
+.hx-row.hot .hx-sym{color:var(--gold)}
+.hx-tot{font:700 12px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.hx-head .hx-tot{font:500 10px var(--mono);color:var(--faint)}
+.hx-c{display:block;height:20px;border-radius:4px;background:rgba(127,127,127,.08);transform:scaleY(.2);opacity:0;transition:transform .55s cubic-bezier(.34,1.56,.64,1) calc(var(--c) * 22ms + var(--r) * 9ms),opacity .35s ease calc(var(--c) * 22ms + var(--r) * 9ms),background-color .8s ease,box-shadow .2s}
+.hx.go .hx-c{transform:none;opacity:1}
+.hx-c.pos{background:color-mix(in srgb,var(--up) var(--mix),transparent)}
+.hx-c.neg{background:color-mix(in srgb,var(--down) var(--mix),transparent)}
+.hx-c.hot{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--fg) 55%,transparent);z-index:1}
+.hx-c:hover{box-shadow:0 0 0 2px var(--fg)}
+.hx-row .hx-cells .hx-c:last-child{position:relative}
+.hx.go .hx-row .hx-c:last-child{animation:liveCell 2s ease-in-out 1.8s infinite}
+@keyframes liveCell{50%{box-shadow:0 0 0 1.5px var(--gold)}}
+.hx-c.blink{animation:cellBlink 1.2s ease-out}
+@keyframes cellBlink{0%{box-shadow:0 0 0 2px var(--fg),0 0 14px var(--gold)}100%{box-shadow:none}}
+.hx-tip{position:absolute;z-index:5;transform:translate(-50%,calc(-100% - 10px));pointer-events:none;opacity:0;padding:8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line2);box-shadow:0 14px 30px -12px rgba(0,0,0,.6);white-space:nowrap;transition:opacity .15s,left .12s ease-out,top .12s ease-out;display:flex;flex-direction:column;gap:2px}
+.hx-tip.on{opacity:1}
+.hx-tip b{font:600 12px var(--body)}
+.hx-tip span{font:700 13px var(--mono)}
+.hm-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.hm-foot .hm-legend{margin:0}
+@media (max-width:640px){.hx{--sym:40px;--tot:52px}.hx-head,.hx-row{gap:6px}.hx-cells{gap:1px}.hx-c{border-radius:2px}.hx-row .hx-sym{font-size:10px}.hx-tot{font-size:10px}.hx-t{font-size:8px}.ins-head .seg{margin-top:6px}}
+@media (prefers-reduced-motion:reduce){.hx-c{transform:none;opacity:1;transition:none}.hx-row{transition:none}.hx.go .hx-row .hx-c:last-child,.hx-c.blink{animation:none}.seg-thumb{transition:none}}
 </style>
 </head>
 <body>
@@ -666,10 +706,12 @@ header nav a.active{color:#fff}
       <div class="grid" id="tiles"></div>
       <div class="insight-row">
         <div class="card hm-card">
-          <div class="ins-head"><h3>Crypto heatmap</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
-          <p class="small muted ins-sub">Tile size shows how much was traded in 24 hours. Colour shows today's move. Hover or tap a tile for details.</p>
-          <div class="heatmap" id="heatmap" role="img" aria-label="Heatmap of 24 major cryptocurrencies by 24-hour change"></div>
-          <div class="hm-legend" aria-hidden="true"><span>−6%</span><i></i><span>+6%</span></div>
+          <div class="ins-head"><h3>Market heatmap</h3>
+            <div class="seg" id="hxSeg" role="group" aria-label="Time range"><span class="seg-thumb" aria-hidden="true"></span><button type="button" data-mode="h" aria-pressed="true">24 hours</button><button type="button" data-mode="d" aria-pressed="false">30 days</button></div>
+          </div>
+          <p class="small muted ins-sub" id="hxSub">Each cell is one hour, in Jakarta time. Green means the coin rose that hour, red means it fell. Biggest movers sit at the top.</p>
+          <div class="hx" id="heatmap" role="img" aria-label="Heatmap of 24 cryptocurrencies, hour by hour"><p class="skel">Loading market history…</p></div>
+          <div class="hm-foot"><span class="small muted" id="hmBreadth">&nbsp;</span><div class="hm-legend" aria-hidden="true"><span id="hxLo">−1.5%</span><i></i><span id="hxHi">+1.5%</span></div></div>
         </div>
         <div class="card bt-card" id="bigTrades">
           <div class="ins-head"><h3>Big trades</h3><span class="bt-live"><span class="dot off" id="btDot"></span><span id="btStatus">Connecting…</span></span></div>
@@ -1600,98 +1642,163 @@ header nav a.active{color:#fff}
   }
   function pct(n){ return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(Math.abs(n) >= 10 ? 1 : 2) + '%'; }
 
-  /* ================= Crypto heatmap ================= */
+  /* ================= Market heatmap: coins x time ================= */
   var COINS = ['BTC','ETH','BNB','SOL','XRP','DOGE','ADA','TRX','AVAX','LINK','TON','DOT','SUI','LTC','BCH','NEAR','UNI','APT','PEPE','SHIB','XLM','HBAR','QNT','ATOM'];
-  var heat = $('heatmap'), heatData = null, heatShown = false;
-  function tickers(syms){
-    var url = API + '/ticker/24hr?symbols=' + encodeURIComponent(JSON.stringify(syms));
-    return getJSON(url).catch(function(){
-      return Promise.all(syms.map(function(s){ return getJSON(API + '/ticker/24hr?symbol=' + s).catch(function(){ return null; }); }))
-        .then(function(list){ return list.filter(Boolean); });
+  var MODES = {
+    h: {interval:'1h', n:24, cap:1.5, every:3, refresh:60000, label:'hour', sub:'Each cell is one hour, in Jakarta time. Green means the coin rose that hour, red means it fell. Biggest movers sit at the top.'},
+    d: {interval:'1d', n:30, cap:6, every:5, refresh:300000, label:'day', sub:'Each cell is one day. Green means the coin closed higher than it opened, red means lower. Biggest movers sit at the top.'}
+  };
+  var hx = $('heatmap'), mode = 'h', data = {}, view = null, shown = false, timer = null, ROWH = 24, GAPTOP = 10;
+  function when(t, m){
+    var d = new Date(t);
+    return m === 'h' ? d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta'})
+                     : d.toLocaleDateString('en-GB', {day:'numeric', month:'short', timeZone:'Asia/Jakarta'});
+  }
+  function loadMode(m){
+    var M = MODES[m];
+    return Promise.all(COINS.map(function(c){
+      return getJSON(API + '/klines?symbol=' + c + 'USDT&interval=' + M.interval + '&limit=' + M.n)
+        .then(function(k){ return [c, k.map(function(r){ return {t:r[0], o:+r[1], c:+r[4]}; })]; })
+        .catch(function(){ return null; });
+    })).then(function(list){
+      var out = {};
+      list.forEach(function(x){ if(x && x[1].length >= Math.min(6, MODES[m].n)) out[x[0]] = x[1]; });
+      return out;
     });
   }
-  function worst(row, w){
-    var s = 0, mx = 0, mn = Infinity;
-    row.forEach(function(r){ s += r.a; if(r.a > mx) mx = r.a; if(r.a < mn) mn = r.a; });
-    return Math.max(w * w * mx / (s * s), (s * s) / (w * w * mn));
+  function shade(node, v, cap){
+    if(v == null || isNaN(v)){ node.className = node.className.replace(/ ?(pos|neg)/g, '') + ' na'; return; }
+    node.classList.remove('na');
+    node.classList.toggle('pos', v >= 0); node.classList.toggle('neg', v < 0);
+    node.style.setProperty('--mix', Math.round(8 + Math.min(1, Math.abs(v) / cap) * 82) + '%');
   }
-  function squarify(items, x, y, w, h, out){
-    var rest = items.slice();
-    while(rest.length){
-      var side = Math.min(w, h), row = [rest[0]], i = 1;
-      while(i < rest.length && worst(row.concat([rest[i]]), side) <= worst(row, side)){ row.push(rest[i]); i++; }
-      var sum = row.reduce(function(t, r){ return t + r.a; }, 0);
-      if(w >= h){
-        var cw = sum / h, cy = y;
-        row.forEach(function(r){ var rh = r.a / cw; out.push({it:r, x:x, y:cy, w:cw, h:rh}); cy += rh; });
-        x += cw; w -= cw;
-      } else {
-        var ch = sum / w, cx = x;
-        row.forEach(function(r){ var rw = r.a / ch; out.push({it:r, x:cx, y:y, w:rw, h:ch}); cx += rw; });
-        y += ch; h -= ch;
-      }
-      rest = rest.slice(i);
+  function build(m){
+    var M = MODES[m], syms = Object.keys(data);
+    var n = M.n, times = (data.BTC || data[syms[0]] || []).map(function(r){ return r.t; });
+    hx.textContent = ''; hx.classList.remove('go');
+    hx.style.setProperty('--n', n);
+    var narrow = hx.clientWidth < 520, every = narrow ? (m === 'h' ? 4 : 7) : M.every;
+    var head = el('div', 'hx-head'); head.appendChild(el('span', 'hx-sym'));
+    var hc = el('div', 'hx-cells');
+    for(var i = 0; i < n; i++){
+      var lab = el('span', 'hx-t');
+      if(i === n - 1) { lab.textContent = m === 'h' ? 'now' : 'today'; lab.classList.add('now'); }
+      else if((n - 1 - i) % every === 0 && (n - 1 - i) >= every * .6 && times[i]) lab.textContent = when(times[i], m);
+      hc.appendChild(lab);
     }
-    return out;
-  }
-  var tileMap = {}, prevPx = {};
-  function fillTile(t, r, rc){
-    var small = rc.w < 70 || rc.h < 46, tiny = rc.w < 44 || rc.h < 30;
-    t.classList.toggle('sm', small);
-    t.textContent = '';
-    if(!tiny){
-      t.appendChild(el('b', null, r.sym));
-      t.appendChild(el('span', null, pct(r.ch)));
-      if(!small && rc.h > 92) t.appendChild(el('small', null, price(r.p)));
-    }
-    t.title = r.sym + '  ' + price(r.p) + '  ' + pct(r.ch) + ' (24h)  ·  ' + money(r.vol) + ' traded';
-  }
-  function renderHeat(animate){
-    if(!heat || !heatData) return;
-    var W = heat.clientWidth, H = heat.clientHeight; if(!W || !H) return;
-    var items = heatData.map(function(t){
-      return {sym:t.symbol.replace('USDT',''), ch:+t.priceChangePercent, p:+t.lastPrice, vol:+t.quoteVolume, v:Math.pow(Math.max(+t.quoteVolume, 1), .62)};
-    }).sort(function(a, b){ return b.v - a.v; });
-    var total = items.reduce(function(s, r){ return s + r.v; }, 0);
-    items.forEach(function(r){ r.a = r.v / total * W * H; });
-    var rects = squarify(items, 0, 0, W, H, []), keep = {};
-    rects.forEach(function(rc, i){
-      var r = rc.it, t = tileMap[r.sym], fresh = !t, mag = Math.min(1, Math.abs(r.ch) / 6);
-      if(fresh){ t = tileMap[r.sym] = el('div', 'hm-tile'); t.style.setProperty('--i', i); heat.appendChild(t); }
-      keep[r.sym] = 1;
-      t.style.left = rc.x + 'px'; t.style.top = rc.y + 'px'; t.style.width = rc.w + 'px'; t.style.height = rc.h + 'px';
-      t.style.setProperty('--mix', Math.round(18 + mag * 62) + '%');
-      t.classList.toggle('pos', r.ch >= 0); t.classList.toggle('neg', r.ch < 0);
-      fillTile(t, r, rc);
-      var before = prevPx[r.sym];
-      if(!fresh && before != null && r.p !== before && !RM){
-        var cls = r.p > before ? 'tick-up' : 'tick-down';
-        t.classList.remove('tick-up', 'tick-down'); void t.offsetWidth; t.classList.add(cls);
-        setTimeout(function(){ t.classList.remove(cls); }, 1300);
+    head.appendChild(hc); head.appendChild(el('span', 'hx-tot', m === 'h' ? '24h' : '30d'));
+    hx.appendChild(head);
+    var body = el('div', 'hx-body'); hx.appendChild(body);
+    var tip = el('div', 'hx-tip'); hx.appendChild(tip);
+    var rows = {};
+    ['ALL'].concat(syms).forEach(function(sym, ri){
+      var r = el('div', 'hx-row' + (sym === 'ALL' ? ' all' : ''));
+      r.appendChild(el('span', 'hx-sym', sym === 'ALL' ? 'Market' : sym));
+      var cells = el('div', 'hx-cells'), list = [];
+      for(var c = 0; c < n; c++){
+        var cell = el('i', 'hx-c'); cell.style.setProperty('--c', c); cell.style.setProperty('--r', ri);
+        cell.setAttribute('data-s', sym); cell.setAttribute('data-c', c);
+        cells.appendChild(cell); list.push(cell);
       }
-      prevPx[r.sym] = r.p;
+      r.appendChild(cells);
+      var tot = el('span', 'hx-tot'); r.appendChild(tot);
+      body.appendChild(r);
+      rows[sym] = {el:r, cells:list, tot:tot, pos:-1};
     });
-    Object.keys(tileMap).forEach(function(k){ if(!keep[k]){ tileMap[k].remove(); delete tileMap[k]; } });
-    if(animate && !RM){ heat.classList.remove('go'); void heat.offsetWidth; }
-    heat.classList.add('go');
-    if(!animate && !RM){ heat.classList.remove('scan'); void heat.offsetWidth; heat.classList.add('scan'); }
-    setTimeout(function(){ heat.classList.add('settled'); }, 1800);
-    var up = items.filter(function(r){ return r.ch >= 0; }).length;
-    $('hmBreadth').textContent = up + ' of ' + items.length + ' coins up today';
+    body.style.height = ((syms.length + 1) * ROWH + GAPTOP) + 'px';
+    view = {m:m, rows:rows, body:body, tip:tip, times:times, n:n, vals:{}};
+    hover(view);
   }
-  function loadHeat(){
-    return tickers(COINS.map(function(c){ return c + 'USDT'; })).then(function(list){
-      if(!list || !list.length) return;
-      heatData = list;
-      if(heatShown) renderHeat(false);
-    }).catch(function(){});
+  function update(animateSort){
+    if(!view) return;
+    var M = MODES[view.m], n = view.n, syms = Object.keys(data), tot = {}, colSum = [], colCnt = [];
+    syms.forEach(function(sym){
+      var k = data[sym], off = n - k.length, vals = [];
+      for(var c = 0; c < n; c++){
+        var r = k[c - off], v = r ? (r.c / r.o - 1) * 100 : null;
+        vals.push(v);
+        if(v != null){ colSum[c] = (colSum[c] || 0) + v; colCnt[c] = (colCnt[c] || 0) + 1; }
+      }
+      view.vals[sym] = vals;
+      tot[sym] = k.length ? (k[k.length - 1].c / k[0].o - 1) * 100 : 0;
+    });
+    view.vals.ALL = colSum.map(function(sv, c){ return colCnt[c] ? sv / colCnt[c] : null; });
+    tot.ALL = syms.reduce(function(s2, x){ return s2 + tot[x]; }, 0) / (syms.length || 1);
+    var order = syms.slice().sort(function(a2, b2){ return tot[b2] - tot[a2]; });
+    ['ALL'].concat(order).forEach(function(sym, idx){
+      var R = view.rows[sym]; if(!R) return;
+      var y = idx === 0 ? 0 : idx * ROWH + GAPTOP;
+      R.el.style.transform = 'translateY(' + y + 'px)';
+      var vals = view.vals[sym];
+      R.cells.forEach(function(cell, c){
+        var before = cell._v, v = vals[c];
+        shade(cell, v, M.cap);
+        if(before != null && v != null && Math.abs(v - before) > .01 && !RM){
+          cell.classList.remove('blink'); void cell.offsetWidth; cell.classList.add('blink');
+        }
+        cell._v = v;
+      });
+      R.tot.textContent = pct(tot[sym]);
+      R.tot.className = 'hx-tot ' + (tot[sym] >= 0 ? 'up' : 'down');
+    });
+    var up = order.filter(function(x){ return tot[x] >= 0; }).length;
+    $('hmBreadth').textContent = up + ' of ' + order.length + ' coins up over the last ' + (view.m === 'h' ? '24 hours' : '30 days');
+    $('hxLo').textContent = '−' + M.cap + '%'; $('hxHi').textContent = '+' + M.cap + '%';
   }
-  if(heat){
-    loadHeat().then(function(){ seen(heat, function(){ heatShown = true; renderHeat(true); }, .25); });
-    setInterval(function(){ if(!document.hidden) loadHeat(); }, 15000);
-    var rz, lastW = 0, lastH = 0;
-    function relayout(){ clearTimeout(rz); rz = setTimeout(function(){ if(heatShown && (heat.clientWidth !== lastW || heat.clientHeight !== lastH)){ lastW = heat.clientWidth; lastH = heat.clientHeight; renderHeat(false); } }, 150); }
-    if('ResizeObserver' in window) new ResizeObserver(relayout).observe(heat); else window.addEventListener('resize', relayout);
+  function hover(v){
+    var tip = v.tip;
+    function show(cell){
+      var sym = cell.getAttribute('data-s'), c = +cell.getAttribute('data-c'), val = v.vals[sym] ? v.vals[sym][c] : null;
+      [].forEach.call(hx.querySelectorAll('.hot'), function(x){ x.classList.remove('hot'); });
+      Object.keys(v.rows).forEach(function(k){ var cc = v.rows[k].cells[c]; if(cc) cc.classList.add('hot'); });
+      v.rows[sym].el.classList.add('hot');
+      var t = v.times[c - (v.n - v.times.length)] || v.times[c];
+      tip.textContent = '';
+      tip.appendChild(el('b', null, (sym === 'ALL' ? 'Whole market' : sym) + ' · ' + (t ? when(t, v.m) + (v.m === 'h' ? ' WIB' : '') : '')));
+      var vv = el('span', val == null ? '' : (val >= 0 ? 'up' : 'down'), val == null ? 'No data' : pct(val) + ' that ' + MODES[v.m].label);
+      tip.appendChild(vv);
+      var hr = hx.getBoundingClientRect(), cr = cell.getBoundingClientRect();
+      var x = cr.left - hr.left + cr.width / 2, y = cr.top - hr.top;
+      tip.style.left = Math.max(80, Math.min(hr.width - 80, x)) + 'px'; tip.style.top = y + 'px';
+      tip.classList.add('on');
+    }
+    hx.onmouseover = function(e){ var c = e.target.closest && e.target.closest('.hx-c'); if(c) show(c); };
+    hx.onclick = function(e){ var c = e.target.closest && e.target.closest('.hx-c'); if(c) show(c); };
+    hx.onmouseleave = function(){ tip.classList.remove('on'); [].forEach.call(hx.querySelectorAll('.hot'), function(x){ x.classList.remove('hot'); }); };
+  }
+  function start(m, first){
+    mode = m;
+    $('hxSub').textContent = MODES[m].sub;
+    hx.setAttribute('aria-label', 'Heatmap of ' + COINS.length + ' cryptocurrencies, ' + (m === 'h' ? 'hour by hour' : 'day by day'));
+    hx.classList.add('loading');
+    return loadMode(m).then(function(d){
+      if(mode !== m) return;
+      if(!Object.keys(d).length){ hx.innerHTML = '<p class="skel">Market history unavailable right now.</p>'; return; }
+      data = d; build(m); update(false);
+      hx.classList.remove('loading');
+      if(shown || first === false) requestAnimationFrame(function(){ requestAnimationFrame(function(){ hx.classList.add('go'); }); });
+      clearInterval(timer);
+      timer = setInterval(function(){
+        if(document.hidden || mode !== m) return;
+        loadMode(m).then(function(d2){ if(mode === m && Object.keys(d2).length){
+          var same = Object.keys(d2).length === Object.keys(data).length && view && d2.BTC && data.BTC && d2.BTC[0].t === data.BTC[0].t;
+          data = d2;
+          if(same) update(true); else { build(m); update(false); hx.classList.add('go'); }
+        } });
+      }, MODES[m].refresh);
+    });
+  }
+  if(hx){
+    start('h', true).then(function(){ seen(hx, function(){ shown = true; hx.classList.add('go'); }, .15); });
+    var seg = $('hxSeg'), thumb = seg.querySelector('.seg-thumb');
+    function placeThumb(){ var act = seg.querySelector('button[aria-pressed="true"]'); if(act){ thumb.style.width = act.offsetWidth + 'px'; thumb.style.transform = 'translateX(' + act.offsetLeft + 'px)'; } }
+    placeThumb(); window.addEventListener('resize', placeThumb);
+    seg.addEventListener('click', function(e){
+      var btn = e.target.closest('button'); if(!btn || btn.getAttribute('aria-pressed') === 'true') return;
+      [].forEach.call(seg.querySelectorAll('button'), function(b2){ b2.setAttribute('aria-pressed', String(b2 === btn)); });
+      placeThumb();
+      start(btn.getAttribute('data-mode'), false);
+    });
   }
 
   /* ================= Live big trades ================= */
