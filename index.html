@@ -32,6 +32,36 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://ibrazgroup.com/#org","name":"IBRAZ","alternateName":["Ibraz Group","IBRAZ Group","Ibraz"],"url":"https://ibrazgroup.com/","logo":"https://ibrazgroup.com/icon-512.png","image":"https://ibrazgroup.com/og-image.png","description":"IBRAZ is the Indonesian creative group behind IbraCreative font foundry, Ibra Studio, Baby Mo and Ibraz Academy, with a live markets desk and a vision for 2045.","foundingDate":"2019","areaServed":"Worldwide","address":{"@type":"PostalAddress","addressCountry":"ID"},"knowsAbout":["Font design","Typography","Graphic design","2D and 3D animation","Design education","Early-childhood education apps"],"subOrganization":[{"@type":"Organization","@id":"https://ibracreative.com/#org","name":"IbraCreative","alternateName":"Ibra Creative","url":"https://ibracreative.com/","description":"Font foundry and design studio from Indonesia.","sameAs":["https://ibracreative.com/","https://www.instagram.com/ibracreative/","https://www.facebook.com/ibracreative","https://id.pinterest.com/ibracreativestd/","https://id.linkedin.com/company/ibra-creative-studio"]},{"@type":"Organization","name":"Ibra Studio","description":"Branding, illustration, 2D/3D animation and content production studio.","url":"https://ibracreative.com/"},{"@type":"Organization","name":"Baby Mo","url":"https://babymo.id/","description":"Islamic early-learning brand with educational apps for young children."},{"@type":"EducationalOrganization","name":"Ibraz Academy","foundingDate":"2022","description":"Real-project design and animation training for vocational and university students."},{"@type":"Organization","name":"Quiz Pop","sameAs":["https://www.youtube.com/@quizpopuniverse"]}]},{"@type":"WebSite","@id":"https://ibrazgroup.com/#site","url":"https://ibrazgroup.com/","name":"IBRAZ","alternateName":"Ibraz Group","publisher":{"@id":"https://ibrazgroup.com/#org"},"inLanguage":"en"}]}</script>
 <meta property="og:description" content="The Indonesian creative group behind IbraCreative, Ibra Studio, Baby Mo and Ibraz Academy, since 2019.">
 <script>(function(){var t="dark";try{var s=localStorage.getItem("ibraz-theme");if(s==="light"||s==="dark")t=s;}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
+<script>
+/* Live status for every widget: ok(key) when fresh data lands, fail(key) when a request or stream fails */
+window.IbrazStatus = (function(){
+  var CFG = {prices:{live:1, expect:90}, weather:{live:1, expect:90}, trades:{live:1, expect:120}, bitcoin:{}, fng:{}, history:{}, months:{}};
+  var st = {};
+  function ago(ms){ var s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? s + 's ago' : s < 3600 ? Math.floor(s / 60) + 'm ago' : Math.floor(s / 3600) + 'h ago'; }
+  function paint(){
+    var now = Date.now();
+    [].forEach.call(document.querySelectorAll('[data-st]'), function(n){
+      var k = n.getAttribute('data-st'), c = CFG[k] || {}, x = st[k] || {}, cls = 'wait', txt = 'Connecting…';
+      if(x.fail && (!x.ok || x.fail > x.ok)){ cls = 'bad'; txt = c.live ? 'Reconnecting…' : 'Unavailable · retrying'; }
+      else if(x.ok){
+        var age = now - x.ok;
+        if(c.live){ if(age > c.expect * 2000){ cls = 'late'; txt = 'Delayed · ' + ago(age); } else { cls = 'ok'; txt = 'Live · ' + ago(age); } }
+        else { cls = 'static'; txt = 'Updated ' + new Date(x.ok).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}); }
+      }
+      if(n._c !== cls){ n.className = 'st ' + cls; n._c = cls; }
+      if(!n.firstChild){ n.innerHTML = '<i></i><span></span>'; n._t = null; }
+      if(n._t !== txt){ n.lastChild.textContent = txt; n._t = txt; }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    paint(); setInterval(paint, 1000);
+  });
+  return {
+    ok: function(k){ (st[k] = st[k] || {}).ok = Date.now(); },
+    fail: function(k){ (st[k] = st[k] || {}).fail = Date.now(); paint(); }
+  };
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -660,6 +690,28 @@ header nav a.active{color:#fff}
 #markets > section#pulse{padding-top:40px}
 @media (max-width:640px){.subnav-pills a{padding:7px 11px;font-size:12px}}
 @media (prefers-reduced-motion:reduce){.sub-lens{transition:none}}
+
+/* ---------- Live status badges ---------- */
+.st{display:inline-flex;align-items:center;gap:7px;font:500 11px var(--mono);color:var(--muted);white-space:nowrap;padding:4px 10px 4px 8px;border-radius:999px;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.14)}
+.st i{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.st.ok i{background:var(--up);box-shadow:0 0 0 0 color-mix(in srgb,var(--up) 60%,transparent);animation:stPulse 2s infinite}
+.st.ok{color:color-mix(in srgb,var(--up) 75%,var(--fg))}
+.st.late i{background:#F5A524}
+.st.late{color:#E6A15C}
+.st.bad i{background:var(--down);animation:stBlink 1s infinite}
+.st.bad{color:var(--down)}
+.st.static i{background:var(--gold)}
+.st.wait i{animation:stBlink 1.2s infinite}
+@keyframes stPulse{70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes stBlink{50%{opacity:.25}}
+.st-row{display:flex;margin-top:14px}
+.st-row.end{justify-content:flex-end;margin-top:10px}
+.hm-foot .st{margin-right:auto}
+.mg-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.mg-foot .note{margin:14px 0 0}
+.mg-foot .st{margin-top:14px}
+#chartRange + .st{margin-left:8px}
+@media (prefers-reduced-motion:reduce){.st i{animation:none!important}}
 </style>
 </head>
 <body>
@@ -788,16 +840,17 @@ header nav a.active{color:#fff}
       <div class="eyebrow">Markets desk · Live</div>
       <h2>Markets, in plain sight.</h2>
       <p class="lead">24-hour change and the last 30 days for each asset. Rupiah prices use today's USD/IDR rate.</p>
+      <div class="st-row"><span class="st" data-st="prices"></span></div>
       <div class="grid" id="tiles"></div>
       <div class="insight-row">
         <div class="card hm-card" id="weather">
           <div class="ins-head"><h3>Market weather</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
           <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Green zones are up today, red and orange zones are down. The glowing white line is 0%: it separates rising coins from falling ones, with light pulses running along it. White streaks show the “wind” blowing from falling coins toward rising ones. A ripple means that coin’s price just moved. Hover or tap for details.</p>
           <div class="wx" id="heatmap" role="img" aria-label="Weather-style heatmap of 24 cryptocurrencies by 24-hour change"><canvas id="wxCanvas"></canvas><div class="wx-tip" id="wxTip"></div></div>
-          <div class="hm-foot"><span class="small muted">Thin lines every 1% · glowing white line = 0%</span><div class="wx-legend" aria-hidden="true"><span>−6%</span><i></i><span>0</span><i class="r"></i><span>+6%</span></div></div>
+          <div class="hm-foot"><span class="st" data-st="weather"></span><span class="small muted">Thin lines every 1% · glowing white line = 0%</span><div class="wx-legend" aria-hidden="true"><span>−6%</span><i></i><span>0</span><i class="r"></i><span>+6%</span></div></div>
         </div>
         <div class="card bt-card" id="bigTrades">
-          <div class="ins-head"><h3>Big trades</h3><span class="bt-live"><span class="dot off" id="btDot"></span><span id="btStatus">Connecting…</span></span></div>
+          <div class="ins-head"><h3>Big trades</h3><span class="st" data-st="trades"></span></div>
           <p class="small muted ins-sub">Bitcoin and Ethereum trades over $150K on Binance, as they happen.</p>
           <div class="bt-pressure" aria-label="Buy versus sell volume of big trades, last 15 minutes"><div class="bt-bar"><i id="btBuy"></i></div><div class="bt-pv"><span class="up" id="btBuyV">Buys $0</span><span class="small muted">last 15 min</span><span class="down" id="btSellV">Sells $0</span></div></div>
           <div class="bt-flow-wrap" aria-hidden="true"><canvas class="bt-flow" id="btFlow"></canvas><span class="bt-flow-l up">Buying ↑</span><span class="bt-flow-l down">Selling ↓</span></div>
@@ -820,14 +873,14 @@ header nav a.active{color:#fff}
       <div class="card" style="margin-top:16px">
         <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
           <h3 style="font-size:20px">Bitcoin price, last 12 months</h3>
-          <span class="small muted num" id="chartRange">&nbsp;</span>
+          <span class="small muted num" id="chartRange">&nbsp;</span><span class="st" data-st="bitcoin"></span>
         </div>
         <div class="chartbox" id="btcChart"><p class="skel">Loading chart…</p></div>
       </div>
       <div class="card" style="margin-top:16px">
         <div class="ins-head"><h3 style="font-size:20px">Bitcoin month by month</h3><span class="small muted">Monthly return, open to close</span></div>
         <div class="mg-wrap" id="monthGrid"><p class="skel">Loading monthly history…</p></div>
-        <p class="note" id="mgNote">&nbsp;</p>
+        <div class="mg-foot"><p class="note" id="mgNote">&nbsp;</p><span class="st" data-st="months"></span></div>
       </div>
     </div>
   </section>
@@ -850,6 +903,7 @@ header nav a.active{color:#fff}
         </div>
         <div class="fng-bars" id="fngBars" role="img" aria-label="Last 30 days of the Fear and Greed index"></div>
         <div style="display:flex;justify-content:space-between" class="note"><span>30 days ago</span><span>Today</span></div>
+        <div class="st-row end"><span class="st" data-st="fng"></span></div>
       </div>
     </div>
   </section>
@@ -865,7 +919,7 @@ header nav a.active{color:#fff}
           <div class="field" style="flex:1 1 320px"><span style="font-weight:600;font-size:14px" id="yrLbl">Start year</span><div class="pills" id="years" role="group" aria-labelledby="yrLbl"></div></div>
         </div>
         <div class="bars" id="tmBars"><p class="skel">Loading price history…</p></div>
-        <p class="note" id="tmNote">&nbsp;</p>
+        <div class="mg-foot"><p class="note" id="tmNote">&nbsp;</p><span class="st" data-st="history"></span></div>
       </div>
     </div>
   </section>
@@ -1085,6 +1139,7 @@ header nav a.active{color:#fff}
   var lastTick = {};
   window.__ibrazMini = function(m){
     var sym = m.s, tk = state.tickers[sym]; if(!tk) return;
+    window.IbrazStatus && IbrazStatus.ok('prices');
     var c = +m.c, o = +m.o, prev = +tk.lastPrice, now = Date.now();
     tk.lastPrice = String(c); if(o) tk.priceChangePercent = String((c / o - 1) * 100);
     if(lastTick[sym] && now - lastTick[sym] < 900) return; lastTick[sym] = now;
@@ -1106,9 +1161,9 @@ header nav a.active{color:#fff}
     var syms = encodeURIComponent(JSON.stringify(ASSETS.map(function(a){return a.sym;})));
     return getJSON(API+'/ticker/24hr?symbols='+syms).then(function(list){
       list.forEach(function(t){ state.tickers[t.symbol] = t; });
-      renderTiles(); setLive(true); announce();
+      renderTiles(); setLive(true); announce(); window.IbrazStatus && IbrazStatus.ok('prices');
       try{ localStorage.setItem('ibraz-snap', JSON.stringify({t:Date.now(), idr:state.idr, tickers:state.tickers})); }catch(e){}
-    }).catch(function(){ setLive(false); });
+    }).catch(function(){ setLive(false); window.IbrazStatus && IbrazStatus.fail('prices'); });
   }
   function loadSparks(){
     ASSETS.forEach(function(a, ai){
@@ -1222,7 +1277,8 @@ header nav a.active{color:#fff}
         bars.classList.add('go'); $('fngGauge').classList.add('go');
         if(needle) needle.style.transform = 'rotate(' + (-90 + today * 1.8).toFixed(1) + 'deg)';
       }, .35);
-    }).catch(function(){ $('fngLbl').textContent = 'Unavailable right now'; });
+      window.IbrazStatus && IbrazStatus.ok('fng');
+    }).catch(function(){ $('fngLbl').textContent = 'Unavailable right now'; window.IbrazStatus && IbrazStatus.fail('fng'); setTimeout(loadFng, 30000); });
   }
 
   /* ---------- Time machine ---------- */
@@ -1295,8 +1351,8 @@ header nav a.active{color:#fff}
     return Promise.all(TM.map(function(a){
       return getJSON(API+'/klines?symbol='+a.sym+'&interval=1M&limit=1000').then(function(k){ state.monthly[a.sym]=k; }).catch(function(){});
     })).then(function(){
-      if(!state.monthly.BTCUSDT){ $('tmBars').innerHTML = '<p class="skel">Price history unavailable right now.</p>'; return; }
-      state.year = 2020; buildYears(); renderTM(true); renderAth();
+      if(!state.monthly.BTCUSDT){ $('tmBars').innerHTML = '<p class="skel">Price history unavailable right now. Retrying…</p>'; window.IbrazStatus && IbrazStatus.fail('history'); setTimeout(loadMonthly, 30000); return; }
+      state.year = state.year || 2020; buildYears(); renderTM(true); renderAth(); window.IbrazStatus && IbrazStatus.ok('history');
     });
   }
 
@@ -1331,7 +1387,7 @@ header nav a.active{color:#fff}
   whenSeen(document.querySelector('.stviz'), function(){ document.querySelector('.stviz').classList.add('go'); }, .4);
   loadFx().then(loadTickers).then(function(){ renderAth(); if(state.year) renderTM(); });
   loadSparks();
-  getJSON(API+'/klines?symbol=BTCUSDT&interval=1d&limit=365').then(renderBtcChart).catch(function(){ $('btcChart').innerHTML='<p class="skel">Chart unavailable right now.</p>'; });
+  (function btc(){ getJSON(API+'/klines?symbol=BTCUSDT&interval=1d&limit=365').then(function(k){ renderBtcChart(k); window.IbrazStatus && IbrazStatus.ok('bitcoin'); }).catch(function(){ window.IbrazStatus && IbrazStatus.fail('bitcoin'); $('btcChart').innerHTML='<p class="skel">Chart unavailable right now. Retrying…</p>'; setTimeout(btc, 30000); }); })();
   loadMonthly(); loadHalving(); loadFng();
   setInterval(function(){ loadTickers().then(function(){ renderAth(); if(state.year) renderTM(); }); }, 60000);
   setInterval(loadSparks, 15*60000);
@@ -2082,8 +2138,8 @@ header nav a.active{color:#fff}
   }
   function loadWx(){
     return tickers(COINS.map(function(c){ return c + 'USDT'; })).then(function(list){
-      if(!list || !list.length) return;
-      tick = list;
+      if(!list || !list.length){ window.IbrazStatus && IbrazStatus.fail('weather'); return; }
+      tick = list; window.IbrazStatus && IbrazStatus.ok('weather');
       if(!pts.length) layout();
       else {
         var by = {}; list.forEach(function(t){ by[t.symbol.replace('USDT','')] = t; });
@@ -2110,6 +2166,7 @@ header nav a.active{color:#fff}
           try{
             var m = JSON.parse(ev.data).data; if(!m || !m.s) return;
             if(window.__ibrazMini) window.__ibrazMini(m);
+            window.IbrazStatus && IbrazStatus.ok('weather');
             var sym = m.s.replace('USDT', ''), c = +m.c, o = +m.o, now = performance.now();
             for(var i = 0; i < pts.length; i++){
               var p = pts[i]; if(p.sym !== sym) continue;
@@ -2266,17 +2323,18 @@ header nav a.active{color:#fff}
   function connect(){
     if(!('WebSocket' in window)) return;
     try{ ws = new WebSocket('wss://data-stream.binance.vision/stream?streams=btcusdt@aggTrade/ethusdt@aggTrade'); }catch(e){ return; }
-    ws.onopen = function(){ retry = 1000; $('btStatus').textContent = 'Live'; $('btDot').classList.remove('off'); };
+    ws.onopen = function(){ retry = 1000; window.IbrazStatus && IbrazStatus.ok('trades'); };
     ws.onmessage = function(ev){
       try{
         var m = JSON.parse(ev.data), d = m.data || m; if(!d || d.e !== 'aggTrade') return;
+        window.IbrazStatus && IbrazStatus.ok('trades');
         var coin = d.s.replace('USDT', ''), t = fromAgg(coin, d);
         flow.spawn(t);
         if(t.usd >= MIN) add(t, true);
       }catch(e){}
     };
     ws.onclose = function(){
-      $('btStatus').textContent = 'Reconnecting…'; $('btDot').classList.add('off');
+      window.IbrazStatus && IbrazStatus.fail('trades');
       setTimeout(connect, retry); retry = Math.min(30000, retry * 2);
     };
     ws.onerror = function(){ try{ ws.close(); }catch(e){} };
@@ -2370,10 +2428,10 @@ header nav a.active{color:#fff}
     }, .2);
   }
   if(grid){
-    getJSON(API + '/klines?symbol=BTCUSDT&interval=1M&limit=120').then(function(k){
-      buildGrid(k);
+    (function mg(){ getJSON(API + '/klines?symbol=BTCUSDT&interval=1M&limit=120').then(function(k){
+      buildGrid(k); window.IbrazStatus && IbrazStatus.ok('months');
       setInterval(function(){ buildGrid(k); }, 120000);
-    }).catch(function(){ grid.textContent = 'Monthly history unavailable right now.'; });
+    }).catch(function(){ grid.textContent = 'Monthly history unavailable right now. Retrying…'; window.IbrazStatus && IbrazStatus.fail('months'); setTimeout(mg, 30000); }); })();
   }
 })();
 </script>
