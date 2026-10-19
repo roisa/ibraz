@@ -190,7 +190,7 @@ footer ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* live price tape */
-.tape{border-bottom:1px solid var(--line);background:var(--band);overflow:hidden;white-space:nowrap}
+.tape{border-block:1px solid var(--line);background:var(--band);overflow:hidden;white-space:nowrap}
 .tape-track{display:inline-flex;padding-block:10px;will-change:transform}
 .tape-track.run{animation:tape var(--dur,40s) linear infinite}
 .tape:hover .tape-track{animation-play-state:paused}
@@ -365,7 +365,7 @@ header nav a.active{color:#fff}
 /* hero glass card + tape */
 .mini{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03));-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);border-color:rgba(255,255,255,.12)}
 .chg{background:rgba(0,0,0,.25);border-color:rgba(255,255,255,.08)}
-.tape{background:rgba(255,255,255,.02);border-bottom-color:rgba(255,255,255,.06)}
+.tape{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.06)}
 .tape-item{border-right-color:rgba(255,255,255,.06)}
 
 /* venture app icons */
@@ -436,7 +436,7 @@ header nav a.active{color:#fff}
 [data-theme="light"] .pill[aria-pressed=true]{color:#fff;border-color:transparent}
 [data-theme="light"] .mini{background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.55));border-color:rgba(15,23,42,.1)}
 [data-theme="light"] .chg{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.08)}
-[data-theme="light"] .tape{background:rgba(255,255,255,.6);border-bottom-color:rgba(15,23,42,.06)}
+[data-theme="light"] .tape{background:rgba(255,255,255,.6);border-color:rgba(15,23,42,.06)}
 [data-theme="light"] .tape-item{border-right-color:rgba(15,23,42,.07)}
 [data-theme="light"] .tag{border-color:rgba(15,23,42,.12);color:#4B5870}
 [data-theme="light"] .tag.op{color:var(--up);border-color:rgba(14,159,91,.3);background:rgba(14,159,91,.07)}
@@ -649,7 +649,6 @@ header nav a.active{color:#fff}
   </div>
 </header>
 
-<div class="tape" role="region" aria-label="Live prices"><div class="tape-track" id="tapeTrack"><span class="tape-item muted">Loading live prices…</span></div></div>
 
 <main id="top">
   <div class="hero-band">
@@ -683,6 +682,7 @@ header nav a.active{color:#fff}
   </div>
   </div>
 
+  <div class="tape" role="region" aria-label="Live prices"><div class="tape-track" id="tapeTrack"><span class="tape-item muted">Loading live prices…</span></div></div>
   <section id="portfolio" class="band">
     <div class="wrap">
       <div class="eyebrow">Portfolio</div>
