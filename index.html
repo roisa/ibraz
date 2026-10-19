@@ -724,9 +724,9 @@ header nav a.active{color:#fff}
       <div class="insight-row">
         <div class="card hm-card">
           <div class="ins-head"><h3>Market weather</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
-          <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Greens mean it is rising today, warm reds and oranges mean it is falling, and the colours blend where zones meet. Hover or tap for details.</p>
+          <p class="small muted ins-sub">Each coin owns a zone sized by how much it traded in 24 hours. Green zones are up today, red and orange zones are down. The dashed white line is 0%: it separates rising coins from falling ones. A ripple means that coin’s price just moved. Hover or tap for details.</p>
           <div class="wx" id="heatmap" role="img" aria-label="Weather-style heatmap of 24 cryptocurrencies by 24-hour change"><canvas id="wxCanvas"></canvas><div class="wx-tip" id="wxTip"></div></div>
-          <div class="hm-foot"><span class="small muted">Contour bands every 0.5%</span><div class="wx-legend" aria-hidden="true"><span>−6%</span><i></i><span>0</span><i class="r"></i><span>+6%</span></div></div>
+          <div class="hm-foot"><span class="small muted">Thin lines every 1% · white dashed line = 0%</span><div class="wx-legend" aria-hidden="true"><span>−6%</span><i></i><span>0</span><i class="r"></i><span>+6%</span></div></div>
         </div>
         <div class="card bt-card" id="bigTrades">
           <div class="ins-head"><h3>Big trades</h3><span class="bt-live"><span class="dot off" id="btDot"></span><span id="btStatus">Connecting…</span></span></div>
@@ -1716,15 +1716,42 @@ header nav a.active{color:#fff}
     });
     draw(performance.now(), true);
   }
+  var rings = [];
+  function ping(p, up){ if(RM || !onScreen) return; rings.push({p:p, up:up, t0:performance.now()}); if(rings.length > 40) rings.shift(); go(); }
+  window.__wxPing = function(i, up){ if(pts[i]) ping(pts[i], up); };
+  function contour(V, gw, gh, g, level){
+    var segs = [];
+    for(var y = 0; y < gh - 1; y++){
+      for(var x = 0; x < gw - 1; x++){
+        var o = y * gw + x, a = V[o], b2 = V[o + 1], c = V[o + gw + 1], d2 = V[o + gw];
+        var idx = (a > level ? 8 : 0) | (b2 > level ? 4 : 0) | (c > level ? 2 : 0) | (d2 > level ? 1 : 0);
+        if(idx === 0 || idx === 15) continue;
+        var top = [(x + (level - a) / (b2 - a)) * g, y * g], right = [(x + 1) * g, (y + (level - b2) / (c - b2)) * g],
+            bot = [(x + (level - d2) / (c - d2)) * g, (y + 1) * g], left = [x * g, (y + (level - a) / (d2 - a)) * g];
+        switch(idx){
+          case 1: case 14: segs.push(left, bot); break;
+          case 2: case 13: segs.push(bot, right); break;
+          case 3: case 12: segs.push(left, right); break;
+          case 4: case 11: segs.push(top, right); break;
+          case 5: segs.push(left, top, bot, right); break;
+          case 6: case 9: segs.push(top, bot); break;
+          case 7: case 8: segs.push(left, top); break;
+          case 10: segs.push(left, bot, top, right); break;
+        }
+      }
+    }
+    return segs;
+  }
   function draw(now, force){
     if(!ctx || !pts.length) return;
-    if(!force && now - lastDraw < 40) return; lastDraw = now;
-    var g = 8, gw = Math.ceil(W / g) + 1, gh = Math.ceil(H / g) + 1, F = 2, fw = Math.ceil(W / F), fh = Math.ceil(H / F), STEP = .5;
+    if(!force && now - lastDraw < 33) return; lastDraw = now;
+    var g = 6, gw = Math.ceil(W / g) + 1, gh = Math.ceil(H / g) + 1, F = 2, fw = Math.ceil(W / F), fh = Math.ceil(H / F);
     if(off.width !== fw || off.height !== fh){ off.width = fw; off.height = fh; }
     var P = pts.map(function(p){
-      p.cur += (p.ch - p.cur) * .08;
-      var dx = RM ? 0 : Math.sin(now / 2600 + p.ph) * 5, dy = RM ? 0 : Math.cos(now / 3100 + p.ph) * 4;
-      return {x:(p.x + dx) / g, y:(p.y + dy) / g, s2:2 * Math.pow(p.sig / g, 2), v:p.cur * bloom};
+      p.cur += (p.ch - p.cur) * .1;
+      var dx = RM ? 0 : Math.sin(now / 5200 + p.ph) * 2.5, dy = RM ? 0 : Math.cos(now / 6100 + p.ph) * 2;
+      p.dx = p.x + dx; p.dy = p.y + dy;
+      return {x:p.dx / g, y:p.dy / g, s2:2 * Math.pow(p.sig / g, 2), v:p.cur * bloom};
     });
     var V = new Float32Array(gw * gh);
     for(var y = 0; y < gh; y++){
@@ -1737,20 +1764,14 @@ header nav a.active{color:#fff}
         V[y * gw + x] = ws > 1e-6 ? vs / ws : 0;
       }
     }
-    var img = octx.createImageData(fw, fh), d = img.data, band = new Int16Array(fw * fh), r = g / F;
+    var img = octx.createImageData(fw, fh), d = img.data, r = g / F;
     for(var fy = 0; fy < fh; fy++){
       var gy = fy / r, y0 = Math.min(gh - 2, Math.floor(gy)), ty = gy - y0;
       for(var fx = 0; fx < fw; fx++){
         var gx = fx / r, x0 = Math.min(gw - 2, Math.floor(gx)), tx = gx - x0, o0 = y0 * gw + x0;
         var v = (V[o0] * (1 - tx) + V[o0 + 1] * tx) * (1 - ty) + (V[o0 + gw] * (1 - tx) + V[o0 + gw + 1] * tx) * ty;
-        var bi = Math.round(v / STEP), c = ramp(bi * STEP * .85 + v * .15), o = fy * fw + fx;
-        band[o] = bi; d[o * 4] = c[0]; d[o * 4 + 1] = c[1]; d[o * 4 + 2] = c[2]; d[o * 4 + 3] = 255;
-      }
-    }
-    for(var y2 = 0; y2 < fh - 1; y2++){
-      for(var x2 = 0; x2 < fw - 1; x2++){
-        var o2 = y2 * fw + x2;
-        if(band[o2] !== band[o2 + 1] || band[o2] !== band[o2 + fw]){ d[o2 * 4] *= .86; d[o2 * 4 + 1] *= .86; d[o2 * 4 + 2] *= .86; }
+        var c = ramp(v), o = (fy * fw + fx) * 4;
+        d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = 255;
       }
     }
     octx.putImageData(img, 0, 0);
@@ -1758,20 +1779,50 @@ header nav a.active{color:#fff}
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(off, 0, 0, fw * F, fh * F);
     var light = document.documentElement.getAttribute('data-theme') === 'light';
-    pts.forEach(function(p, i){
-      var area = Math.sqrt(p.w * p.h), fs = Math.max(10, Math.min(28, area / 7)), dx = RM ? 0 : Math.sin(now / 2600 + p.ph) * 5, dy = RM ? 0 : Math.cos(now / 3100 + p.ph) * 4;
-      var cx = p.x + dx, cy = p.y + dy, col = ramp(p.cur * bloom), lum = (col[0] * .299 + col[1] * .587 + col[2] * .114) / 255;
-      var ink = lum > .62 ? 'rgba(11,18,32,.92)' : 'rgba(255,255,255,.96)', shadow = lum > .62 ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.45)';
-      ctx.textAlign = 'center'; ctx.shadowColor = shadow; ctx.shadowBlur = 6;
-      if(area > 34){
-        ctx.fillStyle = ink; ctx.font = '800 ' + fs + 'px "Bricolage Grotesque", ui-sans-serif, sans-serif';
-        ctx.fillText(p.sym, cx, cy - (area > 60 ? fs * .15 : -fs * .3));
-        if(area > 60){ ctx.font = '600 ' + Math.max(10, fs * .55) + 'px "JetBrains Mono", ui-monospace, monospace'; ctx.fillText(pct(p.cur), cx, cy + fs * .72); }
-      }
-      ctx.shadowBlur = 0;
-      if(hoverPt === p){
-        ctx.strokeStyle = light ? 'rgba(11,18,32,.75)' : 'rgba(255,255,255,.85)'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(cx, cy, Math.max(16, area * .38), 0, 6.283); ctx.stroke();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    for(var L = -6; L <= 6; L++){
+      if(L === 0) continue;
+      var sg = contour(V, gw, gh, g, L); if(!sg.length) continue;
+      ctx.beginPath();
+      for(var k = 0; k < sg.length; k += 2){ ctx.moveTo(sg[k][0], sg[k][1]); ctx.lineTo(sg[k + 1][0], sg[k + 1][1]); }
+      ctx.strokeStyle = 'rgba(20,24,40,' + (Math.abs(L) % 2 === 0 ? .26 : .14) + ')'; ctx.lineWidth = Math.abs(L) % 2 === 0 ? 1.2 : .8; ctx.stroke();
+    }
+    var z = contour(V, gw, gh, g, 0);
+    if(z.length && bloom > .3){
+      ctx.beginPath();
+      for(var k2 = 0; k2 < z.length; k2 += 2){ ctx.moveTo(z[k2][0], z[k2][1]); ctx.lineTo(z[k2 + 1][0], z[k2 + 1][1]); }
+      ctx.strokeStyle = 'rgba(20,24,40,.35)'; ctx.lineWidth = 4.5; ctx.setLineDash([]); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]); ctx.lineDashOffset = RM ? 0 : -(now / 60) % 13; ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    rings = rings.filter(function(rg){
+      var k3 = (now - rg.t0) / 1400; if(k3 >= 1) return false;
+      var e = 1 - Math.pow(1 - k3, 2), rad = 8 + e * Math.max(30, Math.sqrt(rg.p.w * rg.p.h) * .45);
+      ctx.beginPath(); ctx.arc(rg.p.dx, rg.p.dy, rad, 0, 6.283);
+      ctx.strokeStyle = (rg.up ? 'rgba(255,255,255,' : 'rgba(20,24,40,') + (.9 * (1 - k3)).toFixed(3) + ')';
+      ctx.lineWidth = 2.5 * (1 - k3) + .5; ctx.stroke();
+      return true;
+    });
+    pts.forEach(function(p){
+      var area = Math.sqrt(p.w * p.h), cx = p.dx, cy = p.dy;
+      if(area < 30){ ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, 6.283); ctx.fillStyle = 'rgba(20,24,40,.6)'; ctx.fill(); return; }
+      var fs = Math.max(11, Math.min(26, area / 7.5)), big = area > 62, txt = pct(p.cur);
+      ctx.font = '800 ' + fs + 'px "Bricolage Grotesque", ui-sans-serif, sans-serif';
+      var w1 = ctx.measureText(p.sym).width, fs2 = Math.max(10, fs * .56);
+      ctx.font = '700 ' + fs2 + 'px "JetBrains Mono", ui-monospace, monospace';
+      var w2 = big ? ctx.measureText(txt).width : 0, bw = Math.max(w1, w2) + 16, bh = big ? fs + fs2 + 14 : fs + 10;
+      var bx = cx - bw / 2, by = cy - bh / 2;
+      ctx.fillStyle = light ? 'rgba(255,255,255,.82)' : 'rgba(10,14,24,.62)';
+      ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 8); else ctx.rect(bx, by, bw, bh); ctx.fill();
+      if(hoverPt === p){ ctx.strokeStyle = light ? '#0B1220' : '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); }
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = light ? '#0B1220' : '#F2F5FA';
+      ctx.font = '800 ' + fs + 'px "Bricolage Grotesque", ui-sans-serif, sans-serif';
+      ctx.fillText(p.sym, cx, by + 6 + fs * .86);
+      if(big){
+        ctx.font = '700 ' + fs2 + 'px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = p.cur >= 0 ? (light ? '#0E9F5B' : '#4ADE9A') : (light ? '#E03E3E' : '#FF8A8A');
+        ctx.fillText(txt, cx, by + 6 + fs + 4 + fs2 * .86);
       }
     });
   }
@@ -1804,7 +1855,7 @@ header nav a.active{color:#fff}
       if(!pts.length) layout();
       else {
         var by = {}; list.forEach(function(t){ by[t.symbol.replace('USDT','')] = t; });
-        pts.forEach(function(p){ var t = by[p.sym]; if(t){ p.ch = +t.priceChangePercent; p.p = +t.lastPrice; p.vol = +t.quoteVolume; } });
+        pts.forEach(function(p){ var t = by[p.sym]; if(t){ var np = +t.lastPrice; if(p.p && np !== p.p) ping(p, np > p.p); p.ch = +t.priceChangePercent; p.p = np; p.vol = +t.quoteVolume; } });
         if(RM) draw(performance.now(), true);
       }
       var up = list.filter(function(t){ return +t.priceChangePercent >= 0; }).length;
@@ -1815,7 +1866,32 @@ header nav a.active{color:#fff}
     loadWx().then(function(){
       seen(wx, function(){ bloomT = performance.now(); go(); if(RM) draw(performance.now(), true); }, .2);
     });
-    setInterval(function(){ if(!document.hidden) loadWx(); }, 15000);
+    setInterval(function(){ if(!document.hidden) loadWx(); }, 60000);
+    (function live(){
+      if(!('WebSocket' in window)) return;
+      var streams = COINS.map(function(c){ return c.toLowerCase() + 'usdt@miniTicker'; }).join('/'), sock, back = 1000, last = {}, lastT = {};
+      function open(){
+        try{ sock = new WebSocket('wss://data-stream.binance.vision/stream?streams=' + streams); }catch(e){ return; }
+        sock.onopen = function(){ back = 1000; };
+        sock.onmessage = function(ev){
+          try{
+            var m = JSON.parse(ev.data).data; if(!m || !m.s) return;
+            var sym = m.s.replace('USDT', ''), c = +m.c, o = +m.o, now = performance.now();
+            for(var i = 0; i < pts.length; i++){
+              var p = pts[i]; if(p.sym !== sym) continue;
+              p.p = c; if(o) p.ch = (c / o - 1) * 100; p.vol = +m.q || p.vol;
+              if(!last[sym]) last[sym] = c;
+              else if(Math.abs(c / last[sym] - 1) >= .0008 && (!lastT[sym] || now - lastT[sym] > 2500)){ ping(p, c > last[sym]); last[sym] = c; lastT[sym] = now; }
+              if(RM) draw(now, true);
+              break;
+            }
+          }catch(e){}
+        };
+        sock.onclose = function(){ setTimeout(open, back); back = Math.min(30000, back * 2); };
+        sock.onerror = function(){ try{ sock.close(); }catch(e){} };
+      }
+      seen(wx, open, .1);
+    })();
     if('IntersectionObserver' in window) new IntersectionObserver(function(en){ onScreen = en[0].isIntersecting; if(onScreen) go(); }).observe(wx); else onScreen = true;
     var rzT; if('ResizeObserver' in window) new ResizeObserver(function(){ clearTimeout(rzT); rzT = setTimeout(layout, 120); }).observe(wx);
     wx.addEventListener('mousemove', showTip);
