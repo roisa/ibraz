@@ -454,6 +454,67 @@ header nav a.active{color:#fff}
 [data-theme="light"] .appicon{box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 6px rgba(0,0,0,.12),0 8px 18px -8px var(--b)}
 [data-theme="light"] .timeline li::before{box-shadow:0 0 0 4px var(--ink)}
 @media (prefers-reduced-motion:reduce){.theme-toggle,.theme-toggle svg{transition:none}}
+
+/* ---------- Insights: heatmap, big trades, month grid ---------- */
+.insight-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px}
+.insight-row>.card{min-width:0}
+.hm-card{flex:2 1 560px}
+.bt-card{flex:1 1 320px;display:flex;flex-direction:column}
+.ins-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.ins-head h3{font-size:20px;font-weight:700}
+.ins-sub{margin:6px 0 16px}
+.heatmap{position:relative;height:420px;border-radius:14px;overflow:hidden}
+@media (max-width:640px){.heatmap{height:480px}}
+.hm-tile{position:absolute;box-sizing:border-box;border:1.5px solid var(--card);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;cursor:default;color:var(--fg);font-variant-numeric:tabular-nums;transform:scale(.6);opacity:0;transition:transform .7s cubic-bezier(.34,1.56,.64,1) calc(var(--i) * 35ms),opacity .4s ease calc(var(--i) * 35ms),filter .2s}
+.hm-tile.pos{background:color-mix(in srgb,var(--up) var(--mix),var(--card))}
+.hm-tile.neg{background:color-mix(in srgb,var(--down) var(--mix),var(--card))}
+.heatmap.go .hm-tile{transform:none;opacity:1}
+.hm-tile:hover{filter:brightness(1.15);z-index:1}
+.hm-tile b{font:800 clamp(13px,1.6vw,22px)/1.1 var(--display);letter-spacing:.01em}
+.hm-tile span{font:600 13px var(--mono);margin-top:3px}
+.hm-tile small{font:500 11px var(--mono);opacity:.75;margin-top:2px}
+.hm-tile.sm{padding:3px}
+.hm-tile.sm b{font-size:11px}
+.hm-tile.sm span{font-size:10px;margin-top:1px}
+.hm-legend{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-top:10px;font:500 11px var(--mono);color:var(--muted)}
+.hm-legend i{display:block;width:140px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--down),var(--card) 50%,var(--up))}
+.bt-live{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--muted)}
+.bt-pressure{margin-bottom:12px}
+.bt-bar{height:10px;border-radius:5px;background:var(--down);overflow:hidden}
+.bt-bar i{display:block;height:100%;width:50%;background:var(--up);border-right:2px solid var(--card);transition:width .8s cubic-bezier(.16,1,.3,1)}
+.bt-pv{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font:600 12px var(--mono)}
+.bt-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;flex:1}
+.bt-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:rgba(127,127,127,.06);font-size:13px;font-variant-numeric:tabular-nums}
+.bt-side{font:700 11px var(--mono);letter-spacing:.04em;padding:3px 7px;border-radius:6px}
+.bt-row.buy .bt-side{color:var(--up);background:color-mix(in srgb,var(--up) 14%,transparent)}
+.bt-row.sell .bt-side{color:var(--down);background:color-mix(in srgb,var(--down) 14%,transparent)}
+.bt-amt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.bt-amt b{color:var(--fg);font:700 14px var(--mono)}
+.bt-whale{font:700 10px var(--mono);font-style:normal;letter-spacing:.06em;margin-left:8px;padding:2px 6px;border-radius:6px;color:#fff;background:linear-gradient(135deg,#2F7BFF,#6E6BFF)}
+.bt-row.whale{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
+.bt-ago{font:500 11px var(--mono);color:var(--faint)}
+.bt-empty{color:var(--faint);font-size:13px;padding:12px 0}
+.bt-row.fresh{animation:btIn .7s cubic-bezier(.16,1,.3,1)}
+.bt-row.fresh.buy{animation:btIn .7s cubic-bezier(.16,1,.3,1),btFlashB 1.6s ease-out}
+.bt-row.fresh.sell{animation:btIn .7s cubic-bezier(.16,1,.3,1),btFlashS 1.6s ease-out}
+@keyframes btIn{from{transform:translateY(-12px) scale(.97);opacity:0}}
+@keyframes btFlashB{0%{background:color-mix(in srgb,var(--up) 30%,transparent)}}
+@keyframes btFlashS{0%{background:color-mix(in srgb,var(--down) 30%,transparent)}}
+.mg-wrap{overflow-x:auto;margin-top:16px;-webkit-overflow-scrolling:touch}
+.mg{border-collapse:separate;border-spacing:4px;width:100%;min-width:760px;font-variant-numeric:tabular-nums}
+.mg th{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:4px;text-align:center}
+.mg th.mg-y{text-align:left;position:sticky;left:0;background:var(--card);z-index:1;padding-right:10px;white-space:nowrap}
+.mg-c{font:600 12px var(--mono);text-align:center;padding:9px 4px;border-radius:7px;color:var(--fg);transform:scale(.4);opacity:0;transition:transform .5s cubic-bezier(.34,1.56,.64,1) calc(var(--i) * 6ms),opacity .3s ease calc(var(--i) * 6ms)}
+.mg-wrap.go .mg-c{transform:none;opacity:1}
+.mg-c.pos{background:color-mix(in srgb,var(--up) var(--mix),transparent)}
+.mg-c.neg{background:color-mix(in srgb,var(--down) var(--mix),transparent)}
+.mg-c.na{background:rgba(127,127,127,.06)}
+.mg-c.tot{font-weight:800;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 18%,transparent)}
+.mg-c.now{box-shadow:inset 0 0 0 1.5px var(--gold)}
+.mg-avg th,.mg-avg .mg-c{border-top:0}
+.mg-avg .mg-c{font-style:italic}
+.mg tbody tr.mg-avg th.mg-y{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){.hm-tile,.mg-c{transform:none;opacity:1;transition:none}.bt-row.fresh{animation:none}}
 </style>
 </head>
 <body>
@@ -578,6 +639,20 @@ header nav a.active{color:#fff}
       <h2>Markets, in plain sight.</h2>
       <p class="lead">24-hour change and the last 30 days for each asset. Rupiah prices use today's USD/IDR rate.</p>
       <div class="grid" id="tiles"></div>
+      <div class="insight-row">
+        <div class="card hm-card">
+          <div class="ins-head"><h3>Crypto heatmap</h3><span class="small muted" id="hmBreadth">&nbsp;</span></div>
+          <p class="small muted ins-sub">Tile size shows how much was traded in 24 hours. Colour shows today's move. Hover or tap a tile for details.</p>
+          <div class="heatmap" id="heatmap" role="img" aria-label="Heatmap of 24 major cryptocurrencies by 24-hour change"></div>
+          <div class="hm-legend" aria-hidden="true"><span>−6%</span><i></i><span>+6%</span></div>
+        </div>
+        <div class="card bt-card" id="bigTrades">
+          <div class="ins-head"><h3>Big trades</h3><span class="bt-live"><span class="dot off" id="btDot"></span><span id="btStatus">Connecting…</span></span></div>
+          <p class="small muted ins-sub">Bitcoin and Ethereum trades over $150K on Binance, as they happen.</p>
+          <div class="bt-pressure" aria-label="Buy versus sell volume of big trades, last 15 minutes"><div class="bt-bar"><i id="btBuy"></i></div><div class="bt-pv"><span class="up" id="btBuyV">Buys $0</span><span class="small muted">last 15 min</span><span class="down" id="btSellV">Sells $0</span></div></div>
+          <ul class="bt-list" id="btList" aria-live="polite"><li class="bt-empty">Loading recent big trades…</li></ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -597,6 +672,11 @@ header nav a.active{color:#fff}
           <span class="small muted num" id="chartRange">&nbsp;</span>
         </div>
         <div class="chartbox" id="btcChart"><p class="skel">Loading chart…</p></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="ins-head"><h3 style="font-size:20px">Bitcoin month by month</h3><span class="small muted">Monthly return, open to close</span></div>
+        <div class="mg-wrap" id="monthGrid"><p class="skel">Loading monthly history…</p></div>
+        <p class="note" id="mgNote">&nbsp;</p>
       </div>
     </div>
   </section>
@@ -1463,6 +1543,261 @@ header nav a.active{color:#fff}
           {duration:700, easing:'cubic-bezier(.65,0,.35,1)', pseudoElement:'::view-transition-new(root)'});
       }).catch(function(){});
     });
+  }
+})();
+</script>
+<script>
+/* Insights: crypto heatmap, live big trades, Bitcoin month-by-month returns */
+(function(){
+  'use strict';
+  var API = 'https://data-api.binance.vision/api/v3';
+  var RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  function getJSON(u){ return fetch(u, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
+  function seen(node, fn, th){
+    if(RM || !('IntersectionObserver' in window)){ fn(); return; }
+    var io = new IntersectionObserver(function(en){ if(en[0].isIntersecting){ io.disconnect(); fn(); } }, {threshold: th == null ? .2 : th});
+    io.observe(node);
+  }
+  function money(n){
+    var a = Math.abs(n);
+    if(a >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+    if(a >= 1e6) return '$' + (n / 1e6).toFixed(a >= 1e7 ? 1 : 2) + 'M';
+    if(a >= 1e3) return '$' + Math.round(n / 1e3) + 'K';
+    return '$' + Math.round(n);
+  }
+  function price(p){
+    if(p >= 1000) return '$' + p.toLocaleString('en-US', {maximumFractionDigits:0});
+    if(p >= 1) return '$' + p.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    return '$' + p.toPrecision(3);
+  }
+  function pct(n){ return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(Math.abs(n) >= 10 ? 1 : 2) + '%'; }
+
+  /* ================= Crypto heatmap ================= */
+  var COINS = ['BTC','ETH','BNB','SOL','XRP','DOGE','ADA','TRX','AVAX','LINK','TON','DOT','SUI','LTC','BCH','NEAR','UNI','APT','PEPE','SHIB','XLM','HBAR','QNT','ATOM'];
+  var heat = $('heatmap'), heatData = null, heatShown = false;
+  function tickers(syms){
+    var url = API + '/ticker/24hr?symbols=' + encodeURIComponent(JSON.stringify(syms));
+    return getJSON(url).catch(function(){
+      return Promise.all(syms.map(function(s){ return getJSON(API + '/ticker/24hr?symbol=' + s).catch(function(){ return null; }); }))
+        .then(function(list){ return list.filter(Boolean); });
+    });
+  }
+  function worst(row, w){
+    var s = 0, mx = 0, mn = Infinity;
+    row.forEach(function(r){ s += r.a; if(r.a > mx) mx = r.a; if(r.a < mn) mn = r.a; });
+    return Math.max(w * w * mx / (s * s), (s * s) / (w * w * mn));
+  }
+  function squarify(items, x, y, w, h, out){
+    var rest = items.slice();
+    while(rest.length){
+      var side = Math.min(w, h), row = [rest[0]], i = 1;
+      while(i < rest.length && worst(row.concat([rest[i]]), side) <= worst(row, side)){ row.push(rest[i]); i++; }
+      var sum = row.reduce(function(t, r){ return t + r.a; }, 0);
+      if(w >= h){
+        var cw = sum / h, cy = y;
+        row.forEach(function(r){ var rh = r.a / cw; out.push({it:r, x:x, y:cy, w:cw, h:rh}); cy += rh; });
+        x += cw; w -= cw;
+      } else {
+        var ch = sum / w, cx = x;
+        row.forEach(function(r){ var rw = r.a / ch; out.push({it:r, x:cx, y:y, w:rw, h:ch}); cx += rw; });
+        y += ch; h -= ch;
+      }
+      rest = rest.slice(i);
+    }
+    return out;
+  }
+  function renderHeat(animate){
+    if(!heat || !heatData) return;
+    var W = heat.clientWidth, H = heat.clientHeight; if(!W || !H) return;
+    var items = heatData.map(function(t){
+      return {sym:t.symbol.replace('USDT',''), ch:+t.priceChangePercent, p:+t.lastPrice, vol:+t.quoteVolume, v:Math.pow(Math.max(+t.quoteVolume, 1), .62)};
+    }).sort(function(a, b){ return b.v - a.v; });
+    var total = items.reduce(function(s, r){ return s + r.v; }, 0);
+    items.forEach(function(r){ r.a = r.v / total * W * H; });
+    var rects = squarify(items, 0, 0, W, H, []);
+    heat.textContent = '';
+    rects.forEach(function(rc, i){
+      var r = rc.it, t = el('div', 'hm-tile'), mag = Math.min(1, Math.abs(r.ch) / 6);
+      t.style.left = rc.x + 'px'; t.style.top = rc.y + 'px'; t.style.width = rc.w + 'px'; t.style.height = rc.h + 'px';
+      t.style.setProperty('--mix', Math.round(18 + mag * 62) + '%');
+      t.classList.add(r.ch >= 0 ? 'pos' : 'neg');
+      t.style.setProperty('--i', i);
+      var small = rc.w < 70 || rc.h < 46, tiny = rc.w < 44 || rc.h < 30;
+      if(small) t.classList.add('sm');
+      if(!tiny){
+        t.appendChild(el('b', null, r.sym));
+        t.appendChild(el('span', null, pct(r.ch)));
+        if(!small && rc.h > 92) t.appendChild(el('small', null, price(r.p)));
+      }
+      t.title = r.sym + '  ' + price(r.p) + '  ' + pct(r.ch) + ' (24h)  ·  ' + money(r.vol) + ' traded';
+      heat.appendChild(t);
+    });
+    if(animate && !RM){ heat.classList.remove('go'); void heat.offsetWidth; }
+    heat.classList.add('go');
+    var up = items.filter(function(r){ return r.ch >= 0; }).length;
+    $('hmBreadth').textContent = up + ' of ' + items.length + ' coins up today';
+  }
+  function loadHeat(){
+    return tickers(COINS.map(function(c){ return c + 'USDT'; })).then(function(list){
+      if(!list || !list.length) return;
+      heatData = list;
+      if(heatShown) renderHeat(false);
+    }).catch(function(){});
+  }
+  if(heat){
+    loadHeat().then(function(){ seen(heat, function(){ heatShown = true; renderHeat(true); }, .25); });
+    setInterval(loadHeat, 60000);
+    var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if(heatShown) renderHeat(false); }, 200); });
+  }
+
+  /* ================= Live big trades ================= */
+  var feed = $('bigTrades'), MIN = 150000, WHALE = 1000000, WINDOW = 15 * 60000, MAXROWS = 8;
+  var trades = [], seenIds = {};
+  function ago(ms){
+    var s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+    if(s < 60) return s + 's ago';
+    if(s < 3600) return Math.floor(s / 60) + 'm ago';
+    return Math.floor(s / 3600) + 'h ago';
+  }
+  function pressure(){
+    var now = Date.now(), b = 0, s = 0;
+    trades.forEach(function(t){ if(now - t.T <= WINDOW){ if(t.buy) b += t.usd; else s += t.usd; } });
+    var tot = b + s, bp = tot ? b / tot * 100 : 50;
+    $('btBuy').style.width = bp.toFixed(1) + '%';
+    $('btBuyV').textContent = 'Buys ' + money(b);
+    $('btSellV').textContent = 'Sells ' + money(s);
+  }
+  function row(t, fresh){
+    var li = el('li', 'bt-row ' + (t.buy ? 'buy' : 'sell') + (t.usd >= WHALE ? ' whale' : '') + (fresh && !RM ? ' fresh' : ''));
+    li.appendChild(el('span', 'bt-side', t.buy ? '▲ BUY' : '▼ SELL'));
+    var mid = el('span', 'bt-amt');
+    mid.appendChild(el('b', null, money(t.usd)));
+    mid.appendChild(document.createTextNode(' ' + t.coin + ' at ' + price(t.p)));
+    if(t.usd >= WHALE) mid.appendChild(el('em', 'bt-whale', 'WHALE'));
+    li.appendChild(mid);
+    var tm = el('time', 'bt-ago', ago(t.T)); tm.setAttribute('data-t', t.T);
+    li.appendChild(tm);
+    return li;
+  }
+  function render(freshId){
+    var list = $('btList'); if(!list) return;
+    list.textContent = '';
+    var show = trades.slice(0, MAXROWS);
+    if(!show.length){ list.appendChild(el('li', 'bt-empty', 'Watching for the next big trade…')); }
+    show.forEach(function(t){ list.appendChild(row(t, t.id === freshId)); });
+    pressure();
+  }
+  function add(t, live){
+    if(seenIds[t.id]) return; seenIds[t.id] = 1;
+    trades.unshift(t);
+    trades.sort(function(a, b){ return b.T - a.T; });
+    var cutoff = Date.now() - WINDOW;
+    trades = trades.filter(function(x, i){ return i < MAXROWS || x.T >= cutoff; });
+    if(live) render(t.id);
+  }
+  function fromAgg(sym, a){
+    var p = +a.p, q = +a.q;
+    return {id: sym + a.a, coin: sym, p: p, usd: p * q, T: a.T, buy: !a.m};
+  }
+  window.__ibrazTrade = function(t){ add(t, true); };
+  function seed(){
+    return Promise.all(['BTC','ETH'].map(function(c){
+      return getJSON(API + '/aggTrades?symbol=' + c + 'USDT&limit=1000').then(function(list){
+        list.forEach(function(a){ var t = fromAgg(c, a); if(t.usd >= MIN) add(t, false); });
+      }).catch(function(){});
+    })).then(function(){ render(null); });
+  }
+  var ws = null, retry = 1000;
+  function connect(){
+    if(!('WebSocket' in window)) return;
+    try{ ws = new WebSocket('wss://data-stream.binance.vision/stream?streams=btcusdt@aggTrade/ethusdt@aggTrade'); }catch(e){ return; }
+    ws.onopen = function(){ retry = 1000; $('btStatus').textContent = 'Live'; $('btDot').classList.remove('off'); };
+    ws.onmessage = function(ev){
+      try{
+        var m = JSON.parse(ev.data), d = m.data || m; if(!d || d.e !== 'aggTrade') return;
+        var coin = d.s.replace('USDT', ''), t = fromAgg(coin, d);
+        if(t.usd >= MIN) add(t, true);
+      }catch(e){}
+    };
+    ws.onclose = function(){
+      $('btStatus').textContent = 'Reconnecting…'; $('btDot').classList.add('off');
+      setTimeout(connect, retry); retry = Math.min(30000, retry * 2);
+    };
+    ws.onerror = function(){ try{ ws.close(); }catch(e){} };
+  }
+  if(feed){
+    seed().then(function(){ seen(feed, connect, .1); });
+    setInterval(function(){
+      [].forEach.call(document.querySelectorAll('.bt-ago'), function(n){ n.textContent = ago(+n.getAttribute('data-t')); });
+      pressure();
+    }, 1000);
+  }
+
+  /* ================= Bitcoin month by month ================= */
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var grid = $('monthGrid');
+  function cell(v, cls){
+    var td = el('td', 'mg-c' + (cls ? ' ' + cls : ''));
+    if(v == null || isNaN(v)){ td.classList.add('na'); return td; }
+    td.textContent = pct(v).replace(/\.\d+%/, function(m){ return Math.abs(v) >= 10 ? '%' : m; });
+    td.classList.add(v >= 0 ? 'pos' : 'neg');
+    td.style.setProperty('--mix', Math.round(12 + Math.min(1, Math.abs(v) / 40) * 70) + '%');
+    return td;
+  }
+  function buildGrid(k){
+    var live = window.IBRAZ && window.IBRAZ.tickers.BTCUSDT ? +window.IBRAZ.tickers.BTCUSDT.lastPrice : null;
+    var byYear = {}, nowY = new Date().getUTCFullYear(), nowM = new Date().getUTCMonth();
+    k.forEach(function(r){
+      var d = new Date(r[0]), y = d.getUTCFullYear(), m = d.getUTCMonth();
+      if(y < 2018) return;
+      var open = +r[1], close = (y === nowY && m === nowM && live) ? live : +r[4];
+      (byYear[y] = byYear[y] || {})[m] = {r: (close / open - 1) * 100, open: open, close: close};
+    });
+    var years = Object.keys(byYear).map(Number).sort(function(a, b){ return b - a; });
+    var table = el('table', 'mg'), thead = el('thead'), hr = el('tr');
+    hr.appendChild(el('th', 'mg-y', 'Year'));
+    MONTHS.forEach(function(m){ hr.appendChild(el('th', null, m)); });
+    hr.appendChild(el('th', 'mg-tot', 'Year'));
+    thead.appendChild(hr); table.appendChild(thead);
+    var tb = el('tbody'), idx = 0, sums = [], counts = [];
+    years.forEach(function(y){
+      var tr = el('tr'); tr.appendChild(el('th', 'mg-y', String(y)));
+      var first = null, last = null;
+      for(var m = 0; m < 12; m++){
+        var c = byYear[y][m], td = cell(c ? c.r : null, (y === nowY && m === nowM) ? 'now' : null);
+        td.style.setProperty('--i', idx++);
+        if(c){
+          td.title = MONTHS[m] + ' ' + y + ': ' + pct(c.r) + (y === nowY && m === nowM ? ' so far' : '') + '  ·  ' + price(c.open) + ' → ' + price(c.close);
+          if(first == null) first = c.open; last = c.close;
+          if(!(y === nowY && m === nowM)){ sums[m] = (sums[m] || 0) + c.r; counts[m] = (counts[m] || 0) + 1; }
+        }
+        tr.appendChild(td);
+      }
+      var tot = cell(first ? (last / first - 1) * 100 : null, 'tot'); tot.style.setProperty('--i', idx++);
+      if(first) tot.title = y + (y === nowY ? ' so far' : '') + ': ' + price(first) + ' → ' + price(last);
+      tr.appendChild(tot); tb.appendChild(tr);
+    });
+    var ar = el('tr', 'mg-avg'); ar.appendChild(el('th', 'mg-y', 'Average'));
+    var best = -Infinity, bestM = 0, worstV = Infinity, worstM = 0;
+    for(var m2 = 0; m2 < 12; m2++){
+      var avg = counts[m2] ? sums[m2] / counts[m2] : null, td2 = cell(avg, 'avg');
+      td2.style.setProperty('--i', idx++);
+      if(avg != null){ td2.title = MONTHS[m2] + ' average across ' + counts[m2] + ' years: ' + pct(avg); if(avg > best){ best = avg; bestM = m2; } if(avg < worstV){ worstV = avg; worstM = m2; } }
+      ar.appendChild(td2);
+    }
+    ar.appendChild(el('td', 'mg-c na'));
+    tb.appendChild(ar); table.appendChild(tb);
+    grid.textContent = ''; grid.appendChild(table);
+    $('mgNote').textContent = 'Best month on average: ' + MONTHS[bestM] + ' (' + pct(best) + '). Weakest: ' + MONTHS[worstM] + ' (' + pct(worstV) + '). Past patterns are not a forecast.';
+    seen(grid, function(){ grid.classList.add('go'); }, .2);
+  }
+  if(grid){
+    getJSON(API + '/klines?symbol=BTCUSDT&interval=1M&limit=120').then(function(k){
+      buildGrid(k);
+      setInterval(function(){ buildGrid(k); }, 120000);
+    }).catch(function(){ grid.textContent = 'Monthly history unavailable right now.'; });
   }
 })();
 </script>
