@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -13,6 +13,7 @@
 <meta property="og:image" content="https://ibrazgroup.com/icon-512.png">
 <meta name="theme-color" content="#05070D">
 <meta property="og:description" content="Creative businesses from Indonesia, a live markets desk, and a vision for 2045.">
+<script>(function(){var t="dark";try{var s=localStorage.getItem("ibraz-theme");if(s==="light"||s==="dark")t=s;}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -375,7 +376,71 @@ header nav a.active{color:#fff}
 .ghost{-webkit-text-stroke:1.5px rgba(91,225,255,.16)}
 .mission .card b{color:#fff}
 @media (prefers-reduced-motion:reduce){.lens{transition:none}.cta,.appicon{transition:none}}
-@media (max-width:700px){header.top .wrap{row-gap:10px}.live{order:2}header nav{order:3;width:100%;justify-content:space-between}header nav{gap:0;padding:4px}header nav a{padding:7px 8px;font-size:13px}.lens{top:4px;bottom:4px}}
+@media (max-width:700px){header.top .wrap{row-gap:10px}.hdr-r{order:2}header nav{order:3;width:100%;justify-content:space-between}header nav{gap:0;padding:4px}header nav a{padding:7px 8px;font-size:13px}.lens{top:4px;bottom:4px}}
+
+/* ---------- Theme toggle ---------- */
+.hdr-r{display:flex;align-items:center;gap:10px}
+.theme-toggle{position:relative;width:44px;height:44px;border-radius:999px;display:grid;place-items:center;cursor:pointer;color:var(--fg);background:rgba(28,36,56,.5);border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 26px -14px rgba(0,0,0,.8);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .3s}
+.theme-toggle:hover{transform:scale(1.07)}
+.theme-toggle svg{grid-area:1/1;transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .3s}
+.i-sun{color:#FFD60A}
+.i-moon{color:#4DA8FF;opacity:0;transform:rotate(-80deg) scale(.4)}
+[data-theme="light"] .i-sun{opacity:0;transform:rotate(90deg) scale(.4)}
+[data-theme="light"] .i-moon{opacity:1;transform:none}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+.brand svg path{stroke:var(--fg)}
+.chartbox svg line:not(.c-late){stroke:var(--line)}
+.chartbox svg text:not(.c-late){fill:var(--muted)}
+.chartbox .c-dot{stroke:var(--ink)}
+
+/* ---------- Light theme ---------- */
+:root[data-theme="light"]{
+  --ink:#F4F6FB; --band:#EDF1F8; --card:#FFFFFF; --line:#DFE5EF; --line2:#C9D2E1;
+  --fg:#0B1220; --muted:#4B5870; --faint:#7A869B;
+  --gold:#1F6FEB; --gold-soft:#CFE0FB;
+  --up:#0E9F5B; --down:#E03E3E; --chart:#7C5CF0;
+  color-scheme:light;
+}
+[data-theme="light"] body{background:radial-gradient(1100px 680px at 88% -8%,rgba(47,123,255,.14),rgba(47,123,255,0) 62%),radial-gradient(900px 620px at -12% 6%,rgba(110,107,255,.12),rgba(110,107,255,0) 60%),var(--ink)}
+[data-theme="light"] .band{background:rgba(15,23,42,.022);border-color:rgba(15,23,42,.06)}
+[data-theme="light"] .card{background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(255,255,255,.76));border-color:rgba(15,23,42,.08);box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(15,23,42,.04),0 20px 40px -26px rgba(30,60,120,.28)}
+[data-theme="light"] .figures,[data-theme="light"] .stats{border-color:rgba(15,23,42,.08);background:rgba(15,23,42,.08)}
+[data-theme="light"] .figures div,[data-theme="light"] .stat{background:rgba(255,255,255,.92)}
+[data-theme="light"] .result{background:rgba(15,23,42,.035);border-color:rgba(15,23,42,.06)}
+[data-theme="light"] input[type=number],[data-theme="light"] select{background:#fff;border-color:rgba(15,23,42,.14)}
+[data-theme="light"] .eyebrow,[data-theme="light"] .quote em{background-image:linear-gradient(90deg,#1F6FEB,#0891B2)}
+[data-theme="light"] .grad{background-image:linear-gradient(100deg,#1F6FEB 0%,#0EA5E9 45%,#7C3AED 100%)}
+[data-theme="light"] header.top{background:rgba(244,246,251,.72);border-bottom-color:rgba(15,23,42,.07)}
+[data-theme="light"] header nav,[data-theme="light"] .theme-toggle{background:rgba(255,255,255,.7);border-color:rgba(15,23,42,.08);box-shadow:inset 0 1px 0 #fff,0 10px 26px -14px rgba(30,60,120,.35)}
+[data-theme="light"] nav a,[data-theme="light"] header nav a{color:#3A4660}
+[data-theme="light"] header nav a:hover{color:var(--fg)}
+[data-theme="light"] header nav a.active{color:#fff}
+[data-theme="light"] .i-moon{color:#1F6FEB}
+[data-theme="light"] .live{background:rgba(14,159,91,.08);border-color:rgba(14,159,91,.22);color:#0B7A47}
+[data-theme="light"] .cta.line{background:rgba(255,255,255,.75);border-color:rgba(15,23,42,.12)}
+[data-theme="light"] .pill{color:#3A4660;border-color:rgba(15,23,42,.12);background:rgba(255,255,255,.65)}
+[data-theme="light"] .pill:hover:not(:disabled){background:#fff}
+[data-theme="light"] .pill[aria-pressed=true]{color:#fff;border-color:transparent}
+[data-theme="light"] .mini{background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.55));border-color:rgba(15,23,42,.1)}
+[data-theme="light"] .chg{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.08)}
+[data-theme="light"] .tape{background:rgba(255,255,255,.6);border-bottom-color:rgba(15,23,42,.06)}
+[data-theme="light"] .tape-item{border-right-color:rgba(15,23,42,.07)}
+[data-theme="light"] .tag{border-color:rgba(15,23,42,.12);color:#4B5870}
+[data-theme="light"] .tag.op{color:var(--up);border-color:rgba(14,159,91,.3);background:rgba(14,159,91,.07)}
+[data-theme="light"] .tag.gold{color:var(--gold);border-color:rgba(31,111,235,.3);background:rgba(31,111,235,.07)}
+[data-theme="light"] .venture.capital{border-color:rgba(31,111,235,.3);background:linear-gradient(180deg,rgba(47,123,255,.10),rgba(255,255,255,.85))}
+[data-theme="light"] .mission .card b{color:var(--fg)}
+[data-theme="light"] .ghost{-webkit-text-stroke:1.5px rgba(31,111,235,.16)}
+[data-theme="light"] .bar .track,[data-theme="light"] .sttrack{background:rgba(15,23,42,.06)}
+[data-theme="light"] .sttrack i.r,[data-theme="light"] .stleg i.r{background:#A9B4C6}
+[data-theme="light"] .hero-band::after{background:linear-gradient(rgba(244,246,251,0),var(--ink))}
+[data-theme="light"] .chartbox .c-line{stroke:#1F6FEB}
+[data-theme="light"] .chartbox .c-area,[data-theme="light"] .chartbox .c-dot,[data-theme="light"] .chartbox .c-ping{fill:#1F6FEB}
+[data-theme="light"] .chartbox line.c-late{stroke:#1F6FEB}
+[data-theme="light"] .chartbox text.c-late{fill:#1F6FEB}
+[data-theme="light"] .appicon{box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 6px rgba(0,0,0,.12),0 8px 18px -8px var(--b)}
+[data-theme="light"] .timeline li::before{box-shadow:0 0 0 4px var(--ink)}
+@media (prefers-reduced-motion:reduce){.theme-toggle,.theme-toggle svg{transition:none}}
 </style>
 </head>
 <body>
@@ -390,7 +455,10 @@ header nav a.active{color:#fff}
     <nav aria-label="Sections">
       <a href="#portfolio">Portfolio</a><a href="#capital">Ibraz Capital</a><a href="#pulse">Markets</a><a href="#vision">Vision 2045</a>
     </nav>
-    <div class="live" aria-live="polite"><span class="dot" id="liveDot"></span><span id="liveText">Connecting…</span></div>
+    <div class="hdr-r">
+      <div class="live" aria-live="polite"><span class="dot" id="liveDot"></span><span id="liveText">Connecting…</span></div>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light theme"><svg class="i-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><svg class="i-moon" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.6A8.6 8.6 0 0 1 9.4 3.6a8.6 8.6 0 1 0 11 11z"/></svg></button>
+    </div>
   </div>
 </header>
 
@@ -1193,7 +1261,8 @@ header nav a.active{color:#fff}
       var lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts), pad = (hi - lo) * .12 || 1;
       var X = function(i){ return i / (N - 1) * W; };
       var Y = function(v){ return bot - (v - lo + pad) / (hi - lo + 2 * pad) * (bot - top); };
-      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(237,239,234,0.045)';
+      var LT = document.documentElement.getAttribute('data-theme') === 'light';
+      ctx.lineWidth = 1; ctx.strokeStyle = LT ? 'rgba(15,23,42,0.06)' : 'rgba(237,239,234,0.045)';
       ctx.beginPath();
       for(var g = 0; g <= 4; g++){ var gy = top + (bot - top) * g / 4; ctx.moveTo(0, gy); ctx.lineTo(W, gy); }
       for(var v = 1; v < 12; v++){ var gx = W * v / 12; ctx.moveTo(gx, top - 30); ctx.lineTo(gx, bot + 30); }
@@ -1219,12 +1288,12 @@ header nav a.active{color:#fff}
       ctx.beginPath(); ctx.arc(hx, hy, 4, 0, Math.PI * 2); ctx.fillStyle = '#4DA8FF'; ctx.fill();
       if(prog >= 1 && !narrow){
         var mi = pts.indexOf(hi), lx = X(mi), ly = Y(hi);
-        ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fillStyle = 'rgba(237,239,234,0.7)'; ctx.fill();
-        ctx.font = '500 11px "JetBrains Mono", ui-monospace, monospace'; ctx.fillStyle = 'rgba(163,174,168,0.85)';
+        ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fillStyle = LT ? 'rgba(15,23,42,0.55)' : 'rgba(237,239,234,0.7)'; ctx.fill();
+        ctx.font = '500 11px "JetBrains Mono", ui-monospace, monospace'; ctx.fillStyle = LT ? 'rgba(60,72,95,0.9)' : 'rgba(163,174,168,0.85)';
         var label = '180-day high ' + usd0(hi), tw = ctx.measureText(label).width;
         ctx.fillText(label, Math.max(12, Math.min(W - tw - 12, lx - tw / 2)), ly - 12);
         var foot = 'BTC · LAST 180 DAYS · LIVE';
-        ctx.fillStyle = 'rgba(163,174,168,0.55)'; ctx.fillText(foot, 16, bot + 26);
+        ctx.fillStyle = LT ? 'rgba(60,72,95,0.6)' : 'rgba(163,174,168,0.55)'; ctx.fillText(foot, 16, bot + 26);
       }
     }
     function frame(now){
@@ -1252,6 +1321,7 @@ header nav a.active{color:#fff}
       .then(function(k){ pts = k.map(function(r){ return +r[4]; }); if(RM) draw(); else start(); })
       .catch(function(){});
     chart.tail = function(p){ if(pts){ pts[pts.length - 1] = p; if(RM) draw(); } };
+    chart.redraw = function(){ draw(performance.now()); };
   })();
 
   /* ---------- Scroll reveal (below-the-fold content only) ---------- */
@@ -1356,6 +1426,30 @@ header nav a.active{color:#fff}
   }
   window.addEventListener('scroll', function(){ if(!spyTick){ spyTick = true; requestAnimationFrame(spyUpdate); } }, {passive:true});
   spyUpdate();
+
+  /* ---------- Theme: dark (default) / light, with a circular reveal ---------- */
+  var tbtn = $('themeToggle'), tmeta = document.querySelector('meta[name="theme-color"]'), root = document.documentElement;
+  function applyTheme(t){
+    root.setAttribute('data-theme', t);
+    try{ localStorage.setItem('ibraz-theme', t); }catch(e){}
+    if(tmeta) tmeta.setAttribute('content', t === 'light' ? '#F4F6FB' : '#05070D');
+    if(tbtn) tbtn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+    if(chart.redraw) chart.redraw();
+  }
+  if(tbtn){
+    applyTheme(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+    tbtn.addEventListener('click', function(){
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      if(RM || !document.startViewTransition){ applyTheme(next); return; }
+      var r = tbtn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      var end = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+      var vt = document.startViewTransition(function(){ applyTheme(next); });
+      vt.ready.then(function(){
+        root.animate({clipPath:['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)']},
+          {duration:700, easing:'cubic-bezier(.65,0,.35,1)', pseudoElement:'::view-transition-new(root)'});
+      }).catch(function(){});
+    });
+  }
 })();
 </script>
 </body>
