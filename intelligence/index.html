@@ -50,7 +50,7 @@ button{cursor:pointer}
 
 /* ================= Lock screen ================= */
 .lock{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--safe-t) + 34px) 24px calc(var(--safe-b) + 22px);overflow:hidden;color:#fff;background:#03050B;transition:transform .7s cubic-bezier(.7,0,.2,1),opacity .6s ease}
-.lock.out{transform:translateY(-104%);opacity:.4;pointer-events:none}
+.lock.out{transform:translateY(-104%);opacity:.4;pointer-events:none;visibility:hidden;transition:transform .7s cubic-bezier(.7,0,.2,1),opacity .6s ease,visibility 0s .7s}
 .lk-bg{position:absolute;inset:-20%;z-index:-1;filter:blur(60px) saturate(140%)}
 .lk-bg i{position:absolute;border-radius:50%;opacity:.75;animation:blob 18s ease-in-out infinite alternate}
 .lk-bg i:nth-child(1){width:60vmax;height:60vmax;left:-10%;top:-12%;background:radial-gradient(circle,#2F7BFF,transparent 65%)}
@@ -258,6 +258,16 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 @keyframes sk{to{background-position:-200% 0}}
 
 /* v2 */
+.mx{padding:12px 0;border-top:1px solid var(--gline)}
+.mx:first-of-type{border-top:0}
+.mx-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mx-h b{font:700 15px var(--display);display:flex;align-items:center;gap:8px}
+.mx-h b i{width:10px;height:10px;border-radius:3px}
+.mx input[type=range]{width:100%;margin:8px 0 2px}
+.optg{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;margin-top:10px;font-size:13.5px}
+.optg>span:nth-child(odd){color:var(--faint);font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+.yin{width:80px;display:inline-block;padding:6px 8px;font-size:14px}
+#plSeg button{font-size:12.5px}
 .inp.ask{border-color:var(--warn);box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 18%,transparent)}
 .kv small{font-size:11.5px;font-family:var(--mono)}
 .track{position:relative;height:12px;border-radius:7px;background:rgba(127,127,127,.15);margin:26px 4px 0}
@@ -614,14 +624,34 @@ function lock(){
   mode = META && META.pinWrap ? 'pin' : 'setup1'; entry = ''; paintLock();
   stopLive();
 }
-$('btnLock').addEventListener('click', lock);
+$('btnLock').addEventListener('click', function(){ forget(); lock(); });
 
-/* auto-lock */
+/* stay unlocked on this device: the vault key is wrapped by a device-only key (non-extractable, IndexedDB) until the window runs out */
+var K_STAY = 'ii-stay';
+function stayMin(){ var m = lsGet('ii-staymin'); return m == null ? 1440 : +m; }
+function forget(){ try{ localStorage.removeItem(K_STAY); }catch(e){} idbDel('stay'); }
+async function remember(){
+  var m = stayMin(); if(!m || !RAW){ forget(); return; }
+  try{ var k = await crypto.subtle.generateKey({name:'AES-GCM', length:256}, false, ['encrypt', 'decrypt']); await idbPut('stay', k); lsSet(K_STAY, {wrap: await seal(k, RAW), until: Date.now() + m * 60000}); }catch(e){}
+}
+function touchStay(){ var st = lsGet(K_STAY), m = stayMin(); if(st && m && DEK){ st.until = Date.now() + m * 60000; lsSet(K_STAY, st); } }
+function stayOn(){ var st = lsGet(K_STAY); return !!(stayMin() && st && st.until > Date.now()); }
+async function tryStay(){
+  var st = lsGet(K_STAY); if(!st || !META || !META.pinWrap || !stayMin()) return false;
+  if(!(st.until > Date.now())){ forget(); return false; }
+  try{ var k = await idbGet('stay'); if(!k) return false; var raw = await unseal(k, st.wrap); await unlockWith(raw); return true; }catch(e){ forget(); return false; }
+}
+/* auto-lock (only when "stay unlocked" is off or has run out) */
 var lastAct = Date.now(), hidAt = 0;
 ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function(ev){ document.addEventListener(ev, function(){ lastAct = Date.now(); }, {passive:true}); });
-setInterval(function(){ if(DEK && V && Date.now() - lastAct > (V.autolock || 5) * 60000) lock(); }, 10000);
+setInterval(function(){
+  if(!DEK || !V) return;
+  if(stayMin()){ if(Date.now() - lastAct < 120000) touchStay(); if(!stayOn()) lock(); return; }
+  if(Date.now() - lastAct > (V.autolock || 5) * 60000) lock();
+}, 10000);
 document.addEventListener('visibilitychange', function(){
-  if(document.hidden){ hidAt = Date.now(); if(DEK) saveVault(); }
+  if(document.hidden){ hidAt = Date.now(); if(DEK){ saveVault(); touchStay(); } }
+  else if(DEK && V && stayMin()){ if(stayOn()) refresh(); else lock(); }
   else if(DEK && V && hidAt && Date.now() - hidAt > Math.min(60000, (V.autolock || 5) * 60000)) lock();
   else if(DEK) refresh();
 });
@@ -666,6 +696,7 @@ function defaults(){
     target: {BTC:60, ETH:20, Alts:5, Cash:15},
     sched: {amount: 100000000, start: ymd(d), n: 10, every: '2w', done: {}},
     pace: {fng: true, mayer: true}, ready: {},
+    mixTotal: 100000000, mix: {sbn:0, mm:0, dep:0, gold:0, stock:0, crypto:100}, yields: {sbn:6.3, mm:4.5, dep:3.5}, park: 'mm',
     rules: STARTER_RULES.slice(), notes: [], reviews: [], snaps: {}, alerts: [],
     risk: 1, autolock: 5
   };
@@ -778,7 +809,7 @@ setInterval(paintLive, 1000);
 /* ================= Views ================= */
 var cur = 'home';
 function boot(){
-  go(cur, true); startLive();
+  go(cur, true); startLive(); remember();
   if(PRE){ var pp = PRE; PRE = null; if(!V.deposits.length) setTimeout(function(){ setupSheet(pp); }, 600); else toast('Your position is already saved'); }
 }
 function go(v, first){
@@ -1043,12 +1074,13 @@ function planState(){
 function routeCost(x, amt){ var g = feeOf(x); return {x: x, on: amt * g.on / 100, buy: amt * g.buy / 100, sell: amt * g.sell / 100, off: amt * g.off / 100, t: amt * (+g.on + +g.buy + +g.sell + +g.off) / 100, now: amt * (+g.on + +g.buy) / 100, unv: g.unv}; }
 function rPlan(live){
   var el = $('vPlan'), s = V.sched;
-  if(live && el.firstChild){ planWhen(); return; }
+  if(live && el.firstChild){ planWhen(); planPark(); return; }
   var tsum = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0), rd = READY.filter(function(r){ return V.ready[r[0]]; }).length;
   el.innerHTML =
-    '<h1>The 100M plan</h1><p class="sub">When to add, how much, how to split it, and where it costs least.</p>' +
-    '<div class="seg" id="plSeg" style="margin-bottom:14px"><button type="button" data-v="when" class="on">When</button><button type="button" data-v="how">How</button><button type="button" data-v="where">Where</button><button type="button" data-v="ready">Ready?</button></div>' +
-    '<div data-pl="when"><div class="card hero-c" id="plWhen"></div>' +
+    '<h1>The 100M plan</h1><p class="sub">Where it goes, when to add it, how to split it, and where it costs least.</p>' +
+    '<div class="seg" id="plSeg" style="margin-bottom:14px"><button type="button" data-v="mix" class="on">Options</button><button type="button" data-v="when">When</button><button type="button" data-v="how">How</button><button type="button" data-v="where">Exchange</button><button type="button" data-v="ready">Ready?</button></div>' +
+    '<div data-pl="mix"><div id="plMix"></div></div>' +
+    '<div data-pl="when" hidden><div class="card hero-c" id="plWhen"></div><div class="card" id="plPark"></div>' +
       '<div class="card"><div class="card-h"><h2>Your pace rules</h2></div><p class="muted" style="margin:0 0 10px;font-size:13.5px">Each step starts at the base amount. These rules make it bigger when the market is fearful or cheap vs its trend, and smaller when it’s greedy or stretched. The total stays 100M.</p>' +
       '<div class="set-row"><div><b>Fear &amp; Greed</b><div class="small muted">&lt;25 ×1.5 · &lt;45 ×1.25 · 45–55 ×1 · ≤75 ×0.75 · &gt;75 ×0.5</div></div><input type="checkbox" class="ck" id="pcF"' + (V.pace.fng ? ' checked' : '') + '></div>' +
       '<div class="set-row"><div><b>Distance from 200-day average</b><div class="small muted">Mayer &lt;0.9 ×1.25 · up to 1.5 ×1 · up to 2.4 ×0.75 · above ×0.5</div></div><input type="checkbox" class="ck" id="pcM"' + (V.pace.mayer ? ' checked' : '') + '></div>' +
@@ -1083,9 +1115,85 @@ function rPlan(live){
   $('sEv').addEventListener('change', function(){ s.every = this.value; schedTbl(); planWhen(); save(); });
   $('wAmt').addEventListener('input', whereTbl);
   el.querySelectorAll('[data-rd]').forEach(function(c){ c.onchange = function(){ V.ready[c.getAttribute('data-rd')] = c.checked; save(); var n = READY.filter(function(r){ return V.ready[r[0]]; }).length; $('rdN').textContent = n + '/' + READY.length; $('rdN').className = 'chip ' + (n === READY.length ? 'g' : 'y'); }; });
-  showPl(); planWhen(); planBars(); schedTbl(); whereTbl();
+  showPl(); rMix(); planWhen(); planPark(); planBars(); schedTbl(); whereTbl();
 }
-var PLTAB = 'when';
+
+/* ---------- 100M: where across safety levels ---------- */
+var OPTS = [
+  {k:'sbn', name:'Government bonds (SBN Ritel)', short:'SBN', c:'#4ADE9A', tier:'Guaranteed by the state', tax:10, drop:0, liq:'ORI and SR: sell on any trading day (the price can move a little). ST and SBR: cash out part only in set windows.', min:'Rp 1 juta', how:'During an offer period, through your bank app or partners like Bibit or Bareksa', cost:'No buying fee. 10% final tax on coupons.', note:'ST015 on sale until 22 Oct 2026 · ST017 from 6 Nov to 2 Dec 2026. Coupon is set just before each offer.'},
+  {k:'mm', name:'Money-market fund', short:'Money market', c:'#5BE1FF', tier:'Very low risk · OJK supervised · not guaranteed', tax:0, drop:.5, liq:'Usually back in your bank in 1–2 working days', min:'From about Rp 10–100 ribu', how:'Bibit, Bareksa or your bank app (reksa dana pasar uang)', cost:'Usually no buy or sell fee. Gains aren’t taxed for you.', note:'The best parking spot for money waiting for its next crypto step.'},
+  {k:'dep', name:'Bank deposit', short:'Deposit', c:'#9AA4B8', tier:'Guaranteed by LPS up to Rp 2 billion per bank', tax:20, drop:0, liq:'At maturity (1–12 months). Breaking early can cost a penalty.', min:'Often Rp 1–10 juta', how:'Your bank app', cost:'20% tax on interest. LPS only guarantees it if the rate is at or below the LPS rate (3.75% in mid-2026).'},
+  {k:'gold', name:'Gold', short:'Gold', c:'#F5B544', tier:'Medium risk · for years, not months', tax:0, drop:15, liq:'Sell any day, but the buy–sell gap is several %', min:'From 0.01 g in apps', how:'Antam bars, Pegadaian Tabungan Emas, or gold in apps', cost:'Buy–sell spread, often 5% or more on small amounts.', note:'No income. It protects value over long periods.'},
+  {k:'stock', name:'Indonesian stocks (index fund)', short:'Stocks', c:'#A78BFF', tier:'Higher risk · 5+ years', tax:0, drop:30, liq:'Sell on any trading day', min:'From about Rp 100 ribu', how:'An index fund or ETF in Bibit or Bareksa, or shares through a broker', cost:'Fund fees about 0–2% a year. Broker fees about 0.15% to buy and 0.25% to sell.'},
+  {k:'crypto', name:'Crypto (your step plan)', short:'Crypto', c:'#F7931A', tier:'Highest risk', tax:0, drop:60, liq:'Sell any minute. Getting back to rupiah has a cost.', min:'Any amount', how:'The When, How and Exchange tabs', cost:'About 0.6% round trip on a local exchange, about 4% through Binance with rupiah.', note:'BTC fell about 65–75% in its worst years (2018, 2022).'}
+];
+var PRESETS = {crypto: {sbn:0, mm:0, dep:0, gold:0, stock:0, crypto:100}, bal: {sbn:30, mm:15, dep:0, gold:10, stock:15, crypto:30}, care: {sbn:40, mm:30, dep:0, gold:10, stock:0, crypto:20}};
+function optY(k){ return V.yields[k] != null ? +V.yields[k] : null; }
+function mixAmt(k){ return (+V.mixTotal || 0) * (+V.mix[k] || 0) / 100; }
+function mixStats(){
+  var tot = +V.mixTotal || 0, r = {tot: tot, pct: 0, safe: 0, guar: 0, inc: 0, bad: 0, quick: 0};
+  OPTS.forEach(function(o){
+    var a = mixAmt(o.k), y = optY(o.k); r.pct += +V.mix[o.k] || 0;
+    if(o.k === 'sbn' || o.k === 'dep') r.guar += a;
+    if(o.k === 'sbn' || o.k === 'dep' || o.k === 'mm') r.safe += a;
+    if(y != null) r.inc += a * y / 100 * (1 - o.tax / 100);
+    r.bad += a * o.drop / 100;
+    if(o.k === 'mm' || o.k === 'gold' || o.k === 'stock' || o.k === 'crypto') r.quick += a;
+  });
+  return r;
+}
+function rMix(){
+  var box = $('plMix'); if(!box) return;
+  box.innerHTML =
+    '<div class="card hero-c" id="mxSum"></div>' +
+    '<div class="card"><div class="card-h"><h2>Split it</h2><span class="chip" id="mxPct"></span></div>' +
+    '<label class="f">Total to place (IDR)<input class="inp" id="mxTot" inputmode="numeric" value="' + (+V.mixTotal).toLocaleString('id-ID') + '"></label>' +
+    '<div class="small faint" style="margin:14px 0 6px">Examples to compare, not advice:</div><div class="row"><button class="btn sec sm" type="button" data-pre="crypto">All crypto</button><button class="btn sec sm" type="button" data-pre="bal">Balanced</button><button class="btn sec sm" type="button" data-pre="care">Careful</button></div>' +
+    OPTS.map(function(o){ return '<div class="mx"><div class="mx-h"><b><i style="background:' + o.c + '"></i>' + o.short + ' <span class="faint num" id="mxP-' + o.k + '"></span></b><span class="num" id="mxA-' + o.k + '"></span></div><input type="range" min="0" max="100" step="5" value="' + (+V.mix[o.k] || 0) + '" data-mx="' + o.k + '" style="accent-color:' + o.c + '" aria-label="' + o.short + ' %"><div class="small muted">' + o.tier + '</div></div>'; }).join('') + '</div>' +
+    '<div class="card"><div class="card-h"><h2>The options, side by side</h2></div>' + OPTS.map(function(o){
+      var y = optY(o.k);
+      return '<details class="lesson opt"><summary><span><i class="sw" style="background:' + o.c + '"></i>' + o.name + '</span></summary>' +
+        '<div class="optg">' +
+        (y != null ? '<span>Yearly return (est.)</span><span><input class="inp num yin" type="number" step="0.1" min="0" data-y="' + o.k + '" value="' + y + '"> %' + (o.tax ? ' <span class="faint small">before ' + o.tax + '% tax</span>' : '') + '</span>' : '<span>Yearly return</span><span class="muted">Not steady. Moves with the market.</span>') +
+        '<span>Safety</span><span>' + o.tier + '</span>' +
+        '<span>In a bad year</span><span>' + (o.drop ? '<b class="down">can drop ~' + o.drop + '%+</b>' : '<b class="up">your money stays whole</b>' + (o.k === 'sbn' ? ' if held to maturity' : '')) + '</span>' +
+        '<span>Getting it back</span><span>' + o.liq + '</span><span>Costs &amp; tax</span><span>' + o.cost + '</span><span>Minimum</span><span>' + o.min + '</span><span>How to buy</span><span>' + o.how + '</span>' +
+        (o.note ? '<span>Note</span><span>' + o.note + '</span>' : '') + '</div></details>';
+    }).join('') + '<p class="note">Returns are estimates from October 2026 rates. Edit them as offers change. Bad-year drops are rough examples from past bad years, not limits: it can be worse.</p></div>';
+  $('mxTot').onchange = function(){ var n = numIn(this.value); if(n > 0){ V.mixTotal = n; this.value = n.toLocaleString('id-ID'); save(); mixSum(); } };
+  box.querySelectorAll('[data-mx]').forEach(function(r){ r.oninput = function(){ V.mix[r.getAttribute('data-mx')] = +r.value; mixSum(); }; r.onchange = save; });
+  box.querySelectorAll('[data-pre]').forEach(function(b){ b.onclick = function(){ V.mix = clone(PRESETS[b.getAttribute('data-pre')]); save(); box.querySelectorAll('[data-mx]').forEach(function(r){ r.value = V.mix[r.getAttribute('data-mx')]; }); mixSum(); }; });
+  box.querySelectorAll('[data-y]').forEach(function(i){ i.onchange = function(){ V.yields[i.getAttribute('data-y')] = Math.max(0, +i.value || 0); save(); mixSum(); planPark(); }; });
+  mixSum();
+}
+function mixSum(){
+  var r = mixStats(), box = $('mxSum'); if(!box) return;
+  OPTS.forEach(function(o){ $('mxA-' + o.k).textContent = idrS(mixAmt(o.k)); $('mxP-' + o.k).textContent = (+V.mix[o.k] || 0) + '%'; });
+  $('mxPct').textContent = r.pct + '%'; $('mxPct').className = 'chip ' + (r.pct === 100 ? 'g' : 'y');
+  var safeP = r.tot ? r.safe / r.tot * 100 : 0, crypto = mixAmt('crypto'), synced = Math.round(crypto) === Math.round(+V.sched.amount);
+  box.innerHTML = '<div class="eyebrow">Your ' + idrS(r.tot) + ' split</div>' +
+    '<div class="stack" style="height:18px;margin:12px 0">' + OPTS.map(function(o){ var a = mixAmt(o.k); return a > 0 ? '<i style="flex:' + a.toFixed(0) + ';background:' + o.c + '" title="' + o.short + '"></i>' : ''; }).join('') + '</div>' +
+    '<div class="big num" style="font-size:34px">' + safeP.toFixed(0) + '% <span style="font:600 15px var(--body);color:var(--muted)">kept safe</span></div>' +
+    '<p class="muted" style="margin:2px 0 12px;font-size:13.5px">Guaranteed or very low risk (bonds, deposit, money market).</p>' +
+    '<div class="grid2"><div class="kv"><span>Guaranteed</span><b>' + idrS(r.guar) + '</b><small class="muted">state or LPS</small></div><div class="kv"><span>Steady income</span><b class="up">' + idrS(r.inc) + '/yr</b><small class="muted">≈ ' + idrS(r.inc / 12) + ' a month, after tax</small></div>' +
+    '<div class="kv"><span>In a bad year</span><b class="down">−' + idrS(r.bad) + '</b><small class="muted">rough example</small></div><div class="kv"><span>Back in days</span><b>' + idrS(r.quick) + '</b><small class="muted">fund, gold, stocks, crypto</small></div></div>' +
+    (r.pct !== 100 ? '<div class="warn">The split adds up to ' + r.pct + '%. Make it 100%.</div>' : '') +
+    (crypto > 0 && !synced ? '<button class="btn sec full" id="mxSync" type="button" style="margin-top:12px">Use ' + idrS(crypto) + ' as my crypto steps (now ' + idrS(+V.sched.amount) + ')</button>' : crypto > 0 ? '<p class="note">Crypto part = your step plan (' + V.sched.n + ' steps). See When.</p>' : '');
+  if($('mxSync')) $('mxSync').onclick = function(){ V.sched.amount = Math.round(crypto); save(); toast('Crypto steps set to ' + idrS(crypto)); rPlan(); };
+}
+var PARK = {mm:'Money-market fund', dep:'Bank deposit', sbn:'Government bonds (SBN)', bank:'Bank savings', ex:'Left on the exchange'};
+function planPark(){
+  var box = $('plPark'); if(!box) return;
+  var S = planState(), w = V.park || 'mm', y = w === 'bank' ? 1 : w === 'ex' ? 0 : optY(w), tax = w === 'dep' ? 20 : w === 'sbn' ? 10 : 0, net = (y || 0) * (1 - tax / 100);
+  var tip = {mm:'Good fit: you can pull each step out in 1–2 days.', dep:'Match the deposit length to your step dates, or you may pay a penalty to break it.', sbn:'ST and SBR can’t be cashed out in time for 2-week steps. Better for money you won’t need.', bank:'Easy, but usually earns almost nothing.', ex:'Earns nothing and carries platform risk. Only move money in just before a step.'}[w];
+  box.innerHTML = '<div class="card-h"><h2>While it waits</h2><span class="chip ' + (w === 'mm' ? 'g' : w === 'ex' ? 'r' : '') + '">' + (net ? net.toFixed(1) + '%/yr' : '0%') + '</span></div>' +
+    '<p style="margin:0 0 10px"><b class="num">' + idrS(S.remaining) + '</b> is still waiting for its steps.</p>' +
+    '<label class="f">Parked in<select class="inp" id="pkW">' + Object.keys(PARK).map(function(k){ return '<option value="' + k + '">' + PARK[k] + '</option>'; }).join('') + '</select></label>' +
+    '<p style="margin:12px 0 0">Earns about <b class="up num">' + idrS(S.remaining * net / 100 / 12) + '</b> a month while it waits.</p><p class="note">' + tip + '</p>';
+  $('pkW').value = w; $('pkW').onchange = function(){ V.park = this.value; save(); planPark(); };
+}
+
+var PLTAB = 'mix';
 function showPl(){ var el = $('vPlan'); el.querySelectorAll('[data-pl]').forEach(function(d){ d.hidden = d.getAttribute('data-pl') !== PLTAB; }); $('plSeg').querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === PLTAB); }); }
 function planWhen(){
   var box = $('plWhen'); if(!box) return;
@@ -1391,6 +1499,8 @@ function aiText(focus, q){
   L.push('', '## Trades', '| Date | Ex | Side | Coin | Qty | Price $ | Price IDR | Fee | Why | Feeling | Conf | BTC/F&G/RSI/Mayer then | Lesson | P&L |', '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
   V.trades.slice().sort(function(x, y){ return x.d < y.d ? -1 : 1; }).forEach(function(t){ var cx = t.ctx; L.push('| ' + [t.d, t.ex, t.side, t.a, qtyF(t.qty), t.pxUsd ? n(t.pxUsd) : '', n(t.px), n(t.fee), (t.why || '').replace(/\|/g, '/').replace(/\n/g, ' '), t.emo || '', t.conf || '', cx ? n(cx.btc) + '/' + (cx.fng == null ? '—' : cx.fng) + '/' + (cx.rsi == null ? '—' : cx.rsi) + '/' + (cx.mayer == null ? '—' : cx.mayer) : '', (t.lesson || '').replace(/\|/g, '/').replace(/\n/g, ' '), t._pnl != null ? n(t._pnl) : ''].join(' | ') + ' |'); });
   L.push('', '## 100M plan', '- Total ' + n(V.sched.amount) + ' in ' + V.sched.n + ' steps, every ' + ({week:'week', '2w':'2 weeks', month:'month'})[V.sched.every] + ', from ' + V.sched.start, '- Pace rules: Fear & Greed ' + (V.pace.fng ? 'on' : 'off') + ', Mayer ' + (V.pace.mayer ? 'on' : 'off') + ' · today’s multiplier ×' + S.pm.m.toFixed(2) + ' → next step ' + n(S.sug), '- Target mix: ' + BUCKETS.map(function(k){ return k.k + ' ' + (V.target[k.k] || 0) + '%'; }).join(', '), '- Done: ' + (S.nDone ? S.L.filter(function(r){ return r.done; }).map(function(r){ return '#' + (r.i + 1) + ' ' + r.done.d + ' ' + n(r.done.amt) + ' on ' + r.done.ex + ' (×' + r.done.mult + ')'; }).join('; ') : 'none yet'), '- Cheapest route now: ' + whereRank(100000000).slice(0, 3).map(function(r){ return r.x + ' ' + (r.t / 1e6).toFixed(2) + 'M round trip on 100M'; }).join(', '), '- Readiness: ' + READY.map(function(r){ return (V.ready[r[0]] ? '[x] ' : '[ ] ') + r[1]; }).join('; '));
+  var ms = mixStats(); L.push('', '## Where the 100M could go (my draft split of ' + n(V.mixTotal) + ')'); OPTS.forEach(function(o){ if(+V.mix[o.k]) L.push('- ' + o.name + ': ' + V.mix[o.k] + '% = ' + n(mixAmt(o.k)) + (optY(o.k) != null ? ' (est. ' + optY(o.k) + '%/yr before tax)' : '')); });
+  L.push('- Kept safe: ' + (ms.tot ? Math.round(ms.safe / ms.tot * 100) : 0) + '% · guaranteed ' + n(ms.guar) + ' · steady income ' + n(ms.inc) + '/yr after tax · rough bad-year drop ' + n(ms.bad), '- Waiting money parked in: ' + PARK[V.park || 'mm']);
   L.push('', '## My rules'); V.rules.forEach(function(r){ L.push('- ' + r); });
   if(V.reviews.length){ L.push('', '## Weekly reviews'); V.reviews.slice(-8).forEach(function(r){ L.push('- ' + r.d + ': good: ' + r.good + ' | bad: ' + r.bad + ' | change: ' + r.change); }); }
   if(V.notes.length){ L.push('', '## Notes'); V.notes.slice(-20).forEach(function(x){ L.push('- ' + x.d + ': ' + x.t); }); }
@@ -1444,14 +1554,14 @@ function settings(){
   sheet('<div class="sh-h"><h2>Settings</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
     '<div class="set-row"><div><b>Face unlock</b><div class="small muted">' + (!FACE_OK ? 'Not available in this browser' : hasFace ? 'On' + (META.face.mode === 'prf' ? ' · face key encrypts your data' : ' · unlocks a key kept on this device') : 'Off') + '</div></div>' + (FACE_OK ? '<button class="btn ' + (hasFace ? 'sec' : '') + ' sm" id="stFace" type="button">' + (hasFace ? 'Turn off' : 'Turn on') + '</button>' : '') + '</div>' +
     '<div class="set-row"><div><b>Change PIN</b><div class="small muted">6 digits</div></div><button class="btn sec sm" id="stPin" type="button">Change</button></div>' +
-    '<div class="set-row"><div><b>Auto-lock</b><div class="small muted">After no taps for</div></div><select class="inp" id="stAuto" style="width:auto"><option value="1">1 min</option><option value="5">5 min</option><option value="15">15 min</option></select></div>' +
+    '<div class="set-row"><div><b>Stay unlocked on this phone</b><div class="small muted">No PIN or Face needed during this time. The lock button always locks right away.</div></div><select class="inp" id="stStay" style="width:auto"><option value="0">Off (lock after 5 min)</option><option value="60">1 hour</option><option value="1440">1 day</option><option value="10080">7 days</option></select></div>' +
     '<div class="set-row"><div><b>Fees per exchange</b><div class="small muted">Buy, sell (incl. tax), rupiah in and out</div></div><button class="btn sec sm" id="stFees" type="button">Edit</button></div>' +
     '<div class="set-row"><div><b>Backup</b><div class="small muted">An encrypted file. It opens only with your PIN. Use it to move to a new phone or to share with your husband.</div></div></div><div class="row"><button class="btn sec sm" id="stExp" type="button">Download backup</button><button class="btn sec sm" id="stImp" type="button">Restore a backup</button></div>' +
     '<div class="set-row"><div><b>Theme</b></div><button class="btn sec sm" id="stTheme" type="button">' + (document.documentElement.getAttribute('data-theme') === 'light' ? 'Dark' : 'Light') + '</button></div>' +
     '<div class="set-row"><div><b>Erase this device</b><div class="small muted">Deletes all Intelligence data here.</div></div><button class="btn dan sm" id="stErase" type="button">Erase</button></div>' +
     '<p class="note">Everything is encrypted (AES-256) and stays on this device. Nothing is sent anywhere except public price requests.</p>');
-  $('stAuto').value = String(V.autolock || 5);
-  $('stAuto').onchange = function(){ V.autolock = +this.value; save(); };
+  $('stStay').value = String(stayMin());
+  $('stStay').onchange = function(){ lsSet('ii-staymin', +this.value); if(+this.value) remember(); else forget(); toast(+this.value ? 'Stays unlocked on this phone' : 'Locks after 5 minutes idle'); };
   $('stFees').onclick = feesSheet;
   if($('stFace')) $('stFace').onclick = async function(){
     if(hasFace){ disableFace(); toast('Face unlock is off'); settings(); return; }
@@ -1471,7 +1581,7 @@ function settings(){
   $('stTheme').onclick = function(){ var t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); try{ localStorage.setItem('ibraz-theme', t); }catch(e){} settings(); };
   $('stErase').onclick = function(){
     sheet('<div class="sh-h"><h2>Erase everything?</h2></div><p class="muted">Your plan, journal and settings on this device will be gone. Download a backup first if you might need them.</p><label class="f">Type ERASE to confirm<input class="inp" id="erT" autocapitalize="characters"></label><div class="row" style="margin-top:14px"><button class="btn dan" id="erGo" type="button">Erase</button><button class="btn sec" data-close type="button">Cancel</button></div>');
-    $('erGo').onclick = function(){ if($('erT').value.trim().toUpperCase() !== 'ERASE') return; localStorage.removeItem(K_META); localStorage.removeItem(K_VAULT); localStorage.removeItem('ii-fail'); idbDel('face'); META = null; lock(); toast('Erased'); };
+    $('erGo').onclick = function(){ if($('erT').value.trim().toUpperCase() !== 'ERASE') return; localStorage.removeItem(K_META); localStorage.removeItem(K_VAULT); localStorage.removeItem('ii-fail'); idbDel('face'); forget(); META = null; lock(); toast('Erased'); };
   };
 }
 function pinSheet(){
@@ -1488,7 +1598,7 @@ function pinSheet(){
 /* ---------- start ---------- */
 mode = META && META.pinWrap ? 'pin' : 'setup1';
 paintLock();
-if(META && META.face) setTimeout(function(){ if(mode === 'pin' && !$('lock').classList.contains('out')) faceUnlock(true); }, 450);
+tryStay().then(function(ok){ if(!ok && META && META.face) setTimeout(function(){ if(mode === 'pin' && !$('lock').classList.contains('out')) faceUnlock(true); }, 300); });
 window.__ii = {press: press, state: function(){ return {mode: mode, unlocked: !!DEK, V: V}; }, lock: lock};
 })();
 </script>
