@@ -258,6 +258,16 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 @keyframes sk{to{background-position:-200% 0}}
 
 /* v2 */
+.smp{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--gline);padding:12px 2px;color:var(--fg);font:inherit;cursor:pointer}
+.smp:first-of-type{border-top:0}
+.smp.open{background:color-mix(in srgb,var(--gold) 6%,transparent);border-radius:14px;padding:12px 10px}
+.smp-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.smp-h b{font:700 14.5px var(--display)}
+.smp-h .num{font-weight:700;white-space:nowrap}
+.smp-f{display:flex;justify-content:space-between;gap:8px;margin-top:6px;color:var(--muted)}
+.smp-d p{margin:10px 0 8px;font-size:13.5px;color:var(--muted)}
+.smp-use{margin-top:10px;display:inline-flex}
+#plSeg button{padding:9px 2px;font-size:12px}
 .rpc{width:100%;display:block;height:260px}
 .verdict{margin-top:12px;padding:12px 14px;border-radius:14px;font-size:13.5px;line-height:1.5;border:1px solid var(--gline)}
 .verdict.g{background:color-mix(in srgb,var(--up) 10%,transparent)}.verdict.r{background:color-mix(in srgb,var(--down) 10%,transparent)}
@@ -1117,8 +1127,9 @@ function rPlan(live){
   var tsum = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0), rd = READY.filter(function(r){ return V.ready[r[0]]; }).length;
   el.innerHTML =
     planSwitch() + '<h1>The 100M plan</h1><p class="sub">Where it goes, when to add it, how to split it, and where it costs least.</p>' +
-    '<div class="seg" id="plSeg" style="margin-bottom:14px"><button type="button" data-v="mix" class="on">Options</button><button type="button" data-v="when">When</button><button type="button" data-v="how">How</button><button type="button" data-v="where">Exchange</button><button type="button" data-v="ready">Ready?</button></div>' +
-    '<div data-pl="mix"><div id="plMix"></div></div>' +
+    '<div class="seg" id="plSeg" style="margin-bottom:14px"><button type="button" data-v="samples" class="on">Samples</button><button type="button" data-v="mix">Options</button><button type="button" data-v="when">When</button><button type="button" data-v="how">How</button><button type="button" data-v="where">Exchange</button></div>' +
+    '<div data-pl="samples"><div id="plSmp"></div></div>' +
+    '<div data-pl="mix" hidden><div id="plMix"></div></div>' +
     '<div data-pl="when" hidden><div class="card hero-c" id="plWhen"></div><div class="card" id="plPark"></div>' +
       '<div class="card"><div class="card-h"><h2>Your pace rules</h2></div><p class="muted" style="margin:0 0 10px;font-size:13.5px">Each step starts at the base amount. These rules make it bigger when the market is fearful or cheap vs its trend, and smaller when it’s greedy or stretched. The total stays 100M.</p>' +
       '<div class="set-row"><div><b>Fear &amp; Greed</b><div class="small muted">&lt;25 ×1.5 · &lt;45 ×1.25 · 45–55 ×1 · ≤75 ×0.75 · &gt;75 ×0.5</div></div><input type="checkbox" class="ck" id="pcF"' + (V.pace.fng ? ' checked' : '') + '></div>' +
@@ -1140,7 +1151,7 @@ function rPlan(live){
     '</div>' +
     '<div data-pl="where" hidden><div class="card"><div class="card-h"><h2>Cost of the route</h2></div><label class="f">Amount (IDR)<input class="inp" id="wAmt" inputmode="numeric" value="' + (+s.amount).toLocaleString('id-ID') + '"></label><div id="wTbl" style="margin-top:12px"></div>' +
       '<p class="note"><b>Payoneer card:</b> works only if your card is accepted at checkout. Card buys cost about 2% on Binance, plus up to 3.5% if Payoneer has to convert currency. Payoneer\u2019s terms limit crypto use, so keep your work income account safe. Full round trip: rupiah in, buy, later sell (with tax), rupiah out. Fee data: blockchainmedia.id (Mar 2026), Binance standard spot, PMK 50/2025, and your own Rp 200K deposit. Edit any number in Settings → Fees. Also check that the exchange is licensed by OJK.</p></div></div>' +
-    '<div data-pl="ready" hidden><div class="card"><div class="card-h"><h2>Before the first step</h2><span class="chip ' + (rd === READY.length ? 'g' : 'y') + '" id="rdN">' + rd + '/' + READY.length + '</span></div>' +
+    '<div data-pl="how" hidden><div class="card"><div class="card-h"><h2>Before the first step</h2><span class="chip ' + (rd === READY.length ? 'g' : 'y') + '" id="rdN">' + rd + '/' + READY.length + '</span></div>' +
       READY.map(function(r){ return '<label class="set-row" style="cursor:pointer"><span>' + r[1] + '</span><input type="checkbox" class="ck" data-rd="' + r[0] + '"' + (V.ready[r[0]] ? ' checked' : '') + '></label>'; }).join('') +
       '<p class="note">If any of these is a no, the cheapest fix is to wait. Missing a week costs less than a forced sale at a loss.</p></div></div>';
   $('sEv').value = s.every;
@@ -1154,7 +1165,7 @@ function rPlan(live){
   $('sEv').addEventListener('change', function(){ s.every = this.value; schedTbl(); planWhen(); save(); });
   $('wAmt').addEventListener('input', whereTbl);
   el.querySelectorAll('[data-rd]').forEach(function(c){ c.onchange = function(){ V.ready[c.getAttribute('data-rd')] = c.checked; save(); var n = READY.filter(function(r){ return V.ready[r[0]]; }).length; $('rdN').textContent = n + '/' + READY.length; $('rdN').className = 'chip ' + (n === READY.length ? 'g' : 'y'); }; });
-  wireSwitch(); showPl(); rMix(); planWhen(); planPark(); planBars(); schedTbl(); whereTbl();
+  wireSwitch(); showPl(); rSamples(); rMix(); planWhen(); planPark(); planBars(); schedTbl(); whereTbl();
 }
 
 /* ---------- 100M: where across safety levels ---------- */
@@ -1340,7 +1351,105 @@ function planPark(){
   $('pkW').value = w; $('pkW').onchange = function(){ V.park = this.value; save(); planPark(); };
 }
 
-var PLTAB = 'mix';
+/* ---------- 100M samples: ready-made plans replayed on real past prices ---------- */
+var SMP = {days: 365, open: null, data: null, loading: false};
+var SAMPLES = [
+  {k:'lump', name:'All in on day one', desc:'The whole amount into BTC on the first day.', mix:{crypto:100}, steps:1, c:'#FF8A8A'},
+  {k:'steps', name:'10 steps (your plan)', desc:'BTC in 10 equal buys, one every 2 weeks. Money waiting for its turn earns in a money-market fund.', mix:{crypto:100}, steps:10, c:'#F7931A'},
+  {k:'pace', name:'10 steps + pace rules', desc:'The same steps, but each one is bigger when the market is fearful or cheap, and smaller when it’s greedy.', mix:{crypto:100}, steps:10, pace:true, c:'#F5B544'},
+  {k:'bal', name:'Balanced', desc:'40% government bonds, 20% money market, 15% gold, 25% BTC in 10 steps.', mix:{sbn:40, mm:20, gold:15, crypto:25}, steps:10, c:'#A78BFF'},
+  {k:'care', name:'Careful', desc:'60% government bonds, 30% money market, 10% BTC in 10 steps.', mix:{sbn:60, mm:30, crypto:10}, steps:10, c:'#4ADE9A'}
+];
+async function smpData(){
+  if(SMP.data) return SMP.data;
+  var btc = await loadBk('BTC', '1d'), gold = null, fng = {};
+  try{ gold = await loadBk('PAXG', '1d'); }catch(e){}
+  try{ var j = await getJSON('https://api.alternative.me/fng/?limit=1000'); j.data.forEach(function(x){ fng[ymd(new Date(+x.timestamp * 1000))] = +x.value; }); }catch(e){}
+  var gmap = {}; if(gold) gold.forEach(function(x){ gmap[ymd(new Date(x.t))] = x.c; });
+  SMP.data = {btc: btc, gmap: gmap, fng: fng, ts: Date.now()};
+  return SMP.data;
+}
+function simSample(S, days, D){
+  var btc = D.btc, N = btc.length, s0 = Math.max(200, N - 1 - days), amt = +V.mixTotal || 100000000, rate = MK.rate || 16500;
+  var route = whereRank(1e6)[0], rf = feeOf(route.x), inCost = (+rf.on + +rf.buy) / 100, exitPct = (+rf.sell + +rf.off) / 100;
+  var ySBN = (optY('sbn') || 0) * .9 / 100, yMM = (optY('mm') || 0) / 100, dS = Math.pow(1 + ySBN, 1 / 365), dM = Math.pow(1 + yMM, 1 / 365);
+  var m = S.mix, sbn = amt * (m.sbn || 0) / 100, mm = amt * ((m.mm || 0) + (m.crypto || 0)) / 100, budget = amt * (m.crypto || 0) / 100;
+  var goldIdr = amt * (m.gold || 0) / 100, goldQty = 0, fees = 0, gStart = null;
+  var btcQty = 0, spent = 0, done = 0, base = budget / S.steps, ser = [], put = [], buys = [], sum = 0;
+  for(var k = s0 - 199; k <= s0; k++) sum += btc[k].c;
+  for(var d = s0; d < N; d++){
+    if(d > s0){ sum += btc[d].c - btc[d - 200].c; sbn *= dS; mm *= dM; }
+    var day = ymd(new Date(btc[d].t)), px = btc[d].c * rate;
+    if(goldIdr && !goldQty){ var gp = D.gmap[day]; if(gp){ goldQty = goldIdr * .95 / (gp * rate); fees += goldIdr * .05; gStart = gp; } }
+    if(done < S.steps && (d - s0) % 14 === 0){
+      var mult = 1;
+      if(S.pace){ var f = D.fng[day], my = btc[d].c / (sum / 200);
+        if(f != null) mult *= f < 25 ? 1.5 : f < 45 ? 1.25 : f <= 55 ? 1 : f <= 75 ? .75 : .5;
+        mult *= my < .9 ? 1.25 : my <= 1.5 ? 1 : my <= 2.4 ? .75 : .5; mult = Math.max(.25, Math.min(2, mult)); }
+      var a = done === S.steps - 1 ? budget - spent : Math.min(budget - spent, base * mult);
+      if(a > 0){ var fee = a * inCost; btcQty += (a - fee) / px; mm -= a; spent += a; fees += fee; buys.push({i: d - s0, a: a, m: mult, p: btc[d].c}); }
+      done++;
+    }
+    var gNow = goldQty ? (D.gmap[day] || gStart) * rate * goldQty : goldIdr;
+    var v = sbn + Math.max(0, mm) + btcQty * px + gNow;
+    ser.push(v); put.push(amt);
+  }
+  if(done < S.steps && budget - spent > 0){ /* steps that fall after today stay parked */ }
+  var pk = -Infinity, dd = 0; ser.forEach(function(v){ pk = Math.max(pk, v); dd = Math.min(dd, (v / pk - 1) * 100); });
+  var end = ser[ser.length - 1], exitCost = btcQty * btc[N - 1].c * rate * exitPct;
+  return {S: S, ser: ser, end: end, gain: end - amt, ret: (end / amt - 1) * 100, dd: dd, fees: fees, exitCost: exitCost, buys: buys, route: route.x, from: btc[s0].t, btcFrom: btc[s0].c, btcTo: btc[N - 1].c, amt: amt, budget: budget};
+}
+function spark2(ser, amt, col, h){
+  var W = 300, H = h || 54, mn = Math.min.apply(null, ser.concat(amt)), mx = Math.max.apply(null, ser.concat(amt)), sp = mx - mn || 1;
+  var y = function(v){ return (3 + (1 - (v - mn) / sp) * (H - 6)).toFixed(1); };
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:' + H + 'px;display:block"><line x1="0" x2="' + W + '" y1="' + y(amt) + '" y2="' + y(amt) + '" stroke="var(--faint)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/><path d="' + ser.map(function(v, i){ return (i ? 'L' : 'M') + (i / (ser.length - 1) * W).toFixed(1) + ' ' + y(v); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>';
+}
+async function rSamples(){
+  var box = $('plSmp'); if(!box) return;
+  box.innerHTML = '<div class="card hero-c"><div class="card-h"><h2>What would have happened?</h2></div><p class="muted" style="margin:0 0 12px;font-size:13.5px">Five ready-made ways to place ' + idrS(+V.mixTotal || 1e8) + ', replayed on real past prices with real fees. Nothing to fill in. Started this long ago:</p>' +
+    '<div class="seg" id="smpD"><button type="button" data-v="182">6 months</button><button type="button" data-v="365">1 year</button><button type="button" data-v="730">2 years</button></div></div>' +
+    '<div id="smpOut"><div class="card"><div class="skel"></div><div class="skel" style="margin-top:10px;width:70%"></div></div></div>';
+  var seg = $('smpD'); seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', +b.getAttribute('data-v') === SMP.days); });
+  seg.onclick = function(e){ var b = e.target.closest('button'); if(!b) return; SMP.days = +b.getAttribute('data-v'); SMP.open = null; seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); smpRender(); };
+  try{ await smpData(); }catch(e){ $('smpOut').innerHTML = '<div class="card"><div class="empty">Couldn’t load past prices. Check your connection and open this tab again.</div></div>'; return; }
+  smpRender();
+}
+function smpRender(){
+  var out = $('smpOut'); if(!out || !SMP.data) return;
+  var R = SAMPLES.map(function(S){ return simSample(S, SMP.days, SMP.data); });
+  var best = R.slice().sort(function(a, b){ return b.end - a.end; })[0], calm = R.slice().sort(function(a, b){ return b.dd - a.dd; })[0];
+  var r0 = R[0], from = new Date(r0.from).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}), btcCh = (r0.btcTo / r0.btcFrom - 1) * 100;
+  var lump = R[0], steps = R[1], pace = R[2], bal = R[3], care = R[4];
+  var tk = [];
+  tk.push('BTC went from ' + usd(r0.btcFrom) + ' to ' + usd(r0.btcTo) + ' (' + pct(btcCh, 0) + ') since ' + from + '.');
+  tk.push(steps.end > lump.end ? 'Buying in steps beat going all in by ' + idrS(steps.end - lump.end) + ', because the price was ' + (btcCh < 0 ? 'falling' : 'cheaper at some steps') + '.' : 'Going all in beat the steps by ' + idrS(lump.end - steps.end) + ', because the price mostly rose after day one. Steps give up some gain when prices rise, in exchange for not betting everything on one day.');
+  tk.push('The worst drop along the way: all in ' + pct(lump.dd, 0) + ', steps ' + pct(steps.dd, 0) + ', balanced ' + pct(bal.dd, 0) + ', careful ' + pct(care.dd, 0) + '.');
+  if(Math.abs(pace.end - steps.end) > 1) tk.push('The pace rules ' + (pace.end > steps.end ? 'added ' + idrS(pace.end - steps.end) : 'cost ' + idrS(steps.end - pace.end)) + ' compared with equal steps in this period.');
+  out.innerHTML = '<div class="card"><div class="card-h"><h2>Ranked by result</h2><span class="small faint">since ' + from + '</span></div>' +
+    R.slice().sort(function(a, b){ return b.end - a.end; }).map(function(r){
+      var o = SMP.open === r.S.k;
+      return '<button type="button" class="smp' + (o ? ' open' : '') + '" data-s="' + r.S.k + '"><div class="smp-h"><span><i class="sw" style="background:' + r.S.c + '"></i><b>' + r.S.name + '</b>' + (r === best ? ' <span class="chip g">most gained</span>' : '') + (r === calm ? ' <span class="chip b">calmest</span>' : '') + '</span><span class="num ' + cls(r.gain) + '">' + idrSigned(r.gain) + '</span></div>' +
+        spark2(r.ser, r.amt, r.S.c, o ? 120 : 46) +
+        '<div class="smp-f small"><span>Now <b class="num">' + idrS(r.end) + '</b></span><span>Worst drop <b class="num down">' + pct(r.dd, 0) + '</b></span><span>Fees <b class="num">' + idrS(r.fees) + '</b></span></div>' +
+        (o ? '<div class="smp-d"><p>' + r.S.desc + '</p>' +
+          (r.buys.length > 1 ? '<div class="small muted" style="margin-bottom:6px">Buys: ' + r.buys.map(function(b){ return idrS(b.a).replace('Rp ', '') + (r.S.pace ? ' (×' + b.m.toFixed(2).replace(/\.?0+$/, '') + ')' : '') + ' at ' + usd(b.p); }).join(' · ') + '</div>' : '') +
+          '<div class="small muted">Return ' + pct(r.ret, 1) + '. Cashing the BTC out today would cost about ' + idrS(r.exitCost) + ' more on ' + esc(r.route) + '.</div>' +
+          '<span class="btn sec sm smp-use" data-use="' + r.S.k + '" role="button" tabindex="0">Use this as my plan</span></div>' : '') +
+        '</button>';
+    }).join('') + '</div>' +
+    '<div class="card"><div class="card-h"><h2>What it teaches</h2></div>' + tk.map(function(t){ return '<p style="margin:0 0 10px;font-size:14px">• ' + t + '</p>'; }).join('') +
+    '<p class="note">Uses real BTC and gold (PAXG) daily prices, real Fear &amp; Greed history, your bond and money-market rates, and fees on ' + esc(r0.route) + ' (cheapest route). Rupiah converted at today’s rate. Past results don’t repeat. Try the other start dates to see how much the answer changes.</p></div>';
+  out.querySelectorAll('.smp').forEach(function(b){ b.onclick = function(e){
+    var u = e.target.closest('[data-use]');
+    if(u){ e.stopPropagation(); var S = SAMPLES.filter(function(x){ return x.k === u.getAttribute('data-use'); })[0];
+      V.mix = {sbn: S.mix.sbn || 0, mm: S.mix.mm || 0, dep: 0, gold: S.mix.gold || 0, stock: 0, crypto: S.mix.crypto || 0};
+      V.sched.amount = Math.round((+V.mixTotal || 1e8) * (S.mix.crypto || 0) / 100); V.sched.n = S.steps; V.sched.every = '2w'; V.sched.done = {};
+      V.pace.fng = V.pace.mayer = !!S.pace;
+      save(); toast('Plan set: ' + S.name); PLTAB = 'mix'; rPlan(); return; }
+    var k = b.getAttribute('data-s'); SMP.open = SMP.open === k ? null : k; smpRender(); }; });
+}
+
+var PLTAB = 'samples';
 function showPl(){ var el = $('vPlan'); el.querySelectorAll('[data-pl]').forEach(function(d){ d.hidden = d.getAttribute('data-pl') !== PLTAB; }); $('plSeg').querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === PLTAB); }); }
 function planWhen(){
   var box = $('plWhen'); if(!box) return;
