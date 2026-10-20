@@ -258,6 +258,7 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 @keyframes sk{to{background-position:-200% 0}}
 
 /* v2 */
+.inp.ask{border-color:var(--warn);box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 18%,transparent)}
 .kv small{font-size:11.5px;font-family:var(--mono)}
 .track{position:relative;height:12px;border-radius:7px;background:rgba(127,127,127,.15);margin:26px 4px 0}
 .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,#2F7BFF,#5BE1FF);transition:width 1s cubic-bezier(.2,.8,.2,1)}
@@ -371,6 +372,8 @@ var RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').
 var te = new TextEncoder(), td = new TextDecoder();
 var ITER = 600000;
 var K_META = 'ii-meta', K_VAULT = 'ii-vault';
+var PRE = null;
+try{ var pm = location.hash.match(/^#add=([^&]+)/); if(pm){ PRE = decodeURIComponent(pm[1]).split(','); history.replaceState(null, '', location.pathname + location.search); } }catch(e){}
 
 /* ---------- small helpers ---------- */
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -680,7 +683,11 @@ function migrate(o){
 }
 function bucketOf(a){ return a === 'BTC' ? 'BTC' : a === 'ETH' ? 'ETH' : STABLE[a] ? 'Cash' : 'Alts'; }
 function capital(){ return V.deposits.reduce(function(s, d){ return s + (+d.amt || 0); }, 0); }
-function feeOf(ex){ return V.fees[ex] || FEE_DEF[ex] || {buy:0, sell:0, on:0, off:0}; }
+var CARD = 'Payoneer card → Binance';
+function feeOf(ex){
+  if(ex === CARD){ var b = feeOf('Binance'); return {buy: b.buy, sell: b.sell, on: V.cardFee == null ? 2 : V.cardFee, off: b.off, card: true, src: 'Card purchase on Binance (~2%, shown before you confirm). Add up to 3.5% Payoneer conversion if the card currency differs from the purchase currency.'}; }
+  return V.fees[ex] || FEE_DEF[ex] || {buy:0, sell:0, on:0, off:0};
+}
 function feePct(ex, side){ var f = feeOf(ex); return (side === 'sell' ? +f.sell : +f.buy) / 100; }
 function book(){
   var pos = {}, cash = 0, depFees = 0, realized = 0, fees = 0, wins = 0, sells = 0, curve = [];
@@ -770,7 +777,10 @@ setInterval(paintLive, 1000);
 
 /* ================= Views ================= */
 var cur = 'home';
-function boot(){ go(cur, true); startLive(); }
+function boot(){
+  go(cur, true); startLive();
+  if(PRE){ var pp = PRE; PRE = null; if(!V.deposits.length) setTimeout(function(){ setupSheet(pp); }, 600); else toast('Your position is already saved'); }
+}
 function go(v, first){
   cur = v;
   [].forEach.call(document.querySelectorAll('.view'), function(s){ s.classList.toggle('on', s.getAttribute('data-v') === v); if(s.getAttribute('data-v') !== v) s.innerHTML = ''; });
@@ -823,7 +833,7 @@ function beInfo(a, usdOverride, rateOverride){
   var outPct = (+f.sell + +f.off) / 100;
   var buyFees = V.trades.filter(function(t){ return t.a === a && t.side === 'buy'; }).reduce(function(s, t){ return s + (+t.fee || 0); }, 0) * (p.uq ? p.qty / p.uq : 1);
   var r = {a: a, ex: p.ex, f: f, qty: p.qty, cost: p.cost, depShare: depShare, allIn: allIn, buyFees: buyFees, rate: rate, now: now, outPct: outPct,
-    entry: p.uq ? p.uv / p.uq : null};
+    entry: p.uq ? p.uv / p.uq : null, label: (V.trades.filter(function(t){ return t.a === a && t.label; })[0] || {}).label || ''};
   if(rate && now){
     r.value = p.qty * now * rate;
     r.sellFee = r.value * (+f.sell - (p.ex === 'Binance' ? 1 : 0)) / 100;
@@ -877,7 +887,7 @@ function rHome(live){
 function beMini(be){
   var lo = Math.min(be.entry || be.now, be.now) * .995, hi = Math.max(be.cashUsd, be.now) * 1.005, sp = hi - lo || 1, x = function(v){ return Math.max(0, Math.min(100, (v - lo) / sp * 100)); };
   var need = (be.cashUsd / be.now - 1) * 100, covered = be.now >= be.cashUsd;
-  return '<div class="card-h"><h2>Break-even · ' + esc(be.a) + '</h2><button class="btn sec sm" id="hBeGo" type="button">Details</button></div>' +
+  return '<div class="card-h"><h2>' + (be.label ? esc(be.label) : 'Break-even · ' + esc(be.a)) + '</h2><button class="btn sec sm" id="hBeGo" type="button">Details</button></div>' +
     '<p style="margin:0 0 4px">' + (covered ? '<b class="up">Fees are covered.</b> Cashing out now would return ' + idrS(be.cashOut) + ' (' + idrSigned(be.cashPnl) + ').' : esc(be.a) + ' needs <b class="num">' + usd(be.cashUsd) + '</b> to get your <b>' + idrS(be.allIn) + '</b> back in cash: <b class="num">' + pct(need, 1) + '</b> from now.') + '</p>' +
     '<div class="track"><i class="fill" style="width:' + x(be.now) + '%"></i>' + (be.entry ? '<em style="left:' + x(be.entry) + '%" data-l="Bought"></em>' : '') + '<em class="p" style="left:' + x(be.paperUsd) + '%" data-l="Paper"></em><em class="c" style="left:' + x(be.cashUsd) + '%" data-l="Cash-out"></em><u style="left:' + x(be.now) + '%"></u></div>' +
     '<div class="row small muted" style="justify-content:space-between;margin-top:22px"><span>Now ' + usd(be.now) + '</span><span>Paper ' + usd(be.paperUsd) + '</span><span>Cash-out ' + usd(be.cashUsd) + '</span></div>';
@@ -1058,7 +1068,7 @@ function rPlan(live){
       '<details class="lesson"><summary>Where to keep it</summary><p>Larger amounts left on one exchange carry platform risk. Turn on 2FA and a withdrawal whitelist. Above a level you’re uncomfortable losing, learn about a hardware wallet.</p></details></div>' +
     '</div>' +
     '<div data-pl="where" hidden><div class="card"><div class="card-h"><h2>Cost of the route</h2></div><label class="f">Amount (IDR)<input class="inp" id="wAmt" inputmode="numeric" value="' + (+s.amount).toLocaleString('id-ID') + '"></label><div id="wTbl" style="margin-top:12px"></div>' +
-      '<p class="note">Full round trip: rupiah in, buy, later sell (with tax), rupiah out. Fee data: blockchainmedia.id (Mar 2026), Binance standard spot, PMK 50/2025, and your own Rp 200K deposit. Edit any number in Settings → Fees. Also check that the exchange is licensed by OJK.</p></div></div>' +
+      '<p class="note"><b>Payoneer card:</b> works only if your card is accepted at checkout. Card buys cost about 2% on Binance, plus up to 3.5% if Payoneer has to convert currency. Payoneer\u2019s terms limit crypto use, so keep your work income account safe. Full round trip: rupiah in, buy, later sell (with tax), rupiah out. Fee data: blockchainmedia.id (Mar 2026), Binance standard spot, PMK 50/2025, and your own Rp 200K deposit. Edit any number in Settings → Fees. Also check that the exchange is licensed by OJK.</p></div></div>' +
     '<div data-pl="ready" hidden><div class="card"><div class="card-h"><h2>Before the first step</h2><span class="chip ' + (rd === READY.length ? 'g' : 'y') + '" id="rdN">' + rd + '/' + READY.length + '</span></div>' +
       READY.map(function(r){ return '<label class="set-row" style="cursor:pointer"><span>' + r[1] + '</span><input type="checkbox" class="ck" data-rd="' + r[0] + '"' + (V.ready[r[0]] ? ' checked' : '') + '></label>'; }).join('') +
       '<p class="note">If any of these is a no, the cheapest fix is to wait. Missing a week costs less than a forced sale at a loss.</p></div></div>';
@@ -1100,7 +1110,7 @@ function stepSheet(S){
     '<label class="f">Deposit fee cut (IDR)<input class="inp" id="stF" inputmode="numeric"></label>' +
     '<label class="set-row" style="cursor:pointer;padding:6px 0"><span class="small">Also add it to “Money in” as a deposit</span><input type="checkbox" class="ck" id="stD" checked></label>' +
     '<button class="btn full" id="stGo" type="button">Save step</button><p class="note">Then log the buy(s) in the Journal, so holdings and break-even update.</p></div>');
-  $('stX').value = w ? w.x : 'Indodax';
+  $('stX').value = w ? (w.x === CARD ? 'Binance' : w.x) : 'Indodax';
   var fee = function(){ $('stF').value = Math.round(numIn($('stA').value) * feeOf($('stX').value).on / 100).toLocaleString('id-ID'); };
   fee(); $('stX').onchange = fee; $('stA').oninput = fee;
   $('stGo').onclick = function(){
@@ -1127,7 +1137,7 @@ function schedTbl(){
   $('pProg').textContent = S.nDone + ' of ' + s.n + ' done';
   $('sTbl').querySelectorAll('[data-und]').forEach(function(b){ b.onclick = function(){ delete s.done[b.getAttribute('data-und')]; save(); schedTbl(); planWhen(); toast('Step undone (deposit, if added, stays in Money in)'); }; });
 }
-function whereRank(amt){ return EXCH.map(function(x){ return routeCost(x, amt); }).sort(function(p, q){ return p.t - q.t; }); }
+function whereRank(amt){ return EXCH.concat([CARD]).map(function(x){ return routeCost(x, amt); }).sort(function(p, q){ return p.t - q.t; }); }
 function whereTbl(){
   var amt = numIn($('wAmt').value) || 0, R = whereRank(amt), worst = R[R.length - 1];
   $('wTbl').innerHTML = R.map(function(r, i){
@@ -1183,7 +1193,7 @@ function fmtP(p){ return p >= 1000 ? Math.round(p).toLocaleString('id-ID') : p >
 async function refreshOne(a){ try{ var t = await getJSON(API + '/ticker/24hr?symbol=' + a + 'USDT'); MK.t[a] = {p: +t.lastPrice, ch: +t.priceChangePercent}; }catch(e){ toast(a + ' isn’t on the price feed. Enter prices by hand.'); } }
 
 /* ---------- SETUP: current position ---------- */
-function setupSheet(){
+function setupSheet(pre){
   var live = MK.t.BTC ? MK.t.BTC.p : '';
   sheet('<div class="sh-h"><h2>My current position</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
     '<p class="muted" style="margin:-6px 0 12px;font-size:13.5px">Open Binance → Wallet → Spot to copy the exact amount you received.</p><div class="form">' +
@@ -1209,12 +1219,23 @@ function setupSheet(){
     return {amt: amt, fee: fee, net: net, a: a, qty: qty, rate: rate, pxIdr: pxIdr, pxUsd: isU() ? p : (MK.rate ? p / MK.rate : null), tfee: net - qty * pxIdr, est: !(q > 0)};
   }
   ['suAmt', 'suFee', 'suPx', 'suQ', 'suA'].forEach(function(i){ $(i).oninput = prev; });
+  if(pre && pre.length){
+    var n0 = function(v){ var x = numIn(v); return x > 0 ? x : ''; };
+    if(pre[3] && EXCH.indexOf(pre[3]) >= 0) $('suX').value = pre[3];
+    if(n0(pre[0])) $('suAmt').value = n0(pre[0]).toLocaleString('id-ID');
+    if(pre[1] !== undefined && numIn(pre[1]) >= 0) $('suFee').value = numIn(pre[1]).toLocaleString('id-ID');
+    if(n0(pre[2])) $('suPx').value = pre[2];
+    if(pre[4]) $('suA').value = pre[4].toUpperCase();
+    if(/^\d{4}-\d{2}-\d{2}$/.test(pre[5] || '')) $('suD').value = pre[5];
+    else { $('suD').classList.add('ask'); $('suD').closest('label').insertAdjacentHTML('beforeend', '<span class="small" style="color:var(--warn)">Set the day you bought</span>'); }
+    prev();
+  }
   $('suX').onchange = function(){ var f = feeOf(this.value); if(!$('suFee').value && numIn($('suAmt').value) > 0) $('suFee').value = Math.round(numIn($('suAmt').value) * f.on / 100).toLocaleString('id-ID'); prev(); };
   $('suGo').onclick = function(){
     var r = calc(); if(!r){ toast('Fill rupiah sent and buy price'); return; }
     var x = $('suX').value, d = $('suD').value || today();
     V.deposits.push({d: d, amt: r.amt, fee: r.fee, ex: x, note: 'First deposit'});
-    V.trades.push({id: 'T' + Date.now().toString(36), at: Date.now(), d: d, ex: x, side: 'buy', a: r.a, qty: r.qty, px: r.pxIdr, pxUsd: r.pxUsd, rate: isU() ? Math.round(r.rate) : MK.rate, fee: Math.max(0, r.tfee), why: 'My first position. Learning with it.', emo: '', conf: 0, ctx: d === today() ? ctxNow() : null, est: r.est});
+    V.trades.push({id: 'T' + Date.now().toString(36), at: Date.now(), d: d, ex: x, side: 'buy', a: r.a, qty: r.qty, px: r.pxIdr, pxUsd: r.pxUsd, rate: isU() ? Math.round(r.rate) : MK.rate, fee: Math.max(0, r.tfee), why: 'My first position. Learning with it.', label: V.trades.length ? '' : 'My first ' + r.a, emo: '', conf: 0, ctx: d === today() ? ctxNow() : null, est: r.est});
     save(); closeSheet(); toast('Position saved'); vibe(15); refresh(); go('be');
   };
 }
