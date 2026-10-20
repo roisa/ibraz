@@ -774,7 +774,7 @@ function px(a){ if(STABLE[a]) return a === 'IDR' ? 1 : MK.rate || null; var t = 
 function usd(n, d){ if(n == null || isNaN(n)) return '—'; return '$' + n.toLocaleString('en-US', {maximumFractionDigits: d == null ? (n >= 100 ? 0 : 2) : d}); }
 function symbols(){
   var s = {BTC:1, ETH:1};
-  if(V.paper){ PCOINS.forEach(function(a){ s[a] = 1; }); V.paper.trades.forEach(function(t){ s[t.a] = 1; }); }
+  if(V.paper){ PCOINS.forEach(function(a){ s[a] = 1; }); V.trades.forEach(function(t){ if(PCOINS.indexOf(t.a) < 0 && !STABLE[t.a]) PCOINS.push(t.a); }); V.paper.trades.forEach(function(t){ s[t.a] = 1; }); }
   V.trades.forEach(function(t){ s[t.a] = 1; }); V.alerts.forEach(function(x){ s[x.a] = 1; });
   return Object.keys(s).filter(function(a){ return !STABLE[a]; });
 }
@@ -1583,6 +1583,20 @@ var JV = 'real', PCOINS = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE'], SLIP = .0
 var PT = {side: 'buy', a: 'BTC', type: 'market', amt: '', lim: ''};
 function jSwitch(){ return '<div class="seg big2" id="jv" style="margin:0 0 14px"><button type="button" data-v="real"' + (JV === 'real' ? ' class="on"' : '') + '>Real trades</button><button type="button" data-v="practice"' + (JV === 'practice' ? ' class="on"' : '') + '>Practice (fake money)</button></div>'; }
 function wireJ(){ $('jv').onclick = function(e){ var b = e.target.closest('button'); if(!b || b.getAttribute('data-v') === JV) return; JV = b.getAttribute('data-v'); $('vJournal').innerHTML = ''; $('fab').hidden = JV !== 'real'; if(JV === 'practice' && V.paper) refresh(); rJournal(); window.scrollTo({top: 0}); }; }
+function paperMirror(){
+  if(!V.deposits.length) return false;
+  var b = book(), a = mainAsset(), ex = (a && b.pos[a] && b.pos[a].ex) || V.deposits[0].ex || 'Binance';
+  paperNew(capital(), ex, true);
+  V.paper.rampIn = b.depFees; V.paper.mirror = today();
+  V.paper.trades = V.trades.slice().sort(function(x, y){ return x.d < y.d ? -1 : x.d > y.d ? 1 : x.at - y.at; }).map(function(t){ var g = t.qty * t.px; return {id: 'P' + t.id, at: t.at, d: t.d, a: t.a, side: t.side, type: 'market', qty: t.qty, px: t.px, gross: g, fee: +t.fee || 0, feePct: g ? (+t.fee || 0) / g * 100 : 0, ex: t.ex, why: 'Copied from your real trade', ctx: t.ctx || null}; });
+  return true;
+}
+function setAmt(){
+  var st = paperBook();
+  if(PT.side === 'sell'){ var h = st.pos[PT.a] ? st.pos[PT.a].qty : 0; PT.amt = h || ''; }
+  else PT.amt = st.avail > 0 ? Math.floor(st.avail * .25 / 1000) * 1000 : '';
+  var i = $('ppAmt'); if(i) i.value = PT.amt === '' ? '' : PT.side === 'sell' ? qtyF(PT.amt).replace(/,/g, '') : PT.amt.toLocaleString('id-ID');
+}
 function paperNew(start, ex, ramp){
   if(V.paper && V.paper.trades.length){ var st = paperBook(); V.paper.rounds = V.paper.rounds || []; V.paper.rounds.push({from: V.paper.began, to: today(), ex: V.paper.ex, start: V.paper.start, end: Math.round(st.cashOut), fees: Math.round(st.fees + st.rampIn), trades: V.paper.trades.length}); }
   var rounds = V.paper ? V.paper.rounds || [] : [];
@@ -1590,7 +1604,7 @@ function paperNew(start, ex, ramp){
 }
 function pFee(side, type, ex){ var f = feeOf(ex || V.paper.ex); return (type === 'limit' ? (side === 'buy' ? (f.mb != null ? f.mb : f.buy) : (f.ms != null ? f.ms : f.sell)) : (side === 'buy' ? f.buy : f.sell)) / 100; }
 function paperBook(){
-  var P = V.paper, f = feeOf(P.ex), rampIn = P.ramp ? P.start * f.on / 100 : 0, cash = P.start - rampIn, pos = {}, fees = 0, realized = 0, wins = 0, sells = 0, grossPnl = 0;
+  var P = V.paper, f = feeOf(P.ex), rampIn = P.rampIn != null ? P.rampIn : P.ramp ? P.start * f.on / 100 : 0, cash = P.start - rampIn, pos = {}, fees = 0, realized = 0, wins = 0, sells = 0, grossPnl = 0;
   P.trades.forEach(function(t){
     var q = pos[t.a] = pos[t.a] || {qty: 0, cost: 0, gross: 0};
     fees += t.fee;
@@ -1633,6 +1647,7 @@ function paperFill(){
 }
 function rPractice(live){
   var el = $('vJournal');
+  if(!V.paper && V.deposits.length){ paperMirror(); save(); }
   if(!V.paper){
     el.innerHTML = jSwitch() + '<h1>Practice</h1><p class="sub">Trade with fake money at live prices, paying the real fees. Learn what trading costs before it costs you.</p>' +
       '<div class="card hero-c"><div class="form"><div class="two"><label class="f">Fake money (IDR)<input class="inp" id="pnS" inputmode="numeric" value="10.000.000"></label><label class="f">Exchange<select class="inp" id="pnX">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
@@ -1643,7 +1658,8 @@ function rPractice(live){
   if(live && el.firstChild){ practiceLive(); return; }
   var P = V.paper;
   el.innerHTML = jSwitch() +
-    '<h1>Practice</h1><p class="sub">Fake money, live prices, real ' + esc(P.ex) + ' fees' + (P.ramp ? ' and rupiah costs' : '') + '. Started ' + fmtDate(P.began) + '.</p>' +
+    '<h1>Practice</h1><p class="sub">' + (P.mirror ? 'A fake copy of your real position (copied ' + fmtDate(P.mirror) + '), at live prices with real ' + esc(P.ex) + ' fees. Try selling, adding or switching here first. Nothing touches your real money.' : 'Fake money, live prices, real ' + esc(P.ex) + ' fees' + (P.ramp ? ' and rupiah costs' : '') + '. Started ' + fmtDate(P.began) + '.') + '</p>' +
+    (V.deposits.length ? '<button class="btn sec sm" id="ppMir" type="button" style="margin:-4px 0 14px">↺ ' + (P.mirror ? 'Reset to my real position' : 'Copy my real position') + '</button>' : '') +
     '<div class="card hero-c" id="ppHead"></div>' +
     '<div class="card" id="ppFees"></div>' +
     '<div class="card"><div class="card-h"><h2>Place a trade</h2><span class="small faint" id="ppPx"></span></div>' +
@@ -1661,8 +1677,8 @@ function rPractice(live){
   wireJ();
   var segOn = function(box, v){ box.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === v); }); };
   var sync = function(){ segOn($('ppSide'), PT.side); segOn($('ppCoin'), PT.a); segOn($('ppType'), PT.type); $('ppLimL').hidden = PT.type !== 'limit'; $('ppAmtL').textContent = PT.side === 'buy' ? 'Spend (IDR, fee included)' : 'Sell (' + PT.a + ' amount)'; ticket(); };
-  $('ppSide').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; PT.side = b.getAttribute('data-v'); PT.amt = ''; $('ppAmt').value = ''; sync(); };
-  $('ppCoin').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; PT.a = b.getAttribute('data-v'); PT.amt = ''; $('ppAmt').value = ''; PT.lim = ''; $('ppLim').value = ''; sync(); };
+  $('ppSide').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; PT.side = b.getAttribute('data-v'); setAmt(); sync(); };
+  $('ppCoin').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; PT.a = b.getAttribute('data-v'); PT.lim = ''; $('ppLim').value = ''; setAmt(); sync(); };
   $('ppType').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; PT.type = b.getAttribute('data-v'); if(PT.type === 'limit' && !PT.lim){ var p = px(PT.a); if(p){ PT.lim = p * (PT.side === 'buy' ? .99 : 1.01); $('ppLim').value = fmtP(PT.lim); } } sync(); };
   $('ppAmt').oninput = function(){ PT.amt = numIn(this.value); ticket(); };
   $('ppLim').oninput = function(){ PT.lim = numIn(this.value); ticket(); };
@@ -1670,11 +1686,14 @@ function rPractice(live){
     if(PT.side === 'buy'){ PT.amt = Math.floor(Math.max(0, st.avail) * q); $('ppAmt').value = PT.amt.toLocaleString('id-ID'); }
     else { var h = st.pos[PT.a] ? st.pos[PT.a].qty : 0; PT.amt = +(h * q).toPrecision(8); if(q === 1) PT.amt = h; $('ppAmt').value = qtyF(PT.amt).replace(/,/g, ''); } ticket(); };
   $('ppGo').onclick = placePaper;
+  if($('ppMir')) $('ppMir').onclick = function(){ paperMirror(); save(); PT.side = 'sell'; PT.a = mainAsset() || 'BTC'; rPractice(); toast('Practice now mirrors your real position'); };
   $('ppNew').onclick = function(){
-    sheet('<div class="sh-h"><h2>New practice round</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><p class="muted" style="margin:-6px 0 12px;font-size:13.5px">This round is saved to your history and AI export. The next round starts fresh.</p><div class="form"><div class="two"><label class="f">Fake money (IDR)<input class="inp" id="nrS" inputmode="numeric" value="' + (+P.start).toLocaleString('id-ID') + '"></label><label class="f">Exchange<select class="inp" id="nrX">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div><label class="set-row" style="cursor:pointer;padding:6px 0"><span class="small">Include rupiah in and out costs</span><input type="checkbox" class="ck" id="nrR"' + (P.ramp ? ' checked' : '') + '></label><button class="btn full" id="nrGo" type="button">Start new round</button></div>');
+    sheet('<div class="sh-h"><h2>New practice round</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><p class="muted" style="margin:-6px 0 12px;font-size:13.5px">This round is saved to your history and AI export. The next round starts fresh.</p><div class="form"><div class="two"><label class="f">Fake money (IDR)<input class="inp" id="nrS" inputmode="numeric" value="' + (+P.start).toLocaleString('id-ID') + '"></label><label class="f">Exchange<select class="inp" id="nrX">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div><label class="set-row" style="cursor:pointer;padding:6px 0"><span class="small">Include rupiah in and out costs</span><input type="checkbox" class="ck" id="nrR"' + (P.ramp ? ' checked' : '') + '></label><button class="btn full" id="nrGo" type="button">Start new round</button>' + (V.deposits.length ? '<button class="btn sec full" id="nrMir" type="button">Start from my real position instead</button>' : '') + '</div>');
     $('nrX').value = P.ex;
+    if($('nrMir')) $('nrMir').onclick = function(){ paperMirror(); save(); closeSheet(); PT.amt = ''; rPractice(); toast('Practice now mirrors your real position'); };
     $('nrGo').onclick = function(){ var n = numIn($('nrS').value); if(!(n > 0)) return; paperNew(n, $('nrX').value, $('nrR').checked); save(); closeSheet(); rPractice(); toast('New round started'); };
   };
+  if(PT.amt === ''){ if(P.mirror && P.trades.length === V.trades.length){ PT.side = 'sell'; PT.a = mainAsset() || PT.a; } setAmt(); }
   sync(); practiceLive();
 }
 function ticket(){
@@ -1725,7 +1744,7 @@ function practiceLive(){
     '<div class="fvr"><div><span>Price moves earned</span><b class="num ' + cls(g) + '">' + idrSigned(g) + '</b></div><div><span>Fees &amp; costs</span><b class="num down">−' + idrS(feeTot) + '</b></div><div><span>You keep</span><b class="num ' + cls(net) + '">' + idrSigned(net) + '</b></div></div>' +
     '<div class="stack" style="margin-top:12px">' + [[st.rampIn, '#7C8CA8', 'Rupiah in'], [st.fees, '#5BE1FF', 'Trading fees paid'], [st.exitFees, '#A78BFF', 'Sell fees if you sold now'], [st.rampOut, '#FF8A8A', 'Rupiah out']].filter(function(x){ return x[0] > 0; }).map(function(x){ return '<i style="flex:' + x[0].toFixed(0) + ';background:' + x[1] + '" title="' + x[2] + '"></i>'; }).join('') + '</div>' +
     [[st.rampIn, '#7C8CA8', 'Rupiah in (' + f.on + '%)'], [st.fees, '#5BE1FF', 'Trading fees paid (' + P.trades.length + ' trades)'], [st.exitFees, '#A78BFF', 'Sell fees + tax if you sold now'], [st.rampOut, '#FF8A8A', 'Rupiah out (' + f.off + '%)']].filter(function(x){ return x[0] > 0; }).map(function(x){ return '<div class="al"><span><i class="sw" style="background:' + x[1] + '"></i>' + x[2] + '</span><span class="num">' + idrS(x[0]) + '</span></div>'; }).join('') +
-    '<p class="note">' + (P.trades.length ? (g > 0 && feeTot > 0 ? 'Fees took <b>' + Math.min(999, feeTot / g * 100).toFixed(0) + '%</b> of what the price moves earned you.' : 'The price moves haven’t covered the costs yet.') + ' ' : '') + 'Each buy + sell on ' + esc(P.ex) + ' costs about <b>' + ((pFee('buy', 'market') + pFee('sell', 'market')) * 100).toFixed(2) + '%</b> (market) or <b>' + ((pFee('buy', 'limit') + pFee('sell', 'limit')) * 100).toFixed(2) + '%</b> (limit).</p>';
+    '<p class="note">' + (P.trades.length ? (g > feeTot && feeTot > 0 ? 'Fees took <b>' + (feeTot / g * 100).toFixed(0) + '%</b> of what the price moves earned you.' : 'So far the costs (' + idrS(feeTot) + ') are bigger than what the price moves earned (' + idrSigned(g) + '). The price has to move more to pay for them.') + ' ' : '') + 'Each buy + sell on ' + esc(P.ex) + ' costs about <b>' + ((pFee('buy', 'market') + pFee('sell', 'market')) * 100).toFixed(2) + '%</b> (market) or <b>' + ((pFee('buy', 'limit') + pFee('sell', 'limit')) * 100).toFixed(2) + '%</b> (limit).</p>';
   $('ppPos').innerHTML = st.rows.length ? st.rows.map(function(r){ return '<div class="hold"><b>' + esc(r.a) + '</b><span class="r">' + idrS(r.v) + '</span><small class="num">' + qtyF(r.qty) + ' · avg ' + idrS(r.avg) + ' (with fees)</small><small class="r ' + cls(r.pnl) + '">sell now: ' + idrSigned(r.pnl) + '</small></div>'; }).join('') : '<div class="empty">No coins yet. Place a buy above.</div>';
   if(V.paper.orders.length) $('ppPos').innerHTML += '<div class="small faint" style="margin:10px 0 4px">Waiting orders</div>' + V.paper.orders.map(function(o, i){ return '<div class="al"><span>' + o.side.toUpperCase() + ' ' + esc(o.a) + ' at ' + idrS(o.lim) + ' · ' + (o.side === 'buy' ? idrS(o.amt) : qtyF(o.qty)) + '</span><button class="btn sec sm" type="button" data-cx="' + i + '">Cancel</button></div>'; }).join('');
   document.querySelectorAll('[data-cx]').forEach(function(b){ b.onclick = function(){ V.paper.orders.splice(+b.getAttribute('data-cx'), 1); save(); practiceLive(); }; });
