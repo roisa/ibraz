@@ -256,6 +256,46 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 .fee-row input{padding:8px;font-size:14px;text-align:right}
 .skel{height:14px;border-radius:7px;background:linear-gradient(90deg,rgba(127,127,127,.1),rgba(127,127,127,.2),rgba(127,127,127,.1));background-size:200% 100%;animation:sk 1.2s infinite}
 @keyframes sk{to{background-position:-200% 0}}
+
+/* v2 */
+.kv small{font-size:11.5px;font-family:var(--mono)}
+.track{position:relative;height:12px;border-radius:7px;background:rgba(127,127,127,.15);margin:26px 4px 0}
+.track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,#2F7BFF,#5BE1FF);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.track em{position:absolute;top:-5px;width:2px;height:22px;background:var(--faint);transform:translateX(-1px)}
+.track em::before{content:attr(data-l);position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font:600 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.track em.p{background:var(--cyan)}.track em.p::before{color:var(--cyan)}
+.track em.c{background:var(--warn)}.track em.c::before{color:var(--warn)}
+.track u{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gold);transform:translate(-50%,-50%);box-shadow:0 0 0 6px color-mix(in srgb,var(--gold) 25%,transparent);transition:left 1s cubic-bezier(.2,.8,.2,1)}
+.lvls{display:grid;gap:8px;margin-top:14px}
+.lvl{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(127,127,127,.07);border:1px solid var(--gline)}
+.lvl b{font:700 14.5px var(--display)}.lvl small{display:block;color:var(--muted);font-size:12px;line-height:1.4;margin-top:2px}
+.lvl .r{text-align:right;white-space:nowrap}.lvl .r b{font:700 16px var(--mono)}
+.lvl.hit{border-color:color-mix(in srgb,var(--up) 45%,transparent);background:color-mix(in srgb,var(--up) 8%,transparent)}
+.stack{display:flex;height:14px;border-radius:8px;overflow:hidden;gap:2px;margin:4px 0 10px}
+.stack.thin{height:8px;margin:8px 0 6px}
+.stack i{display:block;min-width:2px}
+.sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px;vertical-align:middle}
+details.lesson{border-top:1px solid var(--gline);padding:10px 0}
+details.lesson:first-of-type{border-top:0}
+details.lesson summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.lesson summary::after{content:"+";color:var(--faint);font-weight:500}
+details.lesson[open] summary::after{content:"−"}
+details.lesson p{margin:8px 0 0;color:var(--muted);font-size:14px}
+.emo{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.emo button{border:1px solid var(--gline);background:var(--glass);border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;color:var(--muted)}
+.emo button.on{background:color-mix(in srgb,var(--gold) 22%,transparent);border-color:color-mix(in srgb,var(--gold) 50%,transparent);color:var(--fg)}
+.route{padding:12px 0;border-top:1px solid var(--gline)}
+.route:first-child{border-top:0}
+.route-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.route-h b{font:700 15px var(--display)}
+.route.best .route-h b{color:var(--up)}
+.chlab{position:absolute;right:6px;transform:translateY(-120%);font:600 10.5px var(--mono);background:color-mix(in srgb,var(--card) 80%,transparent);padding:1px 6px;border-radius:6px}
+.chlab.l{right:auto;left:6px;color:var(--faint)}
+.aiprev{white-space:pre-wrap;font:12px/1.5 var(--mono);max-height:320px;overflow:auto;padding:12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--gline);margin:12px 0 0}
+.fee-row.f5{grid-template-columns:1fr repeat(4,58px);gap:6px}
+.fee-row.f5 input{padding:8px 6px;font-size:13px}
+#plSeg button{padding:9px 4px}
+.tabs button{font-size:10px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media (max-width:440px){.ah-w{display:none}.ah{padding-left:14px;padding-right:14px}.ah-r{gap:6px}.ibtn{width:38px;height:38px}}
 @media (max-width:380px){.alloc{grid-template-columns:1fr;justify-items:center}.grid2{grid-template-columns:1fr}}
@@ -303,19 +343,19 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
   </header>
   <main>
     <section class="view" data-v="home" id="vHome"></section>
+    <section class="view" data-v="be" id="vBe"></section>
     <section class="view" data-v="plan" id="vPlan"></section>
-    <section class="view" data-v="risk" id="vRisk"></section>
     <section class="view" data-v="journal" id="vJournal"></section>
-    <section class="view" data-v="signals" id="vSignals"></section>
+    <section class="view" data-v="learn" id="vLearn"></section>
   </main>
   <button class="fab" id="fab" type="button" aria-label="Log a trade" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <nav class="tabs" id="tabs" aria-label="Sections">
     <span class="tab-lens" id="tabLens" aria-hidden="true"></span>
     <button type="button" data-v="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
-    <button type="button" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>Plan</button>
-    <button type="button" data-v="risk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>Risk</button>
+    <button type="button" data-v="be"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/></svg>Break-even</button>
+    <button type="button" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-6H4zM10 20h4V9h-4zM16 20h4V4h-4z"/></svg>100M</button>
     <button type="button" data-v="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6M9 13h6"/></svg>Journal</button>
-    <button type="button" data-v="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8"/><path d="M15 6h3v3"/></svg>Signals</button>
+    <button type="button" data-v="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg>Learn</button>
   </nav>
 </div>
 
@@ -498,7 +538,7 @@ async function unlockWith(raw){
   DEK = await crypto.subtle.importKey('raw', RAW, 'AES-GCM', false, ['encrypt', 'decrypt']);
   var box = lsGet(K_VAULT);
   V = box ? JSON.parse(td.decode(await unseal(DEK, box))) : defaults();
-  V = Object.assign(defaults(), V);
+  V = migrate(V);
   open();
 }
 async function faceUnlock(silent){
@@ -546,7 +586,7 @@ async function restoreWith(j, pin){
     await idbDel('face');
     META = {v:1, salt: j.meta.salt, pinWrap: j.meta.pinWrap, created: Date.now()}; saveMeta();
     lsSet(K_VAULT, j.vault); lsSet('ii-fail', {n:0, until:0});
-    RAW = raw; DEK = dek; V = Object.assign(defaults(), JSON.parse(td.decode(await unseal(dek, j.vault))));
+    RAW = raw; DEK = dek; V = migrate(JSON.parse(td.decode(await unseal(dek, j.vault))));
     return true;
   }catch(e){ return false; }
 }
@@ -564,7 +604,7 @@ function lock(){
   clearTimeout(saveT); if(DEK && V) saveVault();
   if(RAW) RAW.fill(0);
   DEK = null; RAW = null; V = null; RK = null; closeSheet();
-  ['vHome', 'vPlan', 'vRisk', 'vJournal', 'vSignals'].forEach(function(id){ $(id).innerHTML = ''; });
+  ['vHome', 'vBe', 'vPlan', 'vJournal', 'vLearn'].forEach(function(id){ $(id).innerHTML = ''; });
   $('app').classList.remove('in'); $('app').hidden = true;
   var lk = $('lock'); lk.classList.remove('out', 'opening');
   document.querySelectorAll('.lock .faceid').forEach(function(s){ s.classList.remove('ok'); });
@@ -591,47 +631,86 @@ var BUCKETS = [
   {k:'Cash', name:'Cash & stablecoins', c:'#7C8CA8'}
 ];
 var STABLE = {USDT:1, USDC:1, FDUSD:1, IDR:1};
-var EXCH = ['Indodax', 'Binance', 'Triv'];
+var EXCH = ['Binance', 'Indodax', 'Tokocrypto', 'Pintu', 'Triv'];
+/* All % values. buy/sell = trading cost per side, sell includes tax. on = rupiah into the exchange, off = back to your bank. */
+var FEE_DEF = {
+  Binance:    {buy:.1, sell:1.1, on:2, off:1, src:'Spot fee 0.1% per side (0.075% if you pay fees in BNB). Sell adds ~1% income tax that you report yourself for a foreign platform (PMK 50/2025). On-ramp 2% matches your Rp 200K on Rp 10M. Off-ramp 1% is an estimate of the P2P spread.'},
+  Indodax:    {buy:.2111, sell:.4211, on:0, off:0, src:'Taker, IDR market, incl. 0.21% tax and CFX fee (Mar 2026). Maker orders: 0.1111% / 0.3211%. Bank-transfer deposit usually free; withdrawal has a flat fee.'},
+  Tokocrypto: {buy:.2111, sell:.422, on:0, off:0, src:'Taker, IDR market, incl. tax and CFX fee (Mar 2026). Maker: 0.1111% / 0.3211%.'},
+  Pintu:      {buy:.1811, sell:.3911, on:0, off:0, src:'Taker, incl. tax and CFX fee (Mar 2026). Maker: 0.1311% / 0.3411%.'},
+  Triv:       {buy:.2111, sell:.4211, on:0, off:0, unv:true, src:'Not verified. Copy the real numbers from the Triv app.'}
+};
+var STARTER_RULES = [
+  'I risk at most 1% of my capital on one trade.',
+  'I write down why before every trade.',
+  'I don’t trade unless the move I expect is at least 3× my round-trip cost.',
+  'I don’t buy just because the price jumped today.',
+  'The 100M goes in step by step, never all at once.'
+];
+var READY = [
+  ['horizon', 'This money isn’t needed for at least 3–4 years'],
+  ['buffer', 'I have an emergency fund outside crypto'],
+  ['security', '2FA (authenticator app) and a withdrawal whitelist are on'],
+  ['drop', 'I know what I’ll do if BTC falls 50% after I buy'],
+  ['rules', 'My rules are written down (Learn tab)'],
+  ['where', 'I’ve compared where to buy (Where tab)']
+];
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function defaults(){
-  var d = new Date(); d.setDate(d.getDate() + 30);
+  var d = new Date(); d.setDate(d.getDate() + 14);
   return {
-    v:1, capital: 10000000, deposits: [{d: today(), amt: 10000000, note:'Starting capital'}],
-    target: {BTC:50, ETH:20, Alts:10, Cash:20},
-    sched: {amount: 100000000, start: ymd(d), n: 10, every: 'week', done: {}, received: false},
-    trades: [], watch: ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE'], alerts: [],
-    fees: {Indodax: {fee:.3, tax:.21}, Binance: {fee:.1, tax:1}, Triv: {fee:.3, tax:.21}},
+    v:2, deposits: [], trades: [], fees: clone(FEE_DEF),
+    target: {BTC:60, ETH:20, Alts:5, Cash:15},
+    sched: {amount: 100000000, start: ymd(d), n: 10, every: '2w', done: {}},
+    pace: {fng: true, mayer: true}, ready: {},
+    rules: STARTER_RULES.slice(), notes: [], reviews: [], snaps: {}, alerts: [],
     risk: 1, autolock: 5
   };
 }
+function migrate(o){
+  var d = defaults();
+  if(!o) return d;
+  if(o.v === 2){ var m = Object.assign(d, o); EXCH.forEach(function(x){ if(!m.fees[x]) m.fees[x] = clone(FEE_DEF[x]); m.fees[x].src = FEE_DEF[x].src; }); return m; }
+  d.trades = o.trades || []; d.alerts = o.alerts || []; d.risk = o.risk || 1; d.autolock = o.autolock || 5; if(o.target) d.target = o.target;
+  var deps = o.deposits || [];
+  if(!(deps.length === 1 && deps[0].note === 'Starting capital' && !d.trades.length)) d.deposits = deps.map(function(x){ return {d: x.d, amt: +x.amt, fee: 0, ex: 'Binance', note: x.note || ''}; });
+  if(o.sched){ ['amount', 'n', 'start'].forEach(function(k){ if(o.sched[k]) d.sched[k] = o.sched[k]; }); if(o.sched.every) d.sched.every = o.sched.every; }
+  d.trades.forEach(function(t){ if(t.ex === 'Indodax' && !t.pxUsd && MK.rate) t.pxUsd = t.px / MK.rate; });
+  return d;
+}
 function bucketOf(a){ return a === 'BTC' ? 'BTC' : a === 'ETH' ? 'ETH' : STABLE[a] ? 'Cash' : 'Alts'; }
-function capital(){ return (V.deposits || []).reduce(function(s, d){ return s + (+d.amt || 0); }, 0); }
+function capital(){ return V.deposits.reduce(function(s, d){ return s + (+d.amt || 0); }, 0); }
+function feeOf(ex){ return V.fees[ex] || FEE_DEF[ex] || {buy:0, sell:0, on:0, off:0}; }
+function feePct(ex, side){ var f = feeOf(ex); return (side === 'sell' ? +f.sell : +f.buy) / 100; }
 function book(){
-  var pos = {}, cash = capital(), realized = 0, fees = 0, wins = 0, sells = 0, curve = [];
+  var pos = {}, cash = 0, depFees = 0, realized = 0, fees = 0, wins = 0, sells = 0, curve = [];
+  V.deposits.forEach(function(d){ var f = +d.fee || 0; depFees += f; cash += (+d.amt || 0) - f; });
   var ts = V.trades.slice().sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : a.at - b.at; });
   ts.forEach(function(t){
-    var p = pos[t.a] = pos[t.a] || {qty:0, cost:0}, gross = t.qty * t.px, fee = +t.fee || 0;
+    var p = pos[t.a] = pos[t.a] || {qty:0, cost:0, uq:0, uv:0, ex: t.ex}, gross = t.qty * t.px, fee = +t.fee || 0;
     fees += fee;
-    if(t.side === 'buy'){ p.qty += t.qty; p.cost += gross + fee; cash -= gross + fee; t._pnl = null; }
+    if(t.side === 'buy'){ p.qty += t.qty; p.cost += gross + fee; cash -= gross + fee; p.uq += t.qty; p.uv += t.qty * (t.pxUsd || (t.rate ? t.px / t.rate : MK.rate ? t.px / MK.rate : 0)); p.ex = t.ex; t._pnl = null; }
     else {
       var avg = p.qty > 0 ? p.cost / p.qty : t.px, q = Math.min(t.qty, p.qty || t.qty), basis = avg * q;
-      var pnl = gross - fee - basis; t._pnl = pnl; t._avg = avg;
+      var pnl = gross - fee - basis; t._pnl = pnl;
       p.qty = Math.max(0, p.qty - t.qty); p.cost = Math.max(0, p.cost - basis); if(p.qty < 1e-12){ p.qty = 0; p.cost = 0; }
       cash += gross - fee; realized += pnl; sells++; if(pnl > 0) wins++;
       curve.push({d: t.d, v: realized});
     }
   });
-  return {pos: pos, cash: cash, realized: realized, fees: fees, wins: wins, sells: sells, curve: curve};
+  var open = 0; Object.keys(pos).forEach(function(a){ open += pos[a].cost; });
+  return {pos: pos, cash: cash, depFees: depFees, realized: realized, fees: fees, wins: wins, sells: sells, curve: curve, openCost: open};
 }
-function feePct(ex, side){ var f = V.fees[ex] || {fee:0, tax:0}; return ((+f.fee || 0) + (side === 'sell' ? (+f.tax || 0) : 0)) / 100; }
 
 /* ================= Market data ================= */
 var API = 'https://data-api.binance.vision/api/v3';
-var MK = {rate: (lsGet('ii-rate') || {}).r || 0, t: {}, ts: 0, ok: false, fng: null, sig: {}, sigTs: 0};
-if(!MK.rate){ var snap = lsGet('ibraz-snap'); if(snap && snap.idr) MK.rate = snap.idr; }
+var MK = {rate: (lsGet('ii-rate') || {}).r || 0, t: {}, ts: 0, ok: false, fng: null, d: {}, h4: {}};
+if(!MK.rate){ var snap0 = lsGet('ibraz-snap'); if(snap0 && snap0.idr) MK.rate = snap0.idr; }
 function getJSON(u){ return fetch(u, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
 function px(a){ if(STABLE[a]) return a === 'IDR' ? 1 : MK.rate || null; var t = MK.t[a]; return t && MK.rate ? t.p * MK.rate : null; }
+function usd(n, d){ if(n == null || isNaN(n)) return '—'; return '$' + n.toLocaleString('en-US', {maximumFractionDigits: d == null ? (n >= 100 ? 0 : 2) : d}); }
 function symbols(){
-  var s = {}; (V.watch || []).forEach(function(a){ s[a] = 1; });
+  var s = {BTC:1, ETH:1};
   V.trades.forEach(function(t){ s[t.a] = 1; }); V.alerts.forEach(function(x){ s[x.a] = 1; });
   return Object.keys(s).filter(function(a){ return !STABLE[a]; });
 }
@@ -639,22 +718,45 @@ async function loadRate(){
   try{ var j = await getJSON('https://open.er-api.com/v6/latest/USD'); if(j && j.rates && j.rates.IDR){ MK.rate = j.rates.IDR; lsSet('ii-rate', {r: MK.rate, t: Date.now()}); } }catch(e){}
 }
 async function loadPrices(){
-  var syms = symbols(); if(!syms.length){ MK.ok = true; MK.ts = Date.now(); return; }
-  var list;
+  var syms = symbols(), list;
   try{ list = await getJSON(API + '/ticker/24hr?symbols=' + encodeURIComponent(JSON.stringify(syms.map(function(a){ return a + 'USDT'; })))); }
   catch(e){ list = (await Promise.all(syms.map(function(a){ return getJSON(API + '/ticker/24hr?symbol=' + a + 'USDT').catch(function(){ return null; }); }))).filter(Boolean); }
   list.forEach(function(t){ MK.t[t.symbol.replace(/USDT$/, '')] = {p: +t.lastPrice, ch: +t.priceChangePercent}; });
   MK.ok = list.length > 0; MK.ts = Date.now();
 }
+function sma(a, n){ if(a.length < n) return null; var s = 0; for(var i = a.length - n; i < a.length; i++) s += a[i]; return s / n; }
+function rsi(c, n){ n = n || 14; if(c.length <= n) return null; var g = 0, l = 0, i, d; for(i = 1; i <= n; i++){ d = c[i] - c[i - 1]; if(d > 0) g += d; else l -= d; } g /= n; l /= n; for(i = n + 1; i < c.length; i++){ d = c[i] - c[i - 1]; g = (g * (n - 1) + Math.max(d, 0)) / n; l = (l * (n - 1) + Math.max(-d, 0)) / n; } return l === 0 ? 100 : 100 - 100 / (1 + g / l); }
+async function loadDaily(a){
+  var x = MK.d[a]; if(x && Date.now() - x.ts < 15 * 60000) return x;
+  try{
+    var k = await getJSON(API + '/klines?symbol=' + a + 'USDT&interval=1d&limit=220'), c = k.map(function(r){ return +r[4]; });
+    MK.d[a] = {ts: Date.now(), c: c, ma50: sma(c, 50), ma200: sma(c, 200), rsi: rsi(c), last: c[c.length - 1]};
+  }catch(e){}
+  return MK.d[a];
+}
+async function loadFng(){ if(MK.fng && Date.now() - MK.fng.ts < 30 * 60000) return; try{ var j = await getJSON('https://api.alternative.me/fng/?limit=2'); MK.fng = {ts: Date.now(), v: +j.data[0].value, label: j.data[0].value_classification, y: j.data[1] ? +j.data[1].value : null}; }catch(e){} }
+async function loadH4(a){
+  var x = MK.h4[a]; if(x && Date.now() - x.ts < 10 * 60000) return x;
+  try{ var k = await getJSON(API + '/klines?symbol=' + a + 'USDT&interval=4h&limit=180'); MK.h4[a] = {ts: Date.now(), t: k.map(function(r){ return +r[0]; }), c: k.map(function(r){ return +r[4]; })}; }catch(e){}
+  return MK.h4[a];
+}
+function mayer(){ var d = MK.d.BTC, t = MK.t.BTC; return d && d.ma200 && t ? t.p / d.ma200 : null; }
+function ctxNow(){ var d = MK.d.BTC || {}, m = mayer(); return {btc: MK.t.BTC ? MK.t.BTC.p : null, rate: MK.rate ? Math.round(MK.rate) : null, fng: MK.fng ? MK.fng.v : null, rsi: d.rsi != null ? Math.round(d.rsi) : null, mayer: m ? +m.toFixed(2) : null}; }
 var liveT = null, rateTs = 0;
 async function refresh(){
   if(!V) return;
   try{
     if(!MK.rate || Date.now() - rateTs > 3600000){ await loadRate(); rateTs = Date.now(); }
-    await loadPrices();
+    await Promise.all([loadPrices(), loadDaily('BTC'), loadFng()]);
   }catch(e){ MK.ok = false; }
   if(!V) return;
-  checkAlerts(); render(true); paintLive();
+  snapshot(); checkAlerts(); render(true); paintLive();
+}
+function snapshot(){
+  if(!V || !V.deposits.length || !MK.ok || !MK.rate) return;
+  var P = portfolio(); if(P.missing) return;
+  var k = today(), old = V.snaps[k], v = Math.round(P.total);
+  if(old == null || Math.abs(v - old) / (old || 1) > .002){ V.snaps[k] = v; var ks = Object.keys(V.snaps).sort(); while(ks.length > 400) delete V.snaps[ks.shift()]; save(); }
 }
 function paintLive(){
   var el = $('aLive'); if(!el) return;
@@ -668,43 +770,36 @@ setInterval(paintLive, 1000);
 
 /* ================= Views ================= */
 var cur = 'home';
-function boot(){
-  $('fab').hidden = true;
-  go(cur, true); startLive();
-}
+function boot(){ go(cur, true); startLive(); }
 function go(v, first){
   cur = v;
-  [].forEach.call(document.querySelectorAll('.view'), function(s){ s.classList.toggle('on', s.getAttribute('data-v') === v); });
+  [].forEach.call(document.querySelectorAll('.view'), function(s){ s.classList.toggle('on', s.getAttribute('data-v') === v); if(s.getAttribute('data-v') !== v) s.innerHTML = ''; });
   [].forEach.call($('tabs').querySelectorAll('button'), function(b){ b.classList.toggle('on', b.getAttribute('data-v') === v); });
   moveLens(); $('fab').hidden = v !== 'journal';
   render(false);
   if(!first) window.scrollTo({top: 0, behavior: RM ? 'auto' : 'smooth'});
-  if(v === 'signals') loadSignals(false);
 }
-function moveLens(){
-  var b = $('tabs').querySelector('button.on'), l = $('tabLens'); if(!b) return;
-  l.style.width = b.offsetWidth + 'px'; l.style.transform = 'translateX(' + b.offsetLeft + 'px)';
-}
+function moveLens(){ var b = $('tabs').querySelector('button.on'), l = $('tabLens'); if(!b) return; l.style.width = b.offsetWidth + 'px'; l.style.transform = 'translateX(' + b.offsetLeft + 'px)'; }
 window.addEventListener('resize', moveLens);
 $('tabs').addEventListener('click', function(e){ var b = e.target.closest('button'); if(b) go(b.getAttribute('data-v')); });
 function render(live){
   if(!V) return;
-  if(cur === 'home') rHome();
+  if(cur === 'home') rHome(live);
+  else if(cur === 'be') rBe(live);
   else if(cur === 'plan') rPlan(live);
-  else if(cur === 'risk') rRisk(live);
   else if(cur === 'journal') rJournal(live);
-  else if(cur === 'signals') rSignals();
+  else if(cur === 'learn') rLearn(live);
 }
-
-/* ---- tween numbers ---- */
 function tween(el, to, fmt){
   if(!el) return; var from = +el.getAttribute('data-v'); el.setAttribute('data-v', to);
   if(RM || isNaN(from) || from === to){ el.textContent = fmt(to); return; }
   var t0 = performance.now();
   (function step(now){ var k = Math.min(1, (now - t0) / 700), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if(k < 1) requestAnimationFrame(step); })(t0);
 }
+function sgn(n){ return n >= 0 ? '+' : '−'; }
+function idrSigned(n){ return sgn(n) + idrS(Math.abs(n)); }
 
-/* ---------- HOME ---------- */
+/* ---------- portfolio + break-even ---------- */
 function portfolio(){
   var b = book(), rows = [], val = 0, day = 0, byB = {BTC:0, ETH:0, Alts:0, Cash: Math.max(0, b.cash)}, missing = false;
   Object.keys(b.pos).forEach(function(a){
@@ -717,332 +812,604 @@ function portfolio(){
     rows.push({a: a, qty: p.qty, v: v, avg: p.cost / p.qty, cost: p.cost, upnl: v - p.cost, ch: ch});
   });
   rows.sort(function(x, y){ return y.v - x.v; });
-  var total = val + Math.max(0, b.cash);
-  return {b: b, rows: rows, total: total, invested: val, day: day, byB: byB, cap: capital(), missing: missing};
+  return {b: b, rows: rows, total: val + Math.max(0, b.cash), invested: val, day: day, byB: byB, cap: capital(), missing: missing};
 }
-function donut(byB, total, target){
-  var R = 62, C = 2 * Math.PI * R, r2 = 48, C2 = 2 * Math.PI * r2, off = 0, off2 = 0, h = '';
-  h += '<svg class="donut" viewBox="0 0 150 150" role="img" aria-label="Allocation, actual outside, target inside"><g transform="rotate(-90 75 75)">';
-  h += '<circle cx="75" cy="75" r="' + R + '" stroke="rgba(127,127,127,.15)" stroke-width="16"/>';
-  BUCKETS.forEach(function(k){
-    var f = total > 0 ? byB[k.k] / total : 0, len = Math.max(0, f * C - (f > 0 && f < 1 ? 2 : 0));
-    h += '<circle cx="75" cy="75" r="' + R + '" stroke="' + k.c + '" stroke-width="16" stroke-dasharray="' + len.toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '"/>';
-    off += f * C;
-    var f2 = (target[k.k] || 0) / 100, l2 = Math.max(0, f2 * C2 - (f2 > 0 && f2 < 1 ? 2 : 0));
-    h += '<circle cx="75" cy="75" r="' + r2 + '" stroke="' + k.c + '" stroke-opacity=".45" stroke-width="5" stroke-dasharray="' + l2.toFixed(2) + ' ' + C2.toFixed(2) + '" stroke-dashoffset="' + (-off2).toFixed(2) + '"/>';
-    off2 += f2 * C2;
-  });
-  h += '</g><text x="75" y="72" text-anchor="middle" fill="var(--muted)" style="font:600 9px var(--mono);letter-spacing:.12em">IN MARKET</text>';
-  h += '<text x="75" y="92" text-anchor="middle" fill="var(--fg)" style="font:700 20px var(--display)">' + (total > 0 ? Math.round((1 - byB.Cash / total) * 100) : 0) + '%</text></svg>';
-  return h;
+function mainAsset(){ var P = portfolio(); return P.rows.length ? P.rows[0].a : null; }
+function beInfo(a, usdOverride, rateOverride){
+  var b = book(), p = b.pos[a]; if(!a || !p || p.qty <= 0) return null;
+  var f = feeOf(p.ex), share = b.openCost > 0 ? p.cost / b.openCost : 1;
+  var depShare = b.depFees * share, allIn = p.cost + depShare;
+  var rate = rateOverride || MK.rate, now = usdOverride || (MK.t[a] ? MK.t[a].p : null);
+  var outPct = (+f.sell + +f.off) / 100;
+  var buyFees = V.trades.filter(function(t){ return t.a === a && t.side === 'buy'; }).reduce(function(s, t){ return s + (+t.fee || 0); }, 0) * (p.uq ? p.qty / p.uq : 1);
+  var r = {a: a, ex: p.ex, f: f, qty: p.qty, cost: p.cost, depShare: depShare, allIn: allIn, buyFees: buyFees, rate: rate, now: now, outPct: outPct,
+    entry: p.uq ? p.uv / p.uq : null};
+  if(rate && now){
+    r.value = p.qty * now * rate;
+    r.sellFee = r.value * (+f.sell - (p.ex === 'Binance' ? 1 : 0)) / 100;
+    r.tax = p.ex === 'Binance' ? r.value * .01 : 0;
+    r.offFee = r.value * (+f.off) / 100;
+    r.cashOut = r.value * (1 - outPct);
+    r.paperUsd = allIn / p.qty / rate;
+    r.cashUsd = allIn / (p.qty * (1 - outPct)) / rate;
+    r.paperPnl = r.value - allIn; r.cashPnl = r.cashOut - allIn;
+  }
+  return r;
 }
-function nextTranche(){
-  var s = V.sched, L = schedule();
-  for(var i = 0; i < L.length; i++) if(!s.done[i]) return L[i];
-  return null;
-}
-function rHome(){
-  var P = portfolio(), b = P.b, gain = P.total - P.cap, gp = P.cap ? gain / P.cap * 100 : 0;
+
+/* ---------- HOME ---------- */
+function rHome(live){
+  var el = $('vHome'), P = portfolio(), b = P.b;
   var hr = new Date().getHours(), hi = hr < 11 ? 'Good morning' : hr < 15 ? 'Good afternoon' : hr < 19 ? 'Good evening' : 'Good night';
-  var el = $('vHome');
-  if(!el.firstChild){
+  if(!V.deposits.length){
+    el.innerHTML = '<p class="sub" style="margin:0 0 2px">' + hi + '</p><h1>Let’s start with what you have</h1><p class="sub">Add the money you already put in. Everything else (break-even, plans, AI review) builds on it.</p>' +
+      '<div class="card hero-c"><div class="eyebrow">Step 1</div><h2 style="margin:6px 0 8px">Add my current position</h2><p class="muted" style="margin:0 0 14px">How much rupiah you sent, the fee they cut, and the price you bought at. Takes 30 seconds.</p><button class="btn full" id="hSetup" type="button">Add position</button></div>' + marketCard();
+    $('hSetup').onclick = setupSheet; wireMarket(); return;
+  }
+  var gain = P.total - P.cap, gp = P.cap ? gain / P.cap * 100 : 0, a = mainAsset(), be = beInfo(a);
+  if(!live || !el.firstChild){
     el.innerHTML =
-      '<p class="sub" style="margin:0 0 2px">' + hi + '</p><h1>Your capital</h1><p class="sub">Live in rupiah. Only on this device.</p>' +
+      '<p class="sub" style="margin:0 0 2px">' + hi + '</p><h1>Your capital</h1><p class="sub">Live in rupiah. Encrypted on this device only.</p>' +
       '<div class="card hero-c"><div class="eyebrow">Total value</div><div class="big num" id="hTotal" data-v="0">Rp 0</div>' +
       '<div class="row" style="margin-top:10px"><span class="chip" id="hGain"></span><span class="chip" id="hDay"></span></div>' +
-      '<div class="grid2" style="margin-top:16px"><div class="kv"><span>Capital in</span><b id="hCap"></b></div><div class="kv"><span>Cash free</span><b id="hCash"></b></div></div></div>' +
-      '<div class="qa"><button type="button" data-go="trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Log trade</button><button type="button" data-go="risk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>Size a trade</button><button type="button" data-go="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8"/></svg>Signals</button></div>' +
-      '<div class="card"><div class="card-h"><h2>Allocation</h2><span class="small faint">outer: now · inner: target</span></div><div class="alloc" id="hAlloc"></div></div>' +
-      '<div class="card" id="hNext"></div>' +
-      '<div class="card"><div class="card-h"><h2>Holdings</h2><span class="small faint" id="hHoldN"></span></div><div id="hHold"></div></div>';
-    el.querySelector('.qa').addEventListener('click', function(e){ var b2 = e.target.closest('button'); if(!b2) return; var g = b2.getAttribute('data-go'); if(g === 'trade') tradeSheet(); else go(g); });
+      '<div id="hSpark"></div>' +
+      '<div class="grid2" style="margin-top:14px"><div class="kv"><span>Money in</span><b id="hCap"></b></div><div class="kv"><span>Cash free</span><b id="hCash"></b></div></div></div>' +
+      '<div class="card" id="hBe"></div>' +
+      '<div class="qa"><button type="button" data-go="trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Log trade</button><button type="button" data-go="size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>Size a trade</button><button type="button" data-go="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg>Ask AI</button></div>' +
+      marketCard() +
+      '<div class="card"><div class="card-h"><h2>Holdings</h2><button class="btn sec sm" type="button" id="hAddDep">+ Deposit</button></div><div id="hHold"></div></div>';
+    el.querySelector('.qa').addEventListener('click', function(e){ var b2 = e.target.closest('button'); if(!b2) return; var g = b2.getAttribute('data-go'); if(g === 'trade') tradeSheet(); else if(g === 'size') riskSheet(); else go(g); });
+    $('hAddDep').onclick = depositSheet; wireMarket();
   }
   tween($('hTotal'), P.total, idr);
   $('hGain').className = 'chip ' + (gain >= 0 ? 'g' : 'r'); $('hGain').textContent = (gain >= 0 ? '▲ ' : '▼ ') + idrS(Math.abs(gain)) + ' · ' + pct(gp) + ' all time';
-  $('hDay').className = 'chip ' + (P.day >= 0 ? 'g' : 'r'); $('hDay').textContent = 'Today ' + (P.day >= 0 ? '+' : '−') + idrS(Math.abs(P.day)).replace('Rp ', 'Rp ');
+  $('hDay').className = 'chip ' + (P.day >= 0 ? 'g' : 'r'); $('hDay').textContent = 'Today ' + idrSigned(P.day);
   $('hCap').textContent = idrS(P.cap); $('hCash').textContent = idrS(b.cash);
-  var leg = BUCKETS.map(function(k){ var v = P.byB[k.k], f = P.total ? v / P.total * 100 : 0; return '<div><i style="background:' + k.c + '"></i><span>' + k.name + '</span><em>' + f.toFixed(0) + '% / ' + (V.target[k.k] || 0) + '%</em></div>'; }).join('');
-  $('hAlloc').innerHTML = donut(P.byB, P.total, V.target) + '<div class="legend">' + leg + '</div>';
-  var n = nextTranche(), s = V.sched;
-  $('hNext').innerHTML = '<div class="card-h"><h2>100M plan</h2><button class="btn sec sm" type="button" id="hPlan">Open plan</button></div>' +
-    (n ? '<p style="margin:0">Next step <b>#' + (n.i + 1) + '</b> on <b>' + fmtDate(n.date) + '</b>: <b class="num">' + idrS(n.amt) + '</b></p><p class="note" style="margin-top:4px">' + n.split.filter(function(x){ return x.v > 0; }).map(function(x){ return x.k + ' ' + idrS(x.v); }).join(' · ') + '</p>' : '<p class="muted" style="margin:0">All ' + s.n + ' steps are done.</p>') +
-    '<div class="prog" style="margin-top:12px"><i style="width:' + (Object.keys(s.done).length / s.n * 100) + '%"></i></div>';
-  $('hPlan').onclick = function(){ go('plan'); };
-  $('hHoldN').textContent = P.rows.length ? P.rows.length + ' assets' : '';
+  $('hSpark').innerHTML = valueChart(80);
+  $('hBe').innerHTML = be && be.cashUsd ? beMini(be) : '<div class="card-h"><h2>Break-even</h2></div><p class="muted" style="margin:0">Buy something and log it to see when your fees are covered.</p>';
+  if($('hBeGo')) $('hBeGo').onclick = function(){ go('be'); };
+  paintMarket();
   $('hHold').innerHTML = P.rows.length ? P.rows.map(function(r){
     var up = r.cost ? r.upnl / r.cost * 100 : 0;
-    return '<div class="hold"><b>' + esc(r.a) + ' <span class="small ' + cls(r.ch) + '" style="font-family:var(--mono);font-weight:500">' + pct(r.ch, 1) + '</span></b><span class="r">' + idrS(r.v) + '</span><small class="num">' + qtyF(r.qty) + ' · avg ' + idrS(r.avg) + '</small><small class="r ' + cls(r.upnl) + '">' + (r.upnl >= 0 ? '+' : '−') + idrS(Math.abs(r.upnl)).replace('Rp ', 'Rp ') + ' (' + pct(up, 1) + ')</small></div>';
-  }).join('') : '<div class="empty">No holdings yet. Log your first buy and it appears here, valued live.</div>';
+    return '<div class="hold"><b>' + esc(r.a) + ' <span class="small ' + cls(r.ch) + '" style="font-family:var(--mono);font-weight:500">' + pct(r.ch, 1) + '</span></b><span class="r">' + idrS(r.v) + '</span><small class="num">' + qtyF(r.qty) + ' · avg ' + idrS(r.avg) + '</small><small class="r ' + cls(r.upnl) + '">' + idrSigned(r.upnl) + ' (' + pct(up, 1) + ')</small></div>';
+  }).join('') + '<div class="hold"><b>Cash</b><span class="r">' + idrS(b.cash) + '</span><small>Rupiah / stablecoins not in a coin</small><small></small></div>' : '<div class="empty">No coins yet.</div>';
+}
+function beMini(be){
+  var lo = Math.min(be.entry || be.now, be.now) * .995, hi = Math.max(be.cashUsd, be.now) * 1.005, sp = hi - lo || 1, x = function(v){ return Math.max(0, Math.min(100, (v - lo) / sp * 100)); };
+  var need = (be.cashUsd / be.now - 1) * 100, covered = be.now >= be.cashUsd;
+  return '<div class="card-h"><h2>Break-even · ' + esc(be.a) + '</h2><button class="btn sec sm" id="hBeGo" type="button">Details</button></div>' +
+    '<p style="margin:0 0 4px">' + (covered ? '<b class="up">Fees are covered.</b> Cashing out now would return ' + idrS(be.cashOut) + ' (' + idrSigned(be.cashPnl) + ').' : esc(be.a) + ' needs <b class="num">' + usd(be.cashUsd) + '</b> to get your <b>' + idrS(be.allIn) + '</b> back in cash: <b class="num">' + pct(need, 1) + '</b> from now.') + '</p>' +
+    '<div class="track"><i class="fill" style="width:' + x(be.now) + '%"></i>' + (be.entry ? '<em style="left:' + x(be.entry) + '%" data-l="Bought"></em>' : '') + '<em class="p" style="left:' + x(be.paperUsd) + '%" data-l="Paper"></em><em class="c" style="left:' + x(be.cashUsd) + '%" data-l="Cash-out"></em><u style="left:' + x(be.now) + '%"></u></div>' +
+    '<div class="row small muted" style="justify-content:space-between;margin-top:22px"><span>Now ' + usd(be.now) + '</span><span>Paper ' + usd(be.paperUsd) + '</span><span>Cash-out ' + usd(be.cashUsd) + '</span></div>';
+}
+function marketCard(){
+  return '<div class="card" id="hMk"><div class="card-h"><h2>Market now</h2><button class="btn sec sm" type="button" id="hAlert">🔔 Alert</button></div><div class="grid2" id="hMkG"><div class="skel"></div><div class="skel"></div></div><p class="note" id="hMkN"></p></div>';
+}
+function wireMarket(){ if($('hAlert')) $('hAlert').onclick = function(){ alertSheet('BTC'); }; }
+function paintMarket(){
+  var g = $('hMkG'); if(!g) return;
+  var t = MK.t.BTC, e = MK.t.ETH, d = MK.d.BTC || {}, m = mayer(), f = MK.fng;
+  g.innerHTML =
+    '<div class="kv"><span>Bitcoin</span><b>' + (t ? usd(t.p) : '—') + '</b><small class="' + (t ? cls(t.ch) : '') + ' num">' + (t ? pct(t.ch, 1) + ' 24h · ' + idrS(px('BTC')) : '') + '</small></div>' +
+    '<div class="kv"><span>Ethereum</span><b>' + (e ? usd(e.p) : '—') + '</b><small class="' + (e ? cls(e.ch) : '') + ' num">' + (e ? pct(e.ch, 1) + ' 24h' : '') + '</small></div>' +
+    '<div class="kv"><span>Fear &amp; Greed</span><b>' + (f ? f.v : '—') + '</b><small class="muted">' + (f ? esc(f.label) : '') + '</small></div>' +
+    '<div class="kv"><span>USD / IDR</span><b>' + (MK.rate ? Math.round(MK.rate).toLocaleString('id-ID') : '—') + '</b><small class="muted">Your rupiah value moves with it</small></div>';
+  $('hMkN').innerHTML = m ? 'BTC is <b>' + pct((m - 1) * 100, 0) + '</b> vs its 200-day average (Mayer ' + m.toFixed(2) + ') · RSI ' + (d.rsi != null ? Math.round(d.rsi) : '—') + '. Readings, not calls.' : '';
+}
+function valueChart(h){
+  var ks = Object.keys(V.snaps || {}).sort().slice(-90); if(ks.length < 2) return '';
+  var vs = ks.map(function(k){ return V.snaps[k]; }), cap = capital(), mn = Math.min.apply(null, vs.concat(cap)), mx = Math.max.apply(null, vs.concat(cap)), sp = mx - mn || 1, W = 600;
+  var y = function(v){ return 6 + (1 - (v - mn) / sp) * (h - 12); };
+  var d = vs.map(function(v, i){ return (i ? 'L' : 'M') + (i / (vs.length - 1) * W).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' '), up = vs[vs.length - 1] >= cap;
+  return '<svg class="eq" style="height:' + h + 'px;margin-top:12px" viewBox="0 0 ' + W + ' ' + h + '" preserveAspectRatio="none" aria-label="Value by day"><line x1="0" x2="' + W + '" y1="' + y(cap) + '" y2="' + y(cap) + '" stroke="var(--faint)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/><path d="' + d + '" fill="none" stroke="' + (up ? 'var(--up)' : 'var(--down)') + '" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><div class="small faint">Value by day · dashed = money in</div>';
 }
 
-/* ---------- PLAN ---------- */
+/* ---------- BREAK-EVEN ---------- */
+var BE = {move: 0, fx: 0};
+function rBe(live){
+  var el = $('vBe'), a = mainAsset();
+  if(!a){
+    el.innerHTML = '<h1>Break-even</h1><p class="sub">When your fees are paid back, and what each trade really costs you.</p><div class="card"><p style="margin:0 0 12px">Add the position you already have first.</p><button class="btn full" type="button" id="beSet">Add my position</button></div>';
+    $('beSet').onclick = setupSheet; return;
+  }
+  if(live && el.firstChild){ beLive(); return; }
+  el.innerHTML =
+    '<h1>Break-even</h1><p class="sub">When your fees are paid back, and what each trade really costs you.</p>' +
+    '<div class="card hero-c" id="beHead"></div>' +
+    '<div class="card"><div class="card-h"><h2>Price path</h2><span class="small faint">last 30 days · 4h</span></div><div id="beChart"><div class="skel" style="height:150px"></div></div></div>' +
+    '<div class="card" id="beFees"></div>' +
+    '<div class="card"><div class="card-h"><h2>What if…</h2><button class="btn sec sm" type="button" id="beReset">Reset</button></div>' +
+    '<label class="f">' + esc(a) + ' price change: <span id="beMv" class="num" style="color:var(--fg)"></span><input type="range" id="beMove" min="-40" max="60" step="1" value="' + BE.move + '" style="accent-color:var(--gold)"></label>' +
+    '<label class="f" style="margin-top:10px">USD/IDR change: <span id="beFxv" class="num" style="color:var(--fg)"></span><input type="range" id="beFx" min="-8" max="8" step="0.5" value="' + BE.fx + '" style="accent-color:var(--violet)"></label>' +
+    '<div class="grid2" style="margin-top:14px" id="beWhat"></div><p class="note">The rupiah matters too: you hold dollars-priced BTC, so if the rupiah weakens, your value in rupiah rises even if BTC doesn’t move.</p></div>' +
+    '<div class="card" id="beLessons"></div>' +
+    '<div class="row" style="margin-bottom:14px"><button class="btn sec sm" type="button" id="beEdit">Edit fees</button><button class="btn sec sm" type="button" id="beSize">Size a trade</button></div>';
+  $('beMove').oninput = function(){ BE.move = +this.value; beWhat(); };
+  $('beFx').oninput = function(){ BE.fx = +this.value; beWhat(); };
+  $('beReset').onclick = function(){ BE.move = 0; BE.fx = 0; $('beMove').value = 0; $('beFx').value = 0; beWhat(); };
+  $('beEdit').onclick = feesSheet; $('beSize').onclick = function(){ riskSheet(); };
+  beLive();
+  loadH4(a).then(function(){ if(cur === 'be') beChart(); });
+}
+function beLive(){
+  var a = mainAsset(), be = beInfo(a); if(!be) return;
+  var h = $('beHead'); if(!h) return;
+  if(!be.cashUsd){ h.innerHTML = '<div class="skel"></div>'; return; }
+  var since = be.entry ? (be.now / be.entry - 1) * 100 : null, need = (be.cashUsd / be.now - 1) * 100, needP = (be.paperUsd / be.now - 1) * 100;
+  h.innerHTML =
+    '<div class="eyebrow">' + esc(a) + ' on ' + esc(be.ex) + '</div>' +
+    '<div class="big num">' + usd(be.now) + '</div>' +
+    '<p class="muted" style="margin:4px 0 0">' + qtyF(be.qty) + ' ' + esc(a) + (be.entry ? ' · bought at ' + usd(be.entry) + ' · <span class="' + cls(since) + '">' + pct(since, 2) + ' since</span>' : '') + '</p>' +
+    beMini(be).replace(/<div class="card-h">[\s\S]*?<\/div>/, '').replace(/<p [\s\S]*?<\/p>/, '') +
+    '<div class="lvls">' +
+      lvl('Fees covered on paper', be.paperUsd, needP, 'Your coins are worth the ' + idrS(be.allIn) + ' you put in (incl. the deposit fee), if you keep holding.') +
+      lvl('Cash-out break-even', be.cashUsd, need, 'Sell + ' + (be.ex === 'Binance' ? '1% tax + ' : '') + 'move back to rupiah, and still get ' + idrS(be.allIn) + ' in your bank.') +
+    '</div>' +
+    '<div class="grid2" style="margin-top:12px"><div class="kv"><span>Worth now</span><b>' + idrS(be.value) + '</b><small class="' + cls(be.paperPnl) + ' num">' + idrSigned(be.paperPnl) + '</small></div><div class="kv"><span>If you cash out now</span><b>' + idrS(be.cashOut) + '</b><small class="' + cls(be.cashPnl) + ' num">' + idrSigned(be.cashPnl) + '</small></div></div>';
+  var tot = be.depShare + be.buyFees + be.sellFee + be.tax + be.offFee, parts = [
+    ['Deposit / on-ramp', be.depShare, '#7C8CA8', 'paid'], ['Buy fee', be.buyFees, '#5BE1FF', 'paid'],
+    ['Sell fee', be.sellFee, '#A78BFF', 'later'], ['Tax on sell', be.tax, '#F5B544', 'later'], ['Back to rupiah', be.offFee, '#FF8A8A', 'later']].filter(function(p){ return p[1] > 0; });
+  $('beFees').innerHTML = '<div class="card-h"><h2>Where the fees go</h2><span class="num" style="font-weight:700">' + idrS(tot) + '</span></div>' +
+    '<div class="stack">' + parts.map(function(p){ return '<i style="flex:' + p[1].toFixed(0) + ';background:' + p[2] + (p[3] === 'later' ? ';opacity:.55' : '') + '"></i>'; }).join('') + '</div>' +
+    parts.map(function(p){ return '<div class="al"><span><i class="sw" style="background:' + p[2] + '"></i>' + p[0] + ' <span class="faint small">' + (p[3] === 'paid' ? 'paid' : 'if you sell now') + '</span></span><span class="num">' + idrS(p[1]) + '</span></div>'; }).join('') +
+    '<p class="note">One full round trip (in, buy, sell, out) costs about <b>' + (be.allIn ? (tot / be.allIn * 100).toFixed(1) : '—') + '%</b> of your money on this route.</p>';
+  $('beLessons').innerHTML = lessons(be);
+  beWhat();
+  if(MK.h4[a]) beChart();
+}
+function lvl(name, p, need, sub){
+  var hit = need <= 0;
+  return '<div class="lvl' + (hit ? ' hit' : '') + '"><div><b>' + name + '</b><small>' + sub + '</small></div><div class="r"><b class="num">' + usd(p) + '</b><small class="num ' + (hit ? 'up' : '') + '">' + (hit ? '✓ reached' : pct(need, 2) + ' to go') + '</small></div></div>';
+}
+function beWhat(){
+  var a = mainAsset(), base = beInfo(a); if(!base || !base.now || !$('beWhat')) return;
+  var nu = base.now * (1 + BE.move / 100), nr = base.rate * (1 + BE.fx / 100), be = beInfo(a, nu, nr);
+  $('beMv').textContent = pct(BE.move, 0) + ' → ' + usd(nu); $('beFxv').textContent = pct(BE.fx, 1) + ' → ' + Math.round(nr).toLocaleString('id-ID');
+  var usdt = be.value * (1 - (+be.f.sell - (be.ex === 'Binance' ? 1 : 0)) / 100);
+  $('beWhat').innerHTML = '<div class="kv"><span>Worth</span><b>' + idrS(be.value) + '</b><small class="num ' + cls(be.paperPnl) + '">' + idrSigned(be.paperPnl) + '</small></div><div class="kv"><span>Cash to bank</span><b>' + idrS(be.cashOut) + '</b><small class="num ' + cls(be.cashPnl) + '">' + idrSigned(be.cashPnl) + '</small></div>' +
+    '<div class="kv" style="grid-column:1/-1"><span>Sell to USDT, don’t withdraw</span><b>' + usd(usdt / nr, 0) + ' <small class="faint" style="font-size:12px">≈ ' + idrS(usdt) + '</small></b><small class="muted">Skips the rupiah exit cost' + (be.ex === 'Binance' ? '. The 1% sell tax is included (you report it yourself)' : '') + '.</small></div>';
+}
+function beChart(){
+  var a = mainAsset(), h = MK.h4[a], be = beInfo(a), box = $('beChart'); if(!h || !box || !be || !be.cashUsd) return;
+  var c = h.c.slice(), W = 600, H = 170, levels = [be.paperUsd, be.cashUsd].concat(be.entry ? [be.entry] : []);
+  var mn = Math.min.apply(null, c.concat(levels)) * .995, mx = Math.max.apply(null, c.concat(levels)) * 1.005, sp = mx - mn || 1;
+  var y = function(v){ return 6 + (1 - (v - mn) / sp) * (H - 12); };
+  var d = c.map(function(v, i){ return (i ? 'L' : 'M') + (i / (c.length - 1) * W).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
+  var line = function(v, col, dash, lab){ return '<line x1="0" x2="' + W + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '" stroke="' + col + '" stroke-width="1.3" ' + (dash ? 'stroke-dasharray="5 4"' : '') + ' vector-effect="non-scaling-stroke"/>'; };
+  box.innerHTML = '<div style="position:relative"><svg class="eq" style="height:' + H + 'px" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="' + esc(a) + ' price with entry and break-even lines">' +
+    '<defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--gold)" stop-opacity=".25"/><stop offset="1" stop-color="var(--gold)" stop-opacity="0"/></linearGradient></defs>' +
+    '<path d="' + d + ' L' + W + ' ' + H + ' L0 ' + H + 'Z" fill="url(#bg1)"/>' +
+    (be.entry ? line(be.entry, 'var(--faint)', true) : '') + line(be.paperUsd, 'var(--cyan)', true) + line(be.cashUsd, 'var(--warn)', true) +
+    '<path d="' + d + '" fill="none" stroke="var(--gold)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>' +
+    '<div class="chlab" style="top:' + (y(be.cashUsd) / H * 100) + '%;color:var(--warn)">Cash-out ' + usd(be.cashUsd) + '</div>' +
+    '<div class="chlab" style="top:' + (y(be.paperUsd) / H * 100) + '%;color:var(--cyan)' + (Math.abs(y(be.paperUsd) - y(be.cashUsd)) < 18 ? ';transform:translateY(25%)' : '') + '">Paper ' + usd(be.paperUsd) + '</div>' +
+    (be.entry ? '<div class="chlab l" style="top:' + (y(be.entry) / H * 100) + '%">Bought ' + usd(be.entry) + '</div>' : '') + '</div>';
+}
+function lessons(be){
+  var f = be.f, rt = +f.buy + +f.sell, rtFull = +f.on + rt + +f.off, cap = be.allIn, L = [];
+  var best = EXCH.map(function(x){ var g = feeOf(x); return {x: x, t: +g.on + +g.buy + +g.sell + +g.off}; }).sort(function(p, q){ return p.t - q.t; })[0];
+  L.push(['The first hurdle', 'A full round trip on ' + esc(be.ex) + ' costs about <b>' + rtFull.toFixed(1) + '%</b> (' + idrS(cap * rtFull / 100) + ' on your money). A trade has to rise more than that before you earn anything.']);
+  L.push(['Trading often is expensive', 'Even staying in USDT, each buy + sell costs <b>' + rt.toFixed(2) + '%</b>. Four round trips a month is about <b>' + (rt * 4).toFixed(1) + '%</b> a month (' + idrS(cap * rt * 4 / 100) + '), before any loss.']);
+  if(be.ex === 'Binance'){
+    L.push(['Pay fees in BNB', 'Holding a little BNB and turning on “Use BNB to pay fees” cuts spot fees by 25%: 0.1% → 0.075%.']);
+    L.push(['Your Rp 200K was the on-ramp', 'Buying with rupiah through Binance cost ~' + (+f.on) + '%. ' + (best.x !== 'Binance' ? best.x + ' funded by bank transfer is about <b>' + best.t.toFixed(2) + '%</b> for the whole round trip. On Rp 100M that is about <b>' + idrS(100000000 * (rtFull - best.t) / 100) + '</b> less in costs.' : '')]);
+    L.push(['Tax', 'Foreign platforms: 1% on sells, which you report yourself. Licensed Indonesian exchanges withhold 0.21%, already in their fees.']);
+  }
+  L.push(['Don’t cash out by reflex', 'Every trip back to rupiah adds the exit cost. If you plan to buy again, keeping USDT avoids paying it twice.']);
+  return '<div class="card-h"><h2>Fee lessons, with your numbers</h2></div>' + L.map(function(l, i){ return '<details class="lesson"' + (i < 2 ? ' open' : '') + '><summary>' + l[0] + '</summary><p>' + l[1] + '</p></details>'; }).join('');
+}
+
+/* ---------- 100M PLAN: when / how / where ---------- */
+function paceMult(){
+  var m = 1, why = [];
+  var f = MK.fng, my = mayer();
+  if(V.pace.fng && f){
+    var k = f.v < 25 ? 1.5 : f.v < 45 ? 1.25 : f.v <= 55 ? 1 : f.v <= 75 ? .75 : .5;
+    m *= k; why.push({n:'Fear & Greed ' + f.v + ' (' + f.label + ')', k: k});
+  }
+  if(V.pace.mayer && my){
+    var k2 = my < .9 ? 1.25 : my <= 1.5 ? 1 : my <= 2.4 ? .75 : .5;
+    m *= k2; why.push({n:'BTC ' + pct((my - 1) * 100, 0) + ' vs 200-day avg', k: k2});
+  }
+  return {m: Math.max(.25, Math.min(2, m)), why: why};
+}
 function schedule(){
-  var s = V.sched, L = [], d = new Date((s.start || today()) + 'T00:00:00'), amt = Math.floor((+s.amount || 0) / (s.n || 1));
+  var s = V.sched, L = [], d = new Date((s.start || today()) + 'T00:00:00');
   for(var i = 0; i < (s.n || 1); i++){
-    var a = i === s.n - 1 ? (+s.amount || 0) - amt * (s.n - 1) : amt;
-    L.push({i: i, date: ymd(d), amt: a, split: BUCKETS.map(function(k){ return {k: k.k, v: Math.round(a * (V.target[k.k] || 0) / 100)}; })});
+    L.push({i: i, date: ymd(d), done: s.done[i] || null});
     if(s.every === 'week') d.setDate(d.getDate() + 7); else if(s.every === '2w') d.setDate(d.getDate() + 14); else d.setMonth(d.getMonth() + 1);
   }
   return L;
 }
-function rPlan(live){
-  var el = $('vPlan'), P = portfolio(), s = V.sched;
-  var tsum = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0);
-  if(live && el.firstChild){ planBars(P); return; }
-  el.innerHTML =
-    '<h1>Capital plan</h1><p class="sub">Your target mix, how far you are from it, and the steps for the 100M.</p>' +
-    '<div class="card"><div class="card-h"><h2>Target mix</h2><span class="chip ' + (tsum === 100 ? 'g' : 'y') + '" id="pSum">' + tsum + '%</span></div>' +
-    '<div id="pBk">' + BUCKETS.map(function(k){ return '<div class="bk" data-k="' + k.k + '"><div class="bk-h"><b><i style="background:' + k.c + '"></i>' + k.name + '</b><span class="bk-in"><input class="inp num" type="number" inputmode="decimal" min="0" max="100" step="1" value="' + (V.target[k.k] || 0) + '" data-t="' + k.k + '"><span class="faint">%</span></span></div><div class="bar"><i style="background:' + k.c + '"></i><u></u></div><div class="small muted pb-t"></div></div>'; }).join('') + '</div>' +
-    '<p class="note">Bar = what you hold now. White tick = your target. Start from this template and set your own numbers.</p></div>' +
-    '<div class="card"><div class="card-h"><h2>Capital in</h2><span class="num" style="font-weight:700">' + idr(capital()) + '</span></div>' +
-    (V.deposits || []).map(function(d, i){ return '<div class="al"><span>' + fmtDate(d.d) + ' · ' + esc(d.note || 'Deposit') + '</span><span class="num">' + idrS(d.amt) + (i ? ' <button class="btn sec sm" data-dep="' + i + '" type="button" aria-label="Remove">✕</button>' : '') + '</span></div>'; }).join('') +
-    '<div class="row" style="margin-top:12px"><button class="btn sec sm" id="pDep" type="button">+ Add deposit</button>' + (!s.received ? '<button class="btn sm" id="pRecv" type="button">The 100M arrived</button>' : '') + '</div></div>' +
-    '<div class="card"><div class="card-h"><h2>100M in steps</h2><span class="small faint" id="pProg"></span></div>' +
-    '<div class="form"><div class="two"><label class="f">Amount (IDR)<input class="inp" id="sAmt" inputmode="numeric" value="' + (+s.amount).toLocaleString('id-ID') + '"></label><label class="f">First step<input class="inp" id="sStart" type="date" value="' + esc(s.start) + '"></label></div>' +
-    '<div class="two"><label class="f">Steps<input class="inp" id="sN" type="number" min="1" max="52" value="' + s.n + '"></label><label class="f">Every<select class="inp" id="sEv"><option value="week">Week</option><option value="2w">2 weeks</option><option value="month">Month</option></select></label></div></div>' +
-    '<p class="note">Buying in equal steps (dollar-cost averaging) spreads your entry price over time instead of betting on one day. Each step is split by your target mix.</p>' +
-    '<div style="overflow-x:auto;margin-top:8px"><table class="sched" id="sTbl"></table></div></div>';
-  $('sEv').value = s.every;
-  el.querySelectorAll('[data-t]').forEach(function(inp){ inp.addEventListener('input', function(){ V.target[inp.getAttribute('data-t')] = Math.max(0, Math.min(100, +inp.value || 0)); var t = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0); $('pSum').textContent = t + '%'; $('pSum').className = 'chip ' + (t === 100 ? 'g' : 'y'); planBars(portfolio()); schedTbl(); save(); }); });
-  $('sAmt').addEventListener('change', function(){ var n = numIn(this.value); if(n > 0){ s.amount = n; this.value = n.toLocaleString('id-ID'); schedTbl(); save(); } });
-  $('sStart').addEventListener('change', function(){ s.start = this.value; schedTbl(); save(); });
-  $('sN').addEventListener('change', function(){ s.n = Math.max(1, Math.min(52, Math.round(+this.value || 1))); s.done = {}; schedTbl(); save(); });
-  $('sEv').addEventListener('change', function(){ s.every = this.value; schedTbl(); save(); });
-  $('pDep').onclick = depositSheet;
-  if($('pRecv')) $('pRecv').onclick = function(){ V.deposits.push({d: today(), amt: +s.amount, note: '100M plan funds'}); s.received = true; save(); toast('Added ' + idrS(+s.amount) + ' to capital'); rPlan(); };
-  el.querySelectorAll('[data-dep]').forEach(function(b){ b.onclick = function(){ V.deposits.splice(+b.getAttribute('data-dep'), 1); save(); rPlan(); }; });
-  planBars(P); schedTbl();
+function planState(){
+  var s = V.sched, L = schedule(), used = 0, nDone = 0;
+  L.forEach(function(r){ if(r.done){ used += +r.done.amt || 0; nDone++; } });
+  var remaining = Math.max(0, (+s.amount || 0) - used), base = (+s.amount || 0) / (s.n || 1), next = null;
+  for(var i = 0; i < L.length; i++) if(!L[i].done){ next = L[i]; break; }
+  var pm = paceMult(), stepsLeft = L.length - nDone;
+  var sug = next ? (stepsLeft <= 1 ? remaining : Math.min(remaining, Math.round(base * pm.m / 100000) * 100000)) : 0;
+  return {L: L, used: used, remaining: remaining, base: base, next: next, pm: pm, sug: sug, nDone: nDone};
 }
-function planBars(P){
-  var total = P.total || 1;
+function routeCost(x, amt){ var g = feeOf(x); return {x: x, on: amt * g.on / 100, buy: amt * g.buy / 100, sell: amt * g.sell / 100, off: amt * g.off / 100, t: amt * (+g.on + +g.buy + +g.sell + +g.off) / 100, now: amt * (+g.on + +g.buy) / 100, unv: g.unv}; }
+function rPlan(live){
+  var el = $('vPlan'), s = V.sched;
+  if(live && el.firstChild){ planWhen(); return; }
+  var tsum = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0), rd = READY.filter(function(r){ return V.ready[r[0]]; }).length;
+  el.innerHTML =
+    '<h1>The 100M plan</h1><p class="sub">When to add, how much, how to split it, and where it costs least.</p>' +
+    '<div class="seg" id="plSeg" style="margin-bottom:14px"><button type="button" data-v="when" class="on">When</button><button type="button" data-v="how">How</button><button type="button" data-v="where">Where</button><button type="button" data-v="ready">Ready?</button></div>' +
+    '<div data-pl="when"><div class="card hero-c" id="plWhen"></div>' +
+      '<div class="card"><div class="card-h"><h2>Your pace rules</h2></div><p class="muted" style="margin:0 0 10px;font-size:13.5px">Each step starts at the base amount. These rules make it bigger when the market is fearful or cheap vs its trend, and smaller when it’s greedy or stretched. The total stays 100M.</p>' +
+      '<div class="set-row"><div><b>Fear &amp; Greed</b><div class="small muted">&lt;25 ×1.5 · &lt;45 ×1.25 · 45–55 ×1 · ≤75 ×0.75 · &gt;75 ×0.5</div></div><input type="checkbox" class="ck" id="pcF"' + (V.pace.fng ? ' checked' : '') + '></div>' +
+      '<div class="set-row"><div><b>Distance from 200-day average</b><div class="small muted">Mayer &lt;0.9 ×1.25 · up to 1.5 ×1 · up to 2.4 ×0.75 · above ×0.5</div></div><input type="checkbox" class="ck" id="pcM"' + (V.pace.mayer ? ' checked' : '') + '></div>' +
+      '<p class="note">These are well-known rules of thumb, not predictions. They help you buy more when others are scared and less when they’re euphoric, so the decision isn’t made on feeling.</p></div></div>' +
+    '<div data-pl="how" hidden>' +
+      '<div class="card"><div class="card-h"><h2>Steps</h2><span class="small faint" id="pProg"></span></div>' +
+      '<div class="form"><div class="two"><label class="f">Total (IDR)<input class="inp" id="sAmt" inputmode="numeric" value="' + (+s.amount).toLocaleString('id-ID') + '"></label><label class="f">First step<input class="inp" id="sStart" type="date" value="' + esc(s.start) + '"></label></div>' +
+      '<div class="two"><label class="f">Number of steps<input class="inp" id="sN" type="number" min="1" max="52" value="' + s.n + '"></label><label class="f">Every<select class="inp" id="sEv"><option value="week">Week</option><option value="2w">2 weeks</option><option value="month">Month</option></select></label></div></div>' +
+      '<div style="overflow-x:auto;margin-top:12px"><table class="sched" id="sTbl"></table></div></div>' +
+      '<div class="card"><div class="card-h"><h2>Split each step</h2><span class="chip ' + (tsum === 100 ? 'g' : 'y') + '" id="pSum">' + tsum + '%</span></div>' +
+      '<div id="pBk">' + BUCKETS.map(function(k){ return '<div class="bk" data-k="' + k.k + '"><div class="bk-h"><b><i style="background:' + k.c + '"></i>' + k.name + '</b><span class="bk-in"><input class="inp num" type="number" inputmode="decimal" min="0" max="100" step="1" value="' + (V.target[k.k] || 0) + '" data-t="' + k.k + '"><span class="faint">%</span></span></div><div class="bar"><i style="background:' + k.c + '"></i><u></u></div><div class="small muted pb-t"></div></div>'; }).join('') + '</div>' +
+      '<p class="note">Bar = what you hold now · tick = target. A template to edit, not a recommendation. Cash is kept for big dips.</p></div>' +
+      '<div class="card"><div class="card-h"><h2>How to place each step</h2></div>' +
+      '<details class="lesson" open><summary>Use a limit order</summary><p>Set your price slightly under the current price instead of a market order. You won’t overpay in a fast spike, and on Indonesian exchanges a maker (limit) order also pays less: about 0.11% instead of 0.21% to buy.</p></details>' +
+      '<details class="lesson"><summary>One step = one or two orders</summary><p>Don’t slice a step into many tiny orders. Some exchanges charge a minimum per trade, and you’ll overthink it.</p></details>' +
+      '<details class="lesson"><summary>Log it straight away</summary><p>Tick the step here, then log the buy in the Journal with why. The market snapshot is saved for your AI reviews.</p></details>' +
+      '<details class="lesson"><summary>Where to keep it</summary><p>Larger amounts left on one exchange carry platform risk. Turn on 2FA and a withdrawal whitelist. Above a level you’re uncomfortable losing, learn about a hardware wallet.</p></details></div>' +
+    '</div>' +
+    '<div data-pl="where" hidden><div class="card"><div class="card-h"><h2>Cost of the route</h2></div><label class="f">Amount (IDR)<input class="inp" id="wAmt" inputmode="numeric" value="' + (+s.amount).toLocaleString('id-ID') + '"></label><div id="wTbl" style="margin-top:12px"></div>' +
+      '<p class="note">Full round trip: rupiah in, buy, later sell (with tax), rupiah out. Fee data: blockchainmedia.id (Mar 2026), Binance standard spot, PMK 50/2025, and your own Rp 200K deposit. Edit any number in Settings → Fees. Also check that the exchange is licensed by OJK.</p></div></div>' +
+    '<div data-pl="ready" hidden><div class="card"><div class="card-h"><h2>Before the first step</h2><span class="chip ' + (rd === READY.length ? 'g' : 'y') + '" id="rdN">' + rd + '/' + READY.length + '</span></div>' +
+      READY.map(function(r){ return '<label class="set-row" style="cursor:pointer"><span>' + r[1] + '</span><input type="checkbox" class="ck" data-rd="' + r[0] + '"' + (V.ready[r[0]] ? ' checked' : '') + '></label>'; }).join('') +
+      '<p class="note">If any of these is a no, the cheapest fix is to wait. Missing a week costs less than a forced sale at a loss.</p></div></div>';
+  $('sEv').value = s.every;
+  $('plSeg').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; PLTAB = b.getAttribute('data-v'); showPl(); };
+  $('pcF').onchange = function(){ V.pace.fng = this.checked; save(); planWhen(); };
+  $('pcM').onchange = function(){ V.pace.mayer = this.checked; save(); planWhen(); };
+  el.querySelectorAll('[data-t]').forEach(function(inp){ inp.addEventListener('input', function(){ V.target[inp.getAttribute('data-t')] = Math.max(0, Math.min(100, +inp.value || 0)); var t = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0); $('pSum').textContent = t + '%'; $('pSum').className = 'chip ' + (t === 100 ? 'g' : 'y'); planBars(); planWhen(); save(); }); });
+  $('sAmt').addEventListener('change', function(){ var n = numIn(this.value); if(n > 0){ s.amount = n; this.value = n.toLocaleString('id-ID'); schedTbl(); planWhen(); save(); } });
+  $('sStart').addEventListener('change', function(){ s.start = this.value; schedTbl(); planWhen(); save(); });
+  $('sN').addEventListener('change', function(){ s.n = Math.max(1, Math.min(52, Math.round(+this.value || 1))); schedTbl(); planWhen(); save(); });
+  $('sEv').addEventListener('change', function(){ s.every = this.value; schedTbl(); planWhen(); save(); });
+  $('wAmt').addEventListener('input', whereTbl);
+  el.querySelectorAll('[data-rd]').forEach(function(c){ c.onchange = function(){ V.ready[c.getAttribute('data-rd')] = c.checked; save(); var n = READY.filter(function(r){ return V.ready[r[0]]; }).length; $('rdN').textContent = n + '/' + READY.length; $('rdN').className = 'chip ' + (n === READY.length ? 'g' : 'y'); }; });
+  showPl(); planWhen(); planBars(); schedTbl(); whereTbl();
+}
+var PLTAB = 'when';
+function showPl(){ var el = $('vPlan'); el.querySelectorAll('[data-pl]').forEach(function(d){ d.hidden = d.getAttribute('data-pl') !== PLTAB; }); $('plSeg').querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === PLTAB); }); }
+function planWhen(){
+  var box = $('plWhen'); if(!box) return;
+  var S = planState(), s = V.sched, w = whereRank(S.sug || S.base)[0];
+  if(!S.next){ box.innerHTML = '<div class="eyebrow">Done</div><h2 style="margin:6px 0">All ' + s.n + ' steps are in.</h2><p class="muted" style="margin:0">' + idrS(S.used) + ' added. Review it with AI in the Learn tab.</p>'; return; }
+  var days = Math.round((new Date(S.next.date + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5);
+  box.innerHTML =
+    '<div class="eyebrow">Step ' + (S.next.i + 1) + ' of ' + s.n + ' · ' + fmtDate(S.next.date) + (days > 0 ? ' · in ' + days + ' day' + (days > 1 ? 's' : '') : days === 0 ? ' · today' : ' · ' + (-days) + ' days late') + '</div>' +
+    '<div class="big num" style="margin-top:6px">' + idrS(S.sug) + '</div>' +
+    '<p class="muted" style="margin:4px 0 12px">Base ' + idrS(S.base) + ' × <b style="color:var(--fg)">' + S.pm.m.toFixed(2) + '</b>' + (S.pm.why.length ? '' : ' (no pace rules on)') + '</p>' +
+    S.pm.why.map(function(x){ return '<div class="al"><span>' + esc(x.n) + '</span><span class="chip ' + (x.k > 1 ? 'g' : x.k < 1 ? 'y' : '') + '">×' + x.k + '</span></div>'; }).join('') +
+    '<div class="al"><span>Split</span><span class="small num" style="text-align:right">' + BUCKETS.filter(function(k){ return V.target[k.k] > 0; }).map(function(k){ return k.k + ' ' + idrS(S.sug * V.target[k.k] / 100).replace('Rp ', ''); }).join(' · ') + '</span></div>' +
+    (w ? '<div class="al"><span>Cheapest route</span><span><b>' + esc(w.x) + '</b> <span class="small faint">' + idrS(w.now) + ' to get in</span></span></div>' : '') +
+    '<div class="prog" style="margin-top:12px"><i style="width:' + (S.used / (+s.amount || 1) * 100) + '%"></i></div><div class="small faint" style="margin-top:6px">' + idrS(S.used) + ' in · ' + idrS(S.remaining) + ' to go</div>' +
+    '<button class="btn full" id="plDone" type="button" style="margin-top:14px">I did this step</button>';
+  $('plDone').onclick = function(){ stepSheet(S); };
+}
+function stepSheet(S){
+  var w = whereRank(S.sug)[0];
+  sheet('<div class="sh-h"><h2>Step ' + (S.next.i + 1) + ' done</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form">' +
+    '<div class="two"><label class="f">Amount put in (IDR)<input class="inp" id="stA" inputmode="numeric" value="' + S.sug.toLocaleString('id-ID') + '"></label><label class="f">Exchange<select class="inp" id="stX">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
+    '<label class="f">Deposit fee cut (IDR)<input class="inp" id="stF" inputmode="numeric"></label>' +
+    '<label class="set-row" style="cursor:pointer;padding:6px 0"><span class="small">Also add it to “Money in” as a deposit</span><input type="checkbox" class="ck" id="stD" checked></label>' +
+    '<button class="btn full" id="stGo" type="button">Save step</button><p class="note">Then log the buy(s) in the Journal, so holdings and break-even update.</p></div>');
+  $('stX').value = w ? w.x : 'Indodax';
+  var fee = function(){ $('stF').value = Math.round(numIn($('stA').value) * feeOf($('stX').value).on / 100).toLocaleString('id-ID'); };
+  fee(); $('stX').onchange = fee; $('stA').oninput = fee;
+  $('stGo').onclick = function(){
+    var a = numIn($('stA').value), f = numIn($('stF').value) || 0, x = $('stX').value; if(!(a > 0)){ toast('Enter the amount'); return; }
+    V.sched.done[S.next.i] = {d: today(), amt: a, ex: x, mult: +S.pm.m.toFixed(2), ctx: ctxNow()};
+    if($('stD').checked) V.deposits.push({d: today(), amt: a, fee: f, ex: x, note: '100M step ' + (S.next.i + 1)});
+    save(); closeSheet(); toast('Step ' + (S.next.i + 1) + ' saved'); vibe(15); rPlan(); setTimeout(function(){ tradeSheet(null, {ex: x, side: 'buy', a: 'BTC', tot: Math.round((a - f) * (V.target.BTC || 0) / 100)}); }, 450);
+  };
+}
+function planBars(){
+  var P = portfolio(), total = P.total || 1;
   document.querySelectorAll('#pBk .bk').forEach(function(row){
-    var k = row.getAttribute('data-k'), now = P.byB[k] / total * 100, tg = +V.target[k] || 0, diff = (tg - now) / 100 * P.total;
+    var k = row.getAttribute('data-k'), now = P.byB[k] / total * 100, tg = +V.target[k] || 0;
     requestAnimationFrame(function(){ row.querySelector('.bar i').style.width = Math.min(100, now) + '%'; row.querySelector('.bar u').style.left = 'calc(' + Math.min(100, tg) + '% - 1px)'; });
-    row.querySelector('.pb-t').innerHTML = 'Now <b class="num">' + now.toFixed(1) + '%</b> (' + idrS(P.byB[k]) + ')' + (Math.abs(diff) > P.total * .01 ? ' · ' + (diff > 0 ? '<span class="up">' + idrS(diff) + ' below target</span>' : '<span class="down">' + idrS(-diff) + ' above target</span>') : ' · <span class="up">on target</span>');
+    row.querySelector('.pb-t').innerHTML = 'Now <b class="num">' + now.toFixed(1) + '%</b> (' + idrS(P.byB[k]) + ') · target ' + tg + '%';
   });
 }
 function schedTbl(){
-  var L = schedule(), s = V.sched, nx = nextTranche();
-  $('sTbl').innerHTML = '<tr><th></th><th>#</th><th>Date</th><th>Amount</th><th>Split</th></tr>' + L.map(function(r){
-    var done = !!s.done[r.i];
-    return '<tr class="' + (done ? 'done' : nx && nx.i === r.i ? 'next' : '') + '"><td><input type="checkbox" class="ck" data-i="' + r.i + '"' + (done ? ' checked' : '') + ' aria-label="Step ' + (r.i + 1) + ' done"></td><td>' + (r.i + 1) + '</td><td>' + fmtDate(r.date) + '</td><td>' + idrS(r.amt) + '</td><td style="font-family:var(--body);color:var(--muted)">' + r.split.filter(function(x){ return x.v > 0 && x.k !== 'Cash'; }).map(function(x){ return x.k + ' ' + idrS(x.v).replace('Rp ', ''); }).join(' · ') + '</td></tr>';
+  var S = planState(), s = V.sched;
+  $('sTbl').innerHTML = '<tr><th>#</th><th>Date</th><th>Amount</th><th>Note</th><th></th></tr>' + S.L.map(function(r){
+    var d = r.done, nx = S.next && S.next.i === r.i;
+    return '<tr class="' + (d ? 'done' : nx ? 'next' : '') + '"><td>' + (r.i + 1) + '</td><td>' + fmtDate(r.date) + '</td><td>' + (d ? idrS(d.amt) : nx ? idrS(S.sug) : '~' + idrS(S.base)) + '</td><td style="font-family:var(--body);color:var(--muted)">' + (d ? '✓ ' + esc(d.ex) + ' ×' + d.mult : nx ? 'next' : '') + '</td><td>' + (d ? '<button class="btn sec sm" data-und="' + r.i + '" type="button" aria-label="Undo">↺</button>' : '') + '</td></tr>';
   }).join('');
-  $('pProg').textContent = Object.keys(s.done).length + ' of ' + s.n + ' done';
-  $('sTbl').querySelectorAll('.ck').forEach(function(c){ c.onchange = function(){ var i = c.getAttribute('data-i'); if(c.checked) s.done[i] = today(); else delete s.done[i]; save(); schedTbl(); }; });
+  $('pProg').textContent = S.nDone + ' of ' + s.n + ' done';
+  $('sTbl').querySelectorAll('[data-und]').forEach(function(b){ b.onclick = function(){ delete s.done[b.getAttribute('data-und')]; save(); schedTbl(); planWhen(); toast('Step undone (deposit, if added, stays in Money in)'); }; });
 }
-function depositSheet(){
-  sheet('<div class="sh-h"><h2>Add deposit</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form"><label class="f">Amount (IDR)<input class="inp" id="dAmt" inputmode="numeric" placeholder="5.000.000"></label><div class="two"><label class="f">Date<input class="inp" type="date" id="dD" value="' + today() + '"></label><label class="f">Note<input class="inp" id="dN" placeholder="Top-up" style="font-family:var(--body)"></label></div><button class="btn full" id="dGo" type="button">Add</button><p class="note">Use a negative amount for a withdrawal.</p></div>');
-  $('dGo').onclick = function(){ var a = numIn($('dAmt').value); if(!a){ toast('Enter an amount'); return; } V.deposits.push({d: $('dD').value || today(), amt: a, note: $('dN').value.trim()}); save(); closeSheet(); rPlan(); };
+function whereRank(amt){ return EXCH.map(function(x){ return routeCost(x, amt); }).sort(function(p, q){ return p.t - q.t; }); }
+function whereTbl(){
+  var amt = numIn($('wAmt').value) || 0, R = whereRank(amt), worst = R[R.length - 1];
+  $('wTbl').innerHTML = R.map(function(r, i){
+    return '<div class="route' + (i === 0 ? ' best' : '') + '"><div class="route-h"><b>' + esc(r.x) + (i === 0 ? ' <span class="chip g">cheapest</span>' : '') + (r.unv ? ' <span class="chip y">fees not verified</span>' : '') + '</b><span class="num">' + idrS(r.t) + ' <small class="faint">' + (amt ? (r.t / amt * 100).toFixed(2) : 0) + '%</small></span></div>' +
+      '<div class="stack thin">' + [['on', '#7C8CA8'], ['buy', '#5BE1FF'], ['sell', '#A78BFF'], ['off', '#FF8A8A']].map(function(p){ return '<i style="flex:' + Math.max(0, r[p[0]]).toFixed(0) + ';background:' + p[1] + '"></i>'; }).join('') + '<i style="flex:' + Math.max(0, worst.t - r.t).toFixed(0) + ';background:transparent"></i></div>' +
+      '<div class="small muted num">in ' + idrS(r.on) + ' · buy ' + idrS(r.buy) + ' · sell ' + idrS(r.sell) + ' · out ' + idrS(r.off) + '</div></div>';
+  }).join('') + (amt ? '<p style="margin:12px 0 0">Choosing <b>' + esc(R[0].x) + '</b> over <b>' + esc(worst.x) + '</b> keeps about <b class="up">' + idrS(worst.t - R[0].t) + '</b> in your pocket on this amount.</p>' : '');
 }
 
-/* ---------- RISK ---------- */
+/* ---------- RISK (sheet) ---------- */
 var RK = null;
-function rRisk(live){
-  var el = $('vRisk'), P = portfolio();
-  if(!el.firstChild){
-    RK = RK || {asset:'BTC', ex:'Indodax', entry:'', stop:'', target:'', risk: V.risk || 1};
-    el.innerHTML =
-      '<h1>Size a trade</h1><p class="sub">Decide how much you can lose first. This works out how much to buy.</p>' +
-      '<div class="card"><div class="form">' +
-      '<div class="two"><label class="f">Coin<input class="inp" id="rA" list="coinList" value="' + esc(RK.asset) + '" autocapitalize="characters"></label><label class="f">Exchange<select class="inp" id="rEx">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
-      '<label class="f">Risk per trade: <span id="rRv" class="num" style="color:var(--fg)"></span><input type="range" id="rR" min="0.25" max="5" step="0.25" value="' + RK.risk + '" style="accent-color:var(--gold)"></label>' +
-      '<div class="two"><label class="f">Entry price (IDR)<input class="inp" id="rE" inputmode="decimal"></label><label class="f">Stop-loss (IDR)<input class="inp" id="rS" inputmode="decimal"></label></div>' +
-      '<label class="f">Target (optional)<input class="inp" id="rT" inputmode="decimal"></label>' +
-      '<div class="row"><button class="btn sec sm" type="button" data-sp="3">Stop −3%</button><button class="btn sec sm" type="button" data-sp="5">−5%</button><button class="btn sec sm" type="button" data-sp="8">−8%</button><button class="btn sec sm" type="button" data-sp="12">−12%</button><button class="btn sec sm" type="button" id="rLive">Use live price</button></div>' +
-      '</div></div>' +
-      '<div class="card" id="rOut"></div>' +
-      '<datalist id="coinList">' + symbols().concat(['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'AVAX', 'LINK', 'TON', 'SUI', 'PEPE', 'USDT']).filter(function(v, i, a){ return a.indexOf(v) === i; }).map(function(a){ return '<option value="' + a + '">'; }).join('') + '</datalist>';
-    $('rEx').value = RK.ex;
-    var fill = function(){ var p = px(RK.asset); if(p){ $('rE').value = fmtP(p); RK.entry = p; } };
-    $('rE').value = RK.entry ? fmtP(RK.entry) : ''; $('rS').value = RK.stop ? fmtP(RK.stop) : ''; $('rT').value = RK.target ? fmtP(RK.target) : '';
-    if(!RK.entry) fill();
-    $('rA').addEventListener('change', function(){ RK.asset = this.value.trim().toUpperCase(); this.value = RK.asset; RK.entry = ''; if(!MK.t[RK.asset] && !STABLE[RK.asset]) refreshOne(RK.asset).then(function(){ fill(); calc(); }); else { fill(); calc(); } });
-    $('rEx').addEventListener('change', function(){ RK.ex = this.value; calc(); });
-    $('rR').addEventListener('input', function(){ RK.risk = +this.value; V.risk = RK.risk; save(); calc(); });
-    ['rE', 'rS', 'rT'].forEach(function(id){ $(id).addEventListener('input', function(){ RK[{rE:'entry', rS:'stop', rT:'target'}[id]] = numIn(this.value) || ''; calc(); }); });
-    el.querySelectorAll('[data-sp]').forEach(function(b){ b.onclick = function(){ var e = +RK.entry; if(!e) return; RK.stop = e * (1 - b.getAttribute('data-sp') / 100); $('rS').value = fmtP(RK.stop); if(!RK.target){ RK.target = e * (1 + 2 * b.getAttribute('data-sp') / 100); $('rT').value = fmtP(RK.target); } calc(); }; });
-    $('rLive').onclick = function(){ fill(); calc(); };
-  } else if(live) return;
+function riskSheet(asset){
+  var a = asset || mainAsset() || 'BTC', ex = (book().pos[a] || {}).ex || 'Binance';
+  RK = {a: a, ex: ex, e: '', s: '', t: '', r: V.risk || 1};
+  sheet('<div class="sh-h"><h2>Size a trade</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
+    '<p class="muted" style="margin:-6px 0 12px;font-size:13.5px">Decide how much you can lose first. This works out how much to buy, after fees.</p><div class="form">' +
+    '<div class="two"><label class="f">Coin<input class="inp" id="rA" value="' + esc(a) + '" autocapitalize="characters"></label><label class="f">Exchange<select class="inp" id="rEx">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
+    '<label class="f">Risk per trade: <span id="rRv" class="num" style="color:var(--fg)"></span><input type="range" id="rR" min="0.25" max="5" step="0.25" value="' + RK.r + '" style="accent-color:var(--gold)"></label>' +
+    '<div class="two"><label class="f"><span>Entry (<span class="rcur"></span>)</span><input class="inp" id="rE" inputmode="decimal"></label><label class="f"><span>Stop-loss (<span class="rcur"></span>)</span><input class="inp" id="rS" inputmode="decimal"></label></div>' +
+    '<label class="f">Target (optional)<input class="inp" id="rT" inputmode="decimal"></label>' +
+    '<div class="row"><button class="btn sec sm" type="button" data-sp="3">Stop −3%</button><button class="btn sec sm" type="button" data-sp="5">−5%</button><button class="btn sec sm" type="button" data-sp="8">−8%</button><button class="btn sec sm" type="button" data-sp="12">−12%</button></div></div><div id="rOut" style="margin-top:14px"></div>');
+  $('rEx').value = ex;
+  var k = function(){ return RK.ex === 'Binance' ? (MK.rate || NaN) : 1; };
+  var curL = function(){ document.querySelectorAll('.rcur').forEach(function(s){ s.textContent = RK.ex === 'Binance' ? 'USDT' : 'IDR'; }); };
+  var f2 = function(v){ return RK.ex === 'Binance' ? +v.toPrecision(6) + '' : fmtP(v); };
+  var fill = function(){ var p = px(RK.a); if(p){ RK.e = p / k(); $('rE').value = f2(RK.e); } };
+  curL(); fill();
+  $('rA').onchange = function(){ RK.a = this.value.trim().toUpperCase(); this.value = RK.a; if(!MK.t[RK.a]) refreshOne(RK.a).then(function(){ fill(); calc(); }); else { fill(); calc(); } };
+  $('rEx').onchange = function(){ var old = k(); RK.ex = this.value; var r = old / k(); ['e', 's', 't'].forEach(function(q){ if(RK[q]) RK[q] = RK[q] * r; }); $('rE').value = RK.e ? f2(RK.e) : ''; $('rS').value = RK.s ? f2(RK.s) : ''; $('rT').value = RK.t ? f2(RK.t) : ''; curL(); calc(); };
+  $('rR').oninput = function(){ RK.r = +this.value; V.risk = RK.r; save(); calc(); };
+  ['rE', 'rS', 'rT'].forEach(function(id){ $(id).oninput = function(){ RK[{rE:'e', rS:'s', rT:'t'}[id]] = numIn(this.value) || ''; calc(); }; });
+  document.querySelectorAll('[data-sp]').forEach(function(b){ b.onclick = function(){ var e = +RK.e; if(!e) return; var p = +b.getAttribute('data-sp'); RK.s = e * (1 - p / 100); $('rS').value = f2(RK.s); if(!RK.t){ RK.t = e * (1 + 2 * p / 100); $('rT').value = f2(RK.t); } calc(); }; });
+  function calc(){
+    var P = portfolio(), cap = P.total || capital() || 0, K = k(), e = RK.e * K, s = RK.s * K, t = RK.t * K;
+    $('rRv').textContent = RK.r + '% = ' + idrS(cap * RK.r / 100);
+    var out = $('rOut');
+    if(!e || !s){ out.innerHTML = '<div class="empty">Enter an entry and a stop-loss.</div>'; return; }
+    if(s >= e){ out.innerHTML = '<div class="warn">For a buy, the stop-loss must be below the entry.</div>'; return; }
+    var fb = feePct(RK.ex, 'buy'), fs = feePct(RK.ex, 'sell');
+    var lossU = (e - s) + e * fb + s * fs, riskIdr = cap * RK.r / 100, qty = riskIdr / lossU, size = qty * e;
+    var be = e * (1 + fb) / (1 - fs), rr = t > e ? ((t - e) - t * fs - e * fb) / lossU : null, cash = P.b.cash;
+    out.innerHTML = '<div class="card" style="margin:0"><div class="eyebrow">Buy</div><div class="res-big num">' + idr(size) + '</div><p class="muted" style="margin:4px 0 12px">' + qtyF(qty) + ' ' + esc(RK.a) + (RK.ex === 'Binance' ? ' · ≈ ' + usd(size / MK.rate, 0) : '') + '</p>' +
+      '<div class="grid2"><div class="kv"><span>If stop hits</span><b class="down">−' + idrS(riskIdr) + '</b></div><div class="kv"><span>If target hits</span><b class="up">' + (rr != null ? '+' + idrS(rr * riskIdr) : '—') + '</b></div><div class="kv"><span>Reward : risk</span><b>' + (rr != null ? rr.toFixed(2) + 'R' : '—') + '</b></div><div class="kv"><span>Break-even</span><b>' + (RK.ex === 'Binance' ? usd(be / MK.rate) : idrS(be)) + '</b></div></div>' +
+      (cash > 0 && size * (1 + fb) > cash ? '<div class="warn">More than your free cash (' + idrS(cash) + '). Widen the stop or lower the risk %.</div>' : '') +
+      (rr != null && rr < 1.5 ? '<div class="warn">The target pays less than 1.5× what the stop costs.</div>' : '') +
+      ((e - s) / e < .01 + fb + fs ? '<div class="warn">The stop is closer than your fees plus normal noise. It will trigger easily.</div>' : '') +
+      '<button class="btn full" id="rLog" type="button" style="margin-top:12px">Log this buy</button></div>';
+    $('rLog').onclick = function(){ tradeSheet(null, {a: RK.a, ex: RK.ex, side: 'buy', pxIn: RK.e, qty: +qty.toPrecision(6), stop: s, target: t || ''}); };
+  }
   calc();
 }
 function fmtP(p){ return p >= 1000 ? Math.round(p).toLocaleString('id-ID') : p >= 1 ? p.toLocaleString('id-ID', {maximumFractionDigits: 2}) : p.toLocaleString('id-ID', {maximumSignificantDigits: 5}); }
 async function refreshOne(a){ try{ var t = await getJSON(API + '/ticker/24hr?symbol=' + a + 'USDT'); MK.t[a] = {p: +t.lastPrice, ch: +t.priceChangePercent}; }catch(e){ toast(a + ' isn’t on the price feed. Enter prices by hand.'); } }
-function calc(){
-  var P = portfolio(), cap = P.total || capital(), e = +RK.entry, s = +RK.stop, t = +RK.target;
-  $('rRv').textContent = RK.risk + '% = ' + idrS(cap * RK.risk / 100);
-  var out = $('rOut');
-  if(!e || !s){ out.innerHTML = '<div class="empty">Enter an entry and a stop-loss to see your size.</div>'; return; }
-  if(s >= e){ out.innerHTML = '<div class="warn">For a buy, the stop-loss must be below the entry price.</div>'; return; }
-  var fb = feePct(RK.ex, 'buy'), fs = feePct(RK.ex, 'sell');
-  var lossU = (e - s) + e * fb + s * fs, riskIdr = cap * RK.risk / 100, qty = riskIdr / lossU, size = qty * e, capped = false;
-  var cash = P.b.cash;
-  if(size * (1 + fb) > cash && cash > 0){ capped = true; }
-  var be = e * (1 + fb) / (1 - fs), rr = t > e ? ((t - e) - t * fs - e * fb) / lossU : null;
-  var hi = Math.max(t || e * 1.1, e) , lo = s, span = hi - lo || 1;
-  var y = function(v){ return 10 + (1 - (v - lo) / span) * 130; };
-  out.innerHTML =
-    '<div class="eyebrow">Buy</div><div class="res-big num">' + idr(size) + '</div><p class="muted" style="margin:4px 0 12px">' + qtyF(qty) + ' ' + esc(RK.asset) + ' at ' + idr(e) + ' on ' + esc(RK.ex) + '</p>' +
-    '<div class="ladder">' + (t > e ? '<div class="zone win" style="top:' + y(t) + 'px;height:' + (y(e) - y(t)) + 'px"></div>' : '') + '<div class="zone loss" style="top:' + y(e) + 'px;height:' + (y(s) - y(e)) + 'px"></div>' +
-    (t > e ? '<div class="ln" style="top:' + y(t) + 'px"><span class="up">Target ' + idrS(t) + '</span></div>' : '') + '<div class="ln e" style="top:' + y(e) + 'px"><span>Entry ' + idrS(e) + '</span></div><div class="ln" style="top:' + y(s) + 'px"><span class="down">Stop ' + idrS(s) + '</span></div></div>' +
-    '<div class="grid2" style="margin-top:12px"><div class="kv"><span>If stop hits</span><b class="down">−' + idrS(riskIdr).replace('Rp ', 'Rp ') + '</b></div><div class="kv"><span>If target hits</span><b class="up">' + (rr != null ? '+' + idrS(rr * riskIdr) : '—') + '</b></div><div class="kv"><span>Reward : risk</span><b>' + (rr != null ? rr.toFixed(2) + 'R' : '—') + '</b></div><div class="kv"><span>Break-even</span><b>' + idrS(be) + '</b></div><div class="kv"><span>Size vs capital</span><b>' + (size / cap * 100).toFixed(1) + '%</b></div><div class="kv"><span>Fees + tax</span><b>' + ((fb + fs) * 100).toFixed(2) + '%</b></div></div>' +
-    (capped ? '<div class="warn">That’s more than your free cash (' + idrS(cash) + '). Use a wider stop or a smaller risk %, or buy only ' + idrS(cash) + '.</div>' : '') +
-    (rr != null && rr < 1.5 ? '<div class="warn">The target pays less than 1.5× what the stop costs.</div>' : '') +
-    ((e - s) / e < .01 ? '<div class="warn">The stop is under 1% away. Normal price noise can trigger it.</div>' : '') +
-    '<button class="btn full" id="rLog" type="button" style="margin-top:14px">Log this buy in the journal</button>';
-  $('rLog').onclick = function(){ tradeSheet(null, {a: RK.asset, ex: RK.ex, side:'buy', px: e, qty: +qty.toPrecision(6), stop: s, target: t || ''}); };
+
+/* ---------- SETUP: current position ---------- */
+function setupSheet(){
+  var live = MK.t.BTC ? MK.t.BTC.p : '';
+  sheet('<div class="sh-h"><h2>My current position</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
+    '<p class="muted" style="margin:-6px 0 12px;font-size:13.5px">Open Binance → Wallet → Spot to copy the exact amount you received.</p><div class="form">' +
+    '<div class="two"><label class="f">Exchange<select class="inp" id="suX">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label><label class="f">Date you bought<input class="inp" type="date" id="suD" value="' + today() + '"></label></div>' +
+    '<div class="two"><label class="f">Rupiah you sent<input class="inp" id="suAmt" inputmode="numeric" placeholder="10.000.000"></label><label class="f">Fee they cut<input class="inp" id="suFee" inputmode="numeric" placeholder="200.000"></label></div>' +
+    '<div class="two"><label class="f">Coin<input class="inp" id="suA" value="BTC" autocapitalize="characters"></label><label class="f"><span>Buy price (<span id="suCur">USDT</span>)</span><input class="inp" id="suPx" inputmode="decimal" placeholder="' + (live ? Math.round(live) : '') + '"></label></div>' +
+    '<label class="f">Coin received (exact, optional)<input class="inp" id="suQ" inputmode="decimal" placeholder="e.g. 0.00735"></label>' +
+    '<div class="card" style="margin:0" id="suPrev"><span class="muted small">Fill the fields to preview.</span></div>' +
+    '<button class="btn full" id="suGo" type="button">Save position</button></div>');
+  var isU = function(){ return $('suX').value === 'Binance'; };
+  function prev(){
+    $('suCur').textContent = isU() ? 'USDT' : 'IDR';
+    var r = calc(); var b = $('suPrev');
+    if(!r){ b.innerHTML = '<span class="muted small">Fill the fields to preview.</span>'; return; }
+    b.innerHTML = '<div class="al"><span>In the exchange after fee</span><b class="num">' + idrS(r.net) + '</b></div><div class="al"><span>' + esc(r.a) + ' received</span><b class="num">' + qtyF(r.qty) + (r.est ? ' <span class="chip y">estimate</span>' : '') + '</b></div><div class="al"><span>Buy fee (est.)</span><b class="num">' + idrS(r.tfee) + '</b></div>' + (isU() ? '<div class="al"><span>USD/IDR you effectively got</span><b class="num">' + Math.round(r.rate).toLocaleString('id-ID') + '</b></div>' : '') + '<div class="al"><span>Deposit fee</span><b class="num">' + (r.amt ? (r.fee / r.amt * 100).toFixed(2) + '%' : '—') + '</b></div>';
+  }
+  function calc(){
+    var amt = numIn($('suAmt').value), fee = numIn($('suFee').value) || 0, p = numIn($('suPx').value), q = numIn($('suQ').value), a = $('suA').value.trim().toUpperCase(), bf = feePct($('suX').value, 'buy');
+    if(!(amt > 0) || !(p > 0) || !a) return null;
+    var net = amt - fee, rate = isU() ? (q > 0 ? net / (q * p * (1 + bf)) : MK.rate) : 1;
+    if(!rate) return null;
+    var qty = q > 0 ? q : net / (p * rate * (1 + bf)), pxIdr = p * rate;
+    return {amt: amt, fee: fee, net: net, a: a, qty: qty, rate: rate, pxIdr: pxIdr, pxUsd: isU() ? p : (MK.rate ? p / MK.rate : null), tfee: net - qty * pxIdr, est: !(q > 0)};
+  }
+  ['suAmt', 'suFee', 'suPx', 'suQ', 'suA'].forEach(function(i){ $(i).oninput = prev; });
+  $('suX').onchange = function(){ var f = feeOf(this.value); if(!$('suFee').value && numIn($('suAmt').value) > 0) $('suFee').value = Math.round(numIn($('suAmt').value) * f.on / 100).toLocaleString('id-ID'); prev(); };
+  $('suGo').onclick = function(){
+    var r = calc(); if(!r){ toast('Fill rupiah sent and buy price'); return; }
+    var x = $('suX').value, d = $('suD').value || today();
+    V.deposits.push({d: d, amt: r.amt, fee: r.fee, ex: x, note: 'First deposit'});
+    V.trades.push({id: 'T' + Date.now().toString(36), at: Date.now(), d: d, ex: x, side: 'buy', a: r.a, qty: r.qty, px: r.pxIdr, pxUsd: r.pxUsd, rate: isU() ? Math.round(r.rate) : MK.rate, fee: Math.max(0, r.tfee), why: 'My first position. Learning with it.', emo: '', conf: 0, ctx: d === today() ? ctxNow() : null, est: r.est});
+    save(); closeSheet(); toast('Position saved'); vibe(15); refresh(); go('be');
+  };
+}
+function depositSheet(){
+  sheet('<div class="sh-h"><h2>Add money in</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form"><div class="two"><label class="f">Amount (IDR)<input class="inp" id="dAmt" inputmode="numeric" placeholder="5.000.000"></label><label class="f">Fee cut (IDR)<input class="inp" id="dFee" inputmode="numeric" placeholder="0"></label></div><div class="two"><label class="f">Exchange<select class="inp" id="dX">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label><label class="f">Date<input class="inp" type="date" id="dD" value="' + today() + '"></label></div><label class="f">Note<input class="inp" id="dN" placeholder="Top-up" style="font-family:var(--body)"></label><button class="btn full" id="dGo" type="button">Add</button><p class="note">Use a negative amount for money taken out.</p>' +
+    (V.deposits.length ? '<div style="margin-top:6px">' + V.deposits.map(function(d, i){ return '<div class="al"><span>' + fmtDate(d.d) + ' · ' + esc(d.ex || '') + ' · ' + esc(d.note || '') + '</span><span class="num">' + idrS(d.amt) + (d.fee ? ' <small class="faint">−' + idrS(d.fee) + '</small>' : '') + ' <button class="btn sec sm" data-dd="' + i + '" type="button" aria-label="Remove">✕</button></span></div>'; }).join('') + '</div>' : '') + '</div>');
+  $('dGo').onclick = function(){ var a = numIn($('dAmt').value); if(!a){ toast('Enter an amount'); return; } V.deposits.push({d: $('dD').value || today(), amt: a, fee: numIn($('dFee').value) || 0, ex: $('dX').value, note: $('dN').value.trim()}); save(); closeSheet(); render(false); };
+  document.querySelectorAll('[data-dd]').forEach(function(b){ b.onclick = function(){ V.deposits.splice(+b.getAttribute('data-dd'), 1); save(); depositSheet(); render(false); }; });
 }
 
 /* ---------- JOURNAL ---------- */
+var EMO = ['Calm', 'Confident', 'FOMO', 'Fear', 'Bored', 'Revenge'];
 function rJournal(live){
   var el = $('vJournal'), b = book();
   if(live && el.firstChild) return;
   var ts = V.trades.slice().sort(function(x, y){ return x.d < y.d ? 1 : x.d > y.d ? -1 : y.at - x.at; });
   var wr = b.sells ? b.wins / b.sells * 100 : null;
   el.innerHTML =
-    '<h1>Trade journal</h1><p class="sub">Every buy and sell, why you made it, and what it earned.</p>' +
-    '<div class="grid2" style="margin-bottom:14px"><div class="kv"><span>Realized P&amp;L</span><b class="' + cls(b.realized) + '">' + (b.realized >= 0 ? '+' : '−') + idrS(Math.abs(b.realized)).replace('Rp ', 'Rp ') + '</b></div><div class="kv"><span>Win rate</span><b>' + (wr == null ? '—' : wr.toFixed(0) + '%') + ' <small class="faint" style="font-size:11px">' + b.wins + '/' + b.sells + '</small></b></div><div class="kv"><span>Fees paid</span><b>' + idrS(b.fees) + '</b></div><div class="kv"><span>Trades</span><b>' + V.trades.length + '</b></div></div>' +
+    '<h1>Trade journal</h1><p class="sub">Every buy and sell, why, how you felt, and what the market looked like. This is what your AI reviews learn from.</p>' +
+    '<div class="grid2" style="margin-bottom:14px"><div class="kv"><span>Realized P&amp;L</span><b class="' + cls(b.realized) + '">' + idrSigned(b.realized) + '</b></div><div class="kv"><span>Win rate</span><b>' + (wr == null ? '—' : wr.toFixed(0) + '%') + ' <small class="faint" style="font-size:11px">' + b.wins + '/' + b.sells + '</small></b></div><div class="kv"><span>Fees paid</span><b>' + idrS(b.fees + b.depFees) + '</b></div><div class="kv"><span>Trades</span><b>' + V.trades.length + '</b></div></div>' +
     (b.curve.length > 1 ? '<div class="card"><div class="card-h"><h2>Realized P&amp;L over time</h2></div>' + eqChart(b.curve) + '</div>' : '') +
-    '<div class="card"><div class="card-h"><h2>Trades</h2><button class="btn sm" type="button" id="jAdd">+ Trade</button></div><div id="jList">' +
+    '<div class="card"><div class="card-h"><h2>Trades</h2><span class="row" style="gap:6px"><button class="btn sec sm" type="button" id="jSize">Size</button><button class="btn sm" type="button" id="jAdd">+ Trade</button></span></div><div id="jList">' +
     (ts.length ? ts.map(function(t){
-      return '<div class="tr" data-id="' + t.id + '"><div class="sd ' + t.side + '">' + t.side.toUpperCase() + '</div><div><b>' + esc(t.a) + '</b> <span class="small faint">' + esc(t.ex) + '</span><small>' + fmtDate(t.d) + ' · ' + qtyF(t.qty) + ' @ ' + idrS(t.px) + (t.note ? ' · ' + esc(t.note.slice(0, 40)) + (t.note.length > 40 ? '…' : '') : '') + '</small></div><div class="r">' + idrS(t.qty * t.px) + (t._pnl != null ? '<small class="' + cls(t._pnl) + '">' + (t._pnl >= 0 ? '+' : '−') + idrS(Math.abs(t._pnl)) + '</small>' : '') + '</div></div>';
-    }).join('') : '<div class="empty">No trades yet. Tap + to log one. Writing down why you made it is the habit that helps most.</div>') + '</div></div>' +
-    '<p class="note">P&amp;L uses your average buy cost per coin, after fees and tax.</p>';
+      return '<div class="tr" data-id="' + t.id + '"><div class="sd ' + t.side + '">' + t.side.toUpperCase() + '</div><div><b>' + esc(t.a) + '</b> <span class="small faint">' + esc(t.ex) + '</span>' + (t.emo ? ' <span class="chip ' + (/FOMO|Fear|Revenge|Bored/.test(t.emo) ? 'y' : 'b') + '" style="padding:2px 8px;font-size:10.5px">' + esc(t.emo) + '</span>' : '') + '<small>' + fmtDate(t.d) + ' · ' + qtyF(t.qty) + ' @ ' + (t.pxUsd && t.ex === 'Binance' ? usd(t.pxUsd) : idrS(t.px)) + (t.why ? ' · ' + esc(t.why.slice(0, 40)) + (t.why.length > 40 ? '…' : '') : '') + '</small></div><div class="r">' + idrS(t.qty * t.px) + (t._pnl != null ? '<small class="' + cls(t._pnl) + '">' + idrSigned(t._pnl) + '</small>' : '') + '</div></div>';
+    }).join('') : '<div class="empty">No trades yet.</div>') + '</div></div>' +
+    '<p class="note">P&amp;L uses your average buy cost, after fees and tax.</p>';
   $('jAdd').onclick = function(){ tradeSheet(); };
+  $('jSize').onclick = function(){ riskSheet(); };
   $('jList').addEventListener('click', function(e){ var r = e.target.closest('.tr'); if(r) tradeSheet(r.getAttribute('data-id')); });
 }
 $('fab').addEventListener('click', function(){ tradeSheet(); });
 function eqChart(c){
-  var W = 600, H = 120, pts = [{v:0}].concat(c), mn = Math.min.apply(null, pts.map(function(p){ return p.v; }).concat(0)), mx = Math.max.apply(null, pts.map(function(p){ return p.v; }).concat(0)), sp = mx - mn || 1;
+  var W = 600, H = 120, pts = [{v:0}].concat(c), vals = pts.map(function(p){ return p.v; }), mn = Math.min.apply(null, vals.concat(0)), mx = Math.max.apply(null, vals.concat(0)), sp = mx - mn || 1;
   var xy = pts.map(function(p, i){ return [i / (pts.length - 1) * W, 8 + (1 - (p.v - mn) / sp) * (H - 16)]; });
-  var d = xy.map(function(p, i){ return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' '), z = 8 + (1 - (0 - mn) / sp) * (H - 16), last = pts[pts.length - 1].v;
-  var col = last >= 0 ? 'var(--up)' : 'var(--down)';
+  var d = xy.map(function(p, i){ return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' '), z = 8 + (1 - (0 - mn) / sp) * (H - 16), col = pts[pts.length - 1].v >= 0 ? 'var(--up)' : 'var(--down)';
   return '<svg class="eq" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none"><line x1="0" x2="' + W + '" y1="' + z + '" y2="' + z + '" stroke="var(--line2)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/><path d="' + d + ' L' + W + ' ' + z + ' L0 ' + z + 'Z" fill="' + col + '" opacity=".12"/><path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>';
 }
 function tradeSheet(id, pre){
-  var t = id ? V.trades.filter(function(x){ return x.id === id; })[0] : null, d = t || Object.assign({d: today(), ex:'Indodax', side:'buy', a:'BTC', qty:'', px:'', fee:'', note:'', stop:'', target:''}, pre || {});
-  var pcur = 'IDR';
-  sheet('<div class="sh-h"><h2>' + (t ? 'Edit trade' : 'Log a trade') + '</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
+  var t = id ? V.trades.filter(function(x){ return x.id === id; })[0] : null;
+  var d = t || Object.assign({d: today(), ex: (mainAsset() && book().pos[mainAsset()].ex) || 'Binance', side: 'buy', a: 'BTC', qty: '', px: '', fee: '', why: '', emo: '', conf: 3, stop: '', target: '', lesson: ''}, pre || {});
+  var pcur = d.ex === 'Binance' ? 'USDT' : 'IDR';
+  var pxShow = d.pxIn != null ? d.pxIn : t ? (pcur === 'USDT' ? (t.pxUsd || t.px / (t.rate || MK.rate)) : t.px) : '';
+  sheet('<div class="sh-h"><h2>' + (t ? 'Trade' : 'Log a trade') + '</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
     '<div class="form">' +
     '<div class="seg side" id="tSide"><button type="button" data-v="buy">Buy</button><button type="button" data-v="sell">Sell</button></div>' +
-    '<div class="two"><label class="f">Coin<input class="inp" id="tA" list="coinList2" value="' + esc(d.a) + '" autocapitalize="characters"></label><label class="f">Exchange<select class="inp" id="tEx">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
-    '<div class="two"><label class="f">Date<input class="inp" type="date" id="tD" value="' + esc(d.d) + '"></label><label class="f">Price in<div class="seg" id="tCur"><button type="button" data-v="IDR" class="on">IDR</button><button type="button" data-v="USDT">USDT</button></div></label></div>' +
-    '<div class="two"><label class="f">Price per coin<input class="inp" id="tPx" inputmode="decimal" value="' + (d.px ? fmtP(+d.px) : '') + '"></label><label class="f">Quantity<input class="inp" id="tQ" inputmode="decimal" value="' + (d.qty || '') + '"></label></div>' +
-    '<label class="f">…or total spent / received (IDR)<input class="inp" id="tTot" inputmode="numeric" placeholder="e.g. 1.000.000"></label>' +
+    '<div class="two"><label class="f">Coin<input class="inp" id="tA" value="' + esc(d.a) + '" autocapitalize="characters"></label><label class="f">Exchange<select class="inp" id="tEx">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
+    '<div class="two"><label class="f">Date<input class="inp" type="date" id="tD" value="' + esc(d.d) + '"></label><label class="f">Price in<div class="seg" id="tCur"><button type="button" data-v="IDR">IDR</button><button type="button" data-v="USDT">USDT</button></div></label></div>' +
+    '<div class="two"><label class="f">Price per coin<input class="inp" id="tPx" inputmode="decimal" value="' + (pxShow ? (pcur === 'USDT' ? +(+pxShow).toPrecision(7) : fmtP(+pxShow)) : '') + '"></label><label class="f">Quantity<input class="inp" id="tQ" inputmode="decimal" value="' + (d.qty || '') + '"></label></div>' +
+    '<label class="f">…or total (IDR)<input class="inp" id="tTot" inputmode="numeric" value="' + (d.tot ? d.tot.toLocaleString('id-ID') : '') + '" placeholder="e.g. 1.000.000"></label>' +
     '<label class="f">Fee + tax (IDR) <span class="faint" id="tFeeH" style="font-weight:500"></span><input class="inp" id="tFee" inputmode="decimal" value="' + (d.fee !== '' && d.fee != null ? Math.round(d.fee) : '') + '"></label>' +
-    '<div class="two"><label class="f">Stop-loss<input class="inp" id="tSt" inputmode="decimal" value="' + (d.stop ? fmtP(+d.stop) : '') + '"></label><label class="f">Target<input class="inp" id="tTg" inputmode="decimal" value="' + (d.target ? fmtP(+d.target) : '') + '"></label></div>' +
-    '<label class="f">Why this trade?<textarea class="inp" id="tN" placeholder="The reason, and what would make you exit">' + esc(d.note) + '</textarea></label>' +
+    '<label class="f">Why this trade?<textarea class="inp" id="tN" placeholder="The reason, and what would make you exit">' + esc(d.why || d.note || '') + '</textarea></label>' +
+    '<div class="f" style="font-size:12.5px;font-weight:600;color:var(--muted)">How do you feel?<div class="emo" id="tEmo">' + EMO.map(function(e){ return '<button type="button" data-v="' + e + '"' + (d.emo === e ? ' class="on"' : '') + '>' + e + '</button>'; }).join('') + '</div></div>' +
+    '<label class="f">Confidence: <span id="tCv" style="color:var(--fg)">' + (d.conf || 3) + '/5</span><input type="range" id="tC" min="1" max="5" step="1" value="' + (d.conf || 3) + '" style="accent-color:var(--gold)"></label>' +
+    '<div class="two"><label class="f">Stop-loss (IDR)<input class="inp" id="tSt" inputmode="decimal" value="' + (d.stop ? fmtP(+d.stop) : '') + '"></label><label class="f">Target (IDR)<input class="inp" id="tTg" inputmode="decimal" value="' + (d.target ? fmtP(+d.target) : '') + '"></label></div>' +
+    (t ? '<label class="f">Looking back: what did you learn?<textarea class="inp" id="tL" placeholder="Fill this in later">' + esc(t.lesson || '') + '</textarea></label>' : '') +
+    (t && t.ctx ? '<div class="small faint">Saved with it: BTC ' + usd(t.ctx.btc) + ' · Fear &amp; Greed ' + (t.ctx.fng == null ? '—' : t.ctx.fng) + ' · RSI ' + (t.ctx.rsi == null ? '—' : t.ctx.rsi) + ' · Mayer ' + (t.ctx.mayer == null ? '—' : t.ctx.mayer) + ' · USD/IDR ' + (t.ctx.rate || '—') + '</div>' : '') +
     '<button class="btn full" id="tGo" type="button">' + (t ? 'Save changes' : 'Save trade') + '</button>' +
-    (t ? '<button class="btn dan full" id="tDel" type="button">Delete trade</button>' : '') +
-    '</div><datalist id="coinList2">' + symbols().concat(['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'USDT']).filter(function(v, i, a){ return a.indexOf(v) === i; }).map(function(a){ return '<option value="' + a + '">'; }).join('') + '</datalist>');
-  var side = d.side, feeTouched = !!t;
+    (t ? '<button class="btn dan full" id="tDel" type="button">Delete trade</button>' : '') + '</div>');
+  var side = d.side, feeTouched = !!t, emo = d.emo || '';
   $('tEx').value = d.ex;
   function segOn(box, v){ box.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === v); }); }
-  segOn($('tSide'), side);
+  segOn($('tSide'), side); segOn($('tCur'), pcur);
   function priceIdr(){ var p = numIn($('tPx').value); return pcur === 'USDT' ? p * (MK.rate || NaN) : p; }
   function autoFee(){
     var p = priceIdr(), q = numIn($('tQ').value), f = feePct($('tEx').value, side);
     $('tFeeH').textContent = '(' + (f * 100).toFixed(2) + '% est.)';
     if(!feeTouched && p > 0 && q > 0) $('tFee').value = Math.round(p * q * f);
   }
+  function fromTot(){ var tot = numIn($('tTot').value), p = priceIdr(); if(tot > 0 && p > 0){ $('tQ').value = +(tot / p).toPrecision(8); autoFee(); } }
   $('tSide').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; side = b.getAttribute('data-v'); segOn($('tSide'), side); autoFee(); };
-  $('tCur').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; pcur = b.getAttribute('data-v'); segOn($('tCur'), pcur); autoFee(); };
-  $('tTot').addEventListener('input', function(){ var tot = numIn(this.value), p = priceIdr(); if(tot > 0 && p > 0){ $('tQ').value = +(tot / p).toPrecision(8); autoFee(); } });
+  $('tCur').onclick = function(e){ var b = e.target.closest('button'); if(!b || b.getAttribute('data-v') === pcur) return; var p = numIn($('tPx').value); pcur = b.getAttribute('data-v'); segOn($('tCur'), pcur); if(p > 0 && MK.rate) $('tPx').value = pcur === 'USDT' ? +(p / MK.rate).toPrecision(7) : fmtP(p * MK.rate); autoFee(); };
+  $('tEmo').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; emo = emo === b.getAttribute('data-v') ? '' : b.getAttribute('data-v'); segOn($('tEmo'), emo); };
+  $('tC').oninput = function(){ $('tCv').textContent = this.value + '/5'; };
+  $('tTot').addEventListener('input', fromTot);
   ['tPx', 'tQ', 'tEx'].forEach(function(i){ $(i).addEventListener('input', autoFee); $(i).addEventListener('change', autoFee); });
+  $('tEx').addEventListener('change', function(){ var want = this.value === 'Binance' ? 'USDT' : 'IDR'; if(want !== pcur) $('tCur').querySelector('[data-v="' + want + '"]').click(); });
   $('tFee').addEventListener('input', function(){ feeTouched = true; });
-  $('tA').addEventListener('change', function(){ this.value = this.value.trim().toUpperCase(); if(!t && !$('tPx').value){ var p = px(this.value); if(p) { $('tPx').value = fmtP(p); autoFee(); } } });
-  if(!t && !d.px){ var p0 = px(d.a); if(p0) $('tPx').value = fmtP(p0); }
+  $('tA').addEventListener('change', function(){ this.value = this.value.trim().toUpperCase(); if(!t && !$('tPx').value){ var p = px(this.value); if(p){ $('tPx').value = pcur === 'USDT' ? +(p / MK.rate).toPrecision(7) : fmtP(p); autoFee(); } } });
+  if(!t && !pxShow){ var p0 = px(d.a); if(p0) $('tPx').value = pcur === 'USDT' ? +(p0 / MK.rate).toPrecision(7) : fmtP(p0); }
+  if(d.tot) fromTot();
   autoFee();
   $('tGo').onclick = function(){
     var a = $('tA').value.trim().toUpperCase(), p = priceIdr(), q = numIn($('tQ').value), fee = numIn($('tFee').value);
     if(!a || !(p > 0) || !(q > 0)){ toast('Coin, price and quantity are needed'); return; }
     if(side === 'sell'){ var have = (book().pos[a] || {qty:0}).qty + (t && t.side === 'sell' && t.a === a ? t.qty : 0) - (t && t.side === 'buy' && t.a === a ? t.qty : 0); if(q > have * 1.0001 + 1e-12){ toast('You only hold ' + qtyF(have) + ' ' + a + ' in the journal'); return; } }
-    var rec = {id: t ? t.id : 'T' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: t ? t.at : Date.now(), d: $('tD').value || today(), ex: $('tEx').value, side: side, a: a, qty: q, px: p, fee: isNaN(fee) ? 0 : fee, stop: numIn($('tSt').value) || '', target: numIn($('tTg').value) || '', note: $('tN').value.trim()};
-    if(t) V.trades[V.trades.indexOf(t)] = rec; else V.trades.push(rec);
-    if((V.watch || []).indexOf(a) < 0 && !STABLE[a]) V.watch.push(a);
-    save(); closeSheet(); toast(t ? 'Trade updated' : (side === 'buy' ? 'Buy' : 'Sell') + ' logged'); vibe(15);
+    var isNew = !t, dt = $('tD').value || today();
+    var rec = Object.assign(t || {}, {id: t ? t.id : 'T' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: t ? t.at : Date.now(), d: dt, ex: $('tEx').value, side: side, a: a, qty: q, px: p, pxUsd: MK.rate ? p / MK.rate : null, rate: MK.rate ? Math.round(MK.rate) : null, fee: isNaN(fee) ? 0 : fee, stop: numIn($('tSt').value) || '', target: numIn($('tTg').value) || '', why: $('tN').value.trim(), emo: emo, conf: +$('tC').value});
+    if(pcur === 'USDT') rec.pxUsd = numIn($('tPx').value);
+    if(t && $('tL')) rec.lesson = $('tL').value.trim();
+    delete rec.note; delete rec.pxIn; delete rec.tot;
+    if(isNew){ if(dt === today()) rec.ctx = ctxNow(); V.trades.push(rec); }
+    save(); closeSheet(); toast(isNew ? (side === 'buy' ? 'Buy' : 'Sell') + ' logged' : 'Saved'); vibe(15);
     render(false); if(!MK.t[a]) refresh();
   };
   if(t) $('tDel').onclick = function(){ V.trades.splice(V.trades.indexOf(t), 1); save(); closeSheet(); toast('Trade deleted'); render(false); };
 }
 
-/* ---------- SIGNALS ---------- */
-function sma(a, n){ if(a.length < n) return null; var s = 0; for(var i = a.length - n; i < a.length; i++) s += a[i]; return s / n; }
-function rsi(c, n){ n = n || 14; if(c.length <= n) return null; var g = 0, l = 0, i, d; for(i = 1; i <= n; i++){ d = c[i] - c[i - 1]; if(d > 0) g += d; else l -= d; } g /= n; l /= n; for(i = n + 1; i < c.length; i++){ d = c[i] - c[i - 1]; g = (g * (n - 1) + Math.max(d, 0)) / n; l = (l * (n - 1) + Math.max(-d, 0)) / n; } return l === 0 ? 100 : 100 - 100 / (1 + g / l); }
-async function loadSignals(force){
-  if(!V) return;
-  if(!force && Date.now() - MK.sigTs < 10 * 60000 && Object.keys(MK.sig).length){ rSignals(); return; }
-  rSignals();
-  try{ var j = await getJSON('https://api.alternative.me/fng/?limit=2'); MK.fng = j.data; }catch(e){}
-  await Promise.all((V.watch || []).filter(function(a){ return !STABLE[a]; }).map(function(a){
-    return getJSON(API + '/klines?symbol=' + a + 'USDT&interval=1d&limit=220').then(function(k){
-      var c = k.map(function(r){ return +r[4]; }), h = k.map(function(r){ return +r[2]; }), last = c[c.length - 1];
-      var rets = []; for(var i = Math.max(1, c.length - 30); i < c.length; i++) rets.push(Math.log(c[i] / c[i - 1]));
-      var m = rets.reduce(function(s, x){ return s + x; }, 0) / (rets.length || 1), vol = Math.sqrt(rets.reduce(function(s, x){ return s + (x - m) * (x - m); }, 0) / Math.max(1, rets.length - 1)) * Math.sqrt(365) * 100;
-      var hi90 = Math.max.apply(null, h.slice(-90));
-      MK.sig[a] = {c: c.slice(-90), ma50: sma(c, 50), ma200: sma(c, 200), ma50s: c.slice(-90).map(function(_, i){ return sma(c.slice(0, c.length - 90 + i + 1), 50); }), rsi: rsi(c), vol: vol, fromHi: (last / hi90 - 1) * 100, ch7: c.length > 7 ? (last / c[c.length - 8] - 1) * 100 : null, last: last};
-    }).catch(function(){ MK.sig[a] = {err: true}; });
-  }));
-  MK.sigTs = Date.now();
-  if(cur === 'signals') rSignals();
-}
-function spark(s){
-  var c = s.c, mn = Math.min.apply(null, c), mx = Math.max.apply(null, c), sp = mx - mn || 1, W = 120, H = 52;
-  var pt = function(v, i){ return (i / (c.length - 1) * W).toFixed(1) + ' ' + (4 + (1 - (v - mn) / sp) * (H - 8)).toFixed(1); };
-  var d = c.map(function(v, i){ return (i ? 'L' : 'M') + pt(v, i); }).join(' ');
-  var m = s.ma50s.map(function(v, i){ return v == null ? '' : ((i && s.ma50s[i - 1] != null) ? 'L' : 'M') + pt(Math.min(mx, Math.max(mn, v)), i); }).join(' ');
-  var up = c[c.length - 1] >= c[0];
-  return '<svg viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true"><path d="' + m + '" fill="none" stroke="var(--faint)" stroke-width="1.2" stroke-dasharray="3 3"/><path d="' + d + '" fill="none" stroke="' + (up ? 'var(--up)' : 'var(--down)') + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
-}
-function rSignals(){
-  var el = $('vSignals'); if(!el) return;
-  var f = MK.fng && MK.fng[0], fv = f ? +f.value : null;
-  var cards = (V.watch || []).filter(function(a){ return !STABLE[a]; }).map(function(a){
-    var s = MK.sig[a], t = MK.t[a], p = px(a);
-    if(!s) return '<div class="card"><div class="sig-h"><b>' + esc(a) + '</b></div><div class="skel" style="margin-top:12px;width:70%"></div><div class="skel" style="margin-top:8px;width:45%"></div></div>';
-    if(s.err) return '<div class="card"><div class="sig-h"><b>' + esc(a) + '</b><span class="small muted">No price history on the feed</span><button class="btn sec sm" data-unw="' + esc(a) + '" type="button" style="margin-left:auto">Remove</button></div></div>';
-    var chips = [];
-    if(s.ma200) chips.push(s.last > s.ma200 ? '<span class="chip g">Above 200-day avg</span>' : '<span class="chip r">Below 200-day avg</span>');
-    else if(s.ma50) chips.push(s.last > s.ma50 ? '<span class="chip g">Above 50-day avg</span>' : '<span class="chip r">Below 50-day avg</span>');
-    if(s.ma50 && s.ma200) chips.push('<span class="chip ' + (s.ma50 > s.ma200 ? 'b' : '') + '">50d ' + (s.ma50 > s.ma200 ? 'above' : 'below') + ' 200d</span>');
-    if(s.rsi != null) chips.push('<span class="chip ' + (s.rsi >= 70 ? 'y' : s.rsi <= 30 ? 'b' : '') + '">RSI ' + s.rsi.toFixed(0) + (s.rsi >= 70 ? ' · stretched up' : s.rsi <= 30 ? ' · stretched down' : '') + '</span>');
-    chips.push('<span class="chip">Vol ' + s.vol.toFixed(0) + '%/yr</span>');
-    var al = V.alerts.filter(function(x){ return x.a === a && x.on; }).length;
-    return '<div class="card sig"><div><div class="sig-h"><b>' + esc(a) + '</b><span class="num" style="font-weight:600">' + (p ? idrS(p) : '—') + '</span>' + (t ? '<span class="small num ' + cls(t.ch) + '">' + pct(t.ch, 1) + ' 24h</span>' : '') + '</div><div class="small muted num">7d ' + pct(s.ch7, 1) + ' · ' + pct(s.fromHi, 1) + ' from 90-day high</div></div>' + spark(s) +
-      '<div class="chips">' + chips.join('') + '</div>' +
-      '<div class="row" style="grid-column:1/-1"><button class="btn sec sm" type="button" data-alert="' + esc(a) + '">🔔 ' + (al ? al + ' alert' + (al > 1 ? 's' : '') : 'Price alert') + '</button><button class="btn sec sm" type="button" data-size="' + esc(a) + '">Size a trade</button><button class="btn sec sm" type="button" data-unw="' + esc(a) + '" style="margin-left:auto" aria-label="Remove ' + esc(a) + '">✕</button></div></div>';
-  }).join('');
+/* ---------- LEARN + AI ---------- */
+var FOCUS = {
+  fees: ['Fees & break-even', 'Look at my fees and break-even. Where am I losing money to costs, and how should I set things up to pay less, especially before adding the 100M?'],
+  habits: ['My trades & habits', 'Review my trades. Look at my reasons, emotions, confidence and the market context when I traded. What patterns do you see, good and bad? What one habit should I change?'],
+  next: ['Next 100M step', 'Help me think through the next step of my 100M plan using my rules, the pace rules and today’s readings. What should I check before I put money in, and where?'],
+  learn: ['Teach me', 'Teach me the one trading concept that matters most for where I am right now. Use my own numbers as the example and keep it simple.']
+};
+var LF = 'fees';
+function rLearn(live){
+  var el = $('vLearn');
+  if(live && el.firstChild) return;
+  var lastR = V.reviews.length ? V.reviews[V.reviews.length - 1].d : null, since = lastR ? Math.round((new Date(today()) - new Date(lastR)) / 864e5) : null;
   el.innerHTML =
-    '<h1>Signals</h1><p class="sub">Readings from live market data. They describe the market. They are not buy or sell calls.</p>' +
-    '<div class="card"><div class="card-h"><h2>Market mood</h2><span class="small faint">Crypto Fear &amp; Greed</span></div>' +
-    (fv != null ? '<div class="gauge"><div class="g-num" style="color:' + (fv < 25 ? 'var(--down)' : fv < 45 ? 'var(--warn)' : fv <= 55 ? 'var(--fg)' : 'var(--up)') + '">' + fv + '</div><div style="flex:1"><div style="font-weight:700;margin-bottom:8px">' + esc(f.value_classification) + (MK.fng[1] ? ' <span class="small faint">yesterday ' + MK.fng[1].value + '</span>' : '') + '</div><div class="gtrack"><i style="left:calc(' + fv + '% - 2px)"></i></div></div></div>' : '<div class="skel" style="width:60%"></div>') + '</div>' +
-    '<div class="card"><div class="card-h"><h2>Watchlist</h2><button class="btn sec sm" type="button" id="sRef">Refresh</button></div><div class="row"><input class="inp" id="sAdd" placeholder="Add coin, e.g. SOL" autocapitalize="characters" style="flex:1;min-width:0"><button class="btn sm" id="sAddB" type="button">Add</button></div>' +
-    '<p class="note">Line = last 90 days; dotted = 50-day average. RSI over 70 or under 30 means the price moved fast in one direction lately.</p></div>' + cards +
-    (V.alerts.length ? '<div class="card"><div class="card-h"><h2>Alerts</h2><span class="small faint">checked every 20s while open</span></div>' + V.alerts.map(function(x, i){ return '<div class="al"><span><b>' + esc(x.a) + '</b> ' + (x.dir === 'above' ? 'above' : 'below') + ' <span class="num">' + idrS(x.px) + '</span>' + (x.on ? '' : ' <span class="chip g">hit ' + esc(x.hit || '') + '</span>') + '</span><button class="btn sec sm" data-delal="' + i + '" type="button">✕</button></div>'; }).join('') + '</div>' : '');
-  $('sRef').onclick = function(){ MK.sig = {}; loadSignals(true); };
-  $('sAddB').onclick = function(){ var a = $('sAdd').value.trim().toUpperCase(); if(!a) return; if(V.watch.indexOf(a) < 0){ V.watch.push(a); save(); } MK.sigTs = 0; loadSignals(true); refreshOne(a); };
-  el.querySelectorAll('[data-unw]').forEach(function(b){ b.onclick = function(){ V.watch = V.watch.filter(function(x){ return x !== b.getAttribute('data-unw'); }); save(); rSignals(); }; });
-  el.querySelectorAll('[data-alert]').forEach(function(b){ b.onclick = function(){ alertSheet(b.getAttribute('data-alert')); }; });
-  el.querySelectorAll('[data-size]').forEach(function(b){ b.onclick = function(){ RK = {asset: b.getAttribute('data-size'), ex: (RK && RK.ex) || 'Indodax', entry: px(b.getAttribute('data-size')) || '', stop:'', target:'', risk: V.risk || 1}; $('vRisk').innerHTML = ''; go('risk'); }; });
-  el.querySelectorAll('[data-delal]').forEach(function(b){ b.onclick = function(){ V.alerts.splice(+b.getAttribute('data-delal'), 1); save(); rSignals(); }; });
+    '<h1>Learn</h1><p class="sub">Your rules, reviews and notes, plus one tap to get an AI coach to read all of it.</p>' +
+    '<div class="card hero-c"><div class="card-h"><h2>Ask AI about your data</h2></div>' +
+    '<div class="emo" id="lFocus" style="margin-bottom:12px">' + Object.keys(FOCUS).map(function(k){ return '<button type="button" data-v="' + k + '"' + (k === LF ? ' class="on"' : '') + '>' + FOCUS[k][0] + '</button>'; }).join('') + '</div>' +
+    '<label class="f">Your question (optional)<textarea class="inp" id="lQ" placeholder="e.g. Should I move my BTC to a local exchange?"></textarea></label>' +
+    '<div class="row" style="margin-top:12px"><button class="btn" id="lCopy" type="button">Copy for AI</button><button class="btn sec" id="lDl" type="button">Download .md</button><button class="btn sec" id="lPrev" type="button">Preview</button></div>' +
+    '<p class="note">Paste it into your own Claude chat. It includes your amounts, so share it only with an assistant you trust. Nothing leaves this phone until you paste it.</p><pre class="aiprev" id="lPre" hidden></pre></div>' +
+    '<div class="card"><div class="card-h"><h2>Weekly review</h2><span class="small faint">' + (since == null ? 'none yet' : since === 0 ? 'done today' : since + ' days ago') + '</span></div>' +
+    '<div class="form"><label class="f">What went well?<textarea class="inp" id="rv1"></textarea></label><label class="f">What went wrong or felt bad?<textarea class="inp" id="rv2"></textarea></label><label class="f">One thing I’ll do differently<textarea class="inp" id="rv3"></textarea></label><button class="btn sec full" id="rvGo" type="button">Save review</button></div>' +
+    (V.reviews.length ? '<div style="margin-top:10px">' + V.reviews.slice(-3).reverse().map(function(r){ return '<details class="lesson"><summary>' + fmtDate(r.d) + '</summary><p><b>Good:</b> ' + esc(r.good) + '<br><b>Bad:</b> ' + esc(r.bad) + '<br><b>Change:</b> ' + esc(r.change) + '</p></details>'; }).join('') + '</div>' : '') + '</div>' +
+    '<div class="card"><div class="card-h"><h2>My rules</h2><span class="small faint">' + V.rules.length + '</span></div><div id="lRules">' + V.rules.map(function(r, i){ return '<div class="al"><span>' + esc(r) + '</span><button class="btn sec sm" data-rr="' + i + '" type="button" aria-label="Remove rule">✕</button></div>'; }).join('') + '</div>' +
+    '<div class="row" style="margin-top:10px"><input class="inp" id="lRule" placeholder="Add a rule" style="flex:1;min-width:0;font-family:var(--body)"><button class="btn sm" id="lRuleB" type="button">Add</button></div><p class="note">Starter rules: edit them into your own. AI reviews check your trades against them.</p></div>' +
+    '<div class="card"><div class="card-h"><h2>Notes &amp; lessons</h2></div><div class="row"><input class="inp" id="lNote" placeholder="Something you learned today" style="flex:1;min-width:0;font-family:var(--body)"><button class="btn sm" id="lNoteB" type="button">Save</button></div><div style="margin-top:8px">' + V.notes.slice(-8).reverse().map(function(n, i){ return '<div class="al"><span><span class="faint small">' + fmtDate(n.d) + '</span> ' + esc(n.t) + '</span></div>'; }).join('') + '</div></div>' +
+    '<div class="card"><div class="card-h"><h2>What’s kept here, privately</h2></div><div class="small muted" style="line-height:1.7">' +
+    '✓ Money in, fees cut and where<br>✓ Every trade: price, fees, why, feeling, confidence, lesson<br>✓ The market at that moment (BTC price, Fear &amp; Greed, RSI, distance from the 200-day average, USD/IDR)<br>✓ Your 100M steps and the pace each step used<br>✓ Your rules, weekly reviews and notes<br>✓ Your portfolio value once a day<br><br><b style="color:var(--down)">Never store here:</b> exchange passwords, 2FA codes, API keys or wallet seed phrases. No tool should hold those.</div></div>';
+  $('lFocus').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; LF = b.getAttribute('data-v'); $('lFocus').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); if(!$('lPre').hidden) $('lPre').textContent = aiText(LF, $('lQ').value); };
+  $('lCopy').onclick = function(){ var txt = aiText(LF, $('lQ').value.trim()); copyText(txt).then(function(ok){ toast(ok ? 'Copied: paste it into Claude' : 'Couldn’t copy. Use Preview and copy by hand.'); }); };
+  $('lDl').onclick = function(){ var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([aiText(LF, $('lQ').value.trim())], {type:'text/markdown'})); a.download = 'ibraz-intelligence-' + today() + '.md'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 800); };
+  $('lPrev').onclick = function(){ var p = $('lPre'); p.hidden = !p.hidden; if(!p.hidden) p.textContent = aiText(LF, $('lQ').value.trim()); };
+  $('rvGo').onclick = function(){ var g = $('rv1').value.trim(), b = $('rv2').value.trim(), c = $('rv3').value.trim(); if(!g && !b && !c) return; V.reviews.push({d: today(), good: g, bad: b, change: c, value: Math.round(portfolio().total)}); save(); toast('Review saved'); rLearn(); };
+  $('lRuleB').onclick = function(){ var r = $('lRule').value.trim(); if(!r) return; V.rules.push(r); save(); rLearn(); };
+  el.querySelectorAll('[data-rr]').forEach(function(b){ b.onclick = function(){ V.rules.splice(+b.getAttribute('data-rr'), 1); save(); rLearn(); }; });
+  $('lNoteB').onclick = function(){ var n = $('lNote').value.trim(); if(!n) return; V.notes.push({d: today(), t: n}); save(); rLearn(); };
 }
+function copyText(t){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function(){ return true; }, function(){ return fallback(); });
+  return Promise.resolve(fallback());
+  function fallback(){ try{ var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove(); return ok; }catch(e){ return false; } }
+}
+function aiText(focus, q){
+  var P = portfolio(), b = P.b, a = mainAsset(), be = beInfo(a), S = planState(), c = ctxNow(), L = [];
+  var n = function(x){ return x == null || isNaN(x) ? '—' : Math.round(x).toLocaleString('en-US'); };
+  L.push('# IBRAZ Intelligence: my data for review', '', 'Exported ' + new Date().toLocaleString('en-GB') + '. Amounts in IDR unless marked $.', '');
+  L.push('## What I want', FOCUS[focus][1]); if(q) L.push('', 'My question: ' + q);
+  L.push('', 'Please act as a patient trading coach. I’m learning with my own money. Use my numbers, be honest about mistakes, explain in plain words, and focus on process (fees, risk, habits, plan) rather than predicting prices.', '');
+  L.push('## Today', '- BTC $' + n(c.btc) + ' · USD/IDR ' + n(c.rate) + ' · Fear & Greed ' + (c.fng == null ? '—' : c.fng) + (MK.fng ? ' (' + MK.fng.label + ')' : '') + ' · BTC RSI(14d) ' + (c.rsi == null ? '—' : c.rsi) + ' · Mayer multiple ' + (c.mayer == null ? '—' : c.mayer), '');
+  L.push('## Money', '- Money in: ' + n(P.cap) + ' · deposit fees paid: ' + n(b.depFees) + ' · trading fees paid: ' + n(b.fees), '- Value now: ' + n(P.total) + ' (' + (P.total - P.cap >= 0 ? '+' : '') + n(P.total - P.cap) + ') · free cash: ' + n(b.cash));
+  P.rows.forEach(function(r){ L.push('- ' + r.a + ': ' + qtyF(r.qty) + ' · worth ' + n(r.v) + ' · cost ' + n(r.cost) + ' · unrealized ' + n(r.upnl)); });
+  if(be && be.cashUsd) L.push('', '## Break-even (' + be.a + ' on ' + be.ex + ')', '- Bought at $' + n(be.entry) + ', now $' + n(be.now), '- All-in cost ' + n(be.allIn) + ' (incl. deposit fee ' + n(be.depShare) + ', buy fee ' + n(be.buyFees) + ')', '- Paper break-even $' + n(be.paperUsd) + ' · cash-out break-even $' + n(be.cashUsd), '- If sold and withdrawn now: ' + n(be.cashOut) + ' (' + (be.cashPnl >= 0 ? '+' : '') + n(be.cashPnl) + ')');
+  L.push('', '## Fees I use (% per side; sell includes tax; on/off = rupiah in/out)', '| Exchange | Buy | Sell | On | Off |', '|---|---|---|---|---|');
+  EXCH.forEach(function(x){ var f = feeOf(x); L.push('| ' + x + ' | ' + f.buy + ' | ' + f.sell + ' | ' + f.on + ' | ' + f.off + ' |'); });
+  L.push('', '## Deposits', '| Date | Exchange | Amount | Fee | Note |', '|---|---|---|---|---|');
+  V.deposits.forEach(function(d){ L.push('| ' + d.d + ' | ' + (d.ex || '') + ' | ' + n(d.amt) + ' | ' + n(d.fee || 0) + ' | ' + (d.note || '').replace(/\|/g, '/') + ' |'); });
+  L.push('', '## Trades', '| Date | Ex | Side | Coin | Qty | Price $ | Price IDR | Fee | Why | Feeling | Conf | BTC/F&G/RSI/Mayer then | Lesson | P&L |', '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+  V.trades.slice().sort(function(x, y){ return x.d < y.d ? -1 : 1; }).forEach(function(t){ var cx = t.ctx; L.push('| ' + [t.d, t.ex, t.side, t.a, qtyF(t.qty), t.pxUsd ? n(t.pxUsd) : '', n(t.px), n(t.fee), (t.why || '').replace(/\|/g, '/').replace(/\n/g, ' '), t.emo || '', t.conf || '', cx ? n(cx.btc) + '/' + (cx.fng == null ? '—' : cx.fng) + '/' + (cx.rsi == null ? '—' : cx.rsi) + '/' + (cx.mayer == null ? '—' : cx.mayer) : '', (t.lesson || '').replace(/\|/g, '/').replace(/\n/g, ' '), t._pnl != null ? n(t._pnl) : ''].join(' | ') + ' |'); });
+  L.push('', '## 100M plan', '- Total ' + n(V.sched.amount) + ' in ' + V.sched.n + ' steps, every ' + ({week:'week', '2w':'2 weeks', month:'month'})[V.sched.every] + ', from ' + V.sched.start, '- Pace rules: Fear & Greed ' + (V.pace.fng ? 'on' : 'off') + ', Mayer ' + (V.pace.mayer ? 'on' : 'off') + ' · today’s multiplier ×' + S.pm.m.toFixed(2) + ' → next step ' + n(S.sug), '- Target mix: ' + BUCKETS.map(function(k){ return k.k + ' ' + (V.target[k.k] || 0) + '%'; }).join(', '), '- Done: ' + (S.nDone ? S.L.filter(function(r){ return r.done; }).map(function(r){ return '#' + (r.i + 1) + ' ' + r.done.d + ' ' + n(r.done.amt) + ' on ' + r.done.ex + ' (×' + r.done.mult + ')'; }).join('; ') : 'none yet'), '- Cheapest route now: ' + whereRank(100000000).slice(0, 3).map(function(r){ return r.x + ' ' + (r.t / 1e6).toFixed(2) + 'M round trip on 100M'; }).join(', '), '- Readiness: ' + READY.map(function(r){ return (V.ready[r[0]] ? '[x] ' : '[ ] ') + r[1]; }).join('; '));
+  L.push('', '## My rules'); V.rules.forEach(function(r){ L.push('- ' + r); });
+  if(V.reviews.length){ L.push('', '## Weekly reviews'); V.reviews.slice(-8).forEach(function(r){ L.push('- ' + r.d + ': good: ' + r.good + ' | bad: ' + r.bad + ' | change: ' + r.change); }); }
+  if(V.notes.length){ L.push('', '## Notes'); V.notes.slice(-20).forEach(function(x){ L.push('- ' + x.d + ': ' + x.t); }); }
+  var ks = Object.keys(V.snaps).sort().slice(-60); if(ks.length){ L.push('', '## Portfolio value by day'); L.push(ks.map(function(k){ return k + ': ' + n(V.snaps[k]); }).join(' · ')); }
+  return L.join('\n');
+}
+
+/* ---------- alerts ---------- */
 function alertSheet(a){
-  var p = px(a);
-  sheet('<div class="sh-h"><h2>' + esc(a) + ' price alert</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form"><p class="muted" style="margin:0">Now ' + (p ? idr(p) : '—') + '</p><div class="seg" id="aDir"><button type="button" data-v="above" class="on">Goes above</button><button type="button" data-v="below">Falls below</button></div><label class="f">Price (IDR)<input class="inp" id="aPx" inputmode="decimal" value="' + (p ? fmtP(p * 1.05) : '') + '"></label><button class="btn full" id="aGo" type="button">Set alert</button><p class="note">Alerts ring while Intelligence is open (also as a phone notification if you allow it). A closed page can’t check prices.</p></div>');
+  var p = MK.t[a] ? MK.t[a].p : null;
+  sheet('<div class="sh-h"><h2>' + esc(a) + ' price alert</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form"><p class="muted" style="margin:0">Now ' + (p ? usd(p) : '—') + '</p><div class="seg" id="aDir"><button type="button" data-v="above" class="on">Goes above</button><button type="button" data-v="below">Falls below</button></div><label class="f">Price (USD)<input class="inp" id="aPx" inputmode="decimal" value="' + (p ? Math.round(p * 1.05) : '') + '"></label>' +
+    (function(){ var be = beInfo(a); return be && be.cashUsd ? '<button class="btn sec sm" type="button" id="aBe">Use my cash-out break-even (' + usd(be.cashUsd) + ')</button>' : ''; })() +
+    '<button class="btn full" id="aGo" type="button">Set alert</button><p class="note">Rings while Intelligence is open (and as a notification if you allow it).</p>' +
+    (V.alerts.length ? V.alerts.map(function(x, i){ return '<div class="al"><span><b>' + esc(x.a) + '</b> ' + x.dir + ' ' + usd(x.usd || (x.px / (MK.rate || 1))) + (x.on ? '' : ' <span class="chip g">hit ' + esc(x.hit || '') + '</span>') + '</span><button class="btn sec sm" data-delal="' + i + '" type="button">✕</button></div>'; }).join('') : '') + '</div>');
   var dir = 'above';
-  $('aDir').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; dir = b.getAttribute('data-v'); $('aDir').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); if(p) $('aPx').value = fmtP(p * (dir === 'above' ? 1.05 : .95)); };
-  $('aGo').onclick = function(){ var v = numIn($('aPx').value); if(!(v > 0)){ toast('Enter a price'); return; } V.alerts.push({a: a, dir: dir, px: v, on: true}); save(); closeSheet(); toast('Alert set'); try{ if(window.Notification && Notification.permission === 'default') Notification.requestPermission(); }catch(e){} rSignals(); };
+  $('aDir').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; dir = b.getAttribute('data-v'); $('aDir').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); if(p) $('aPx').value = Math.round(p * (dir === 'above' ? 1.05 : .95)); };
+  if($('aBe')) $('aBe').onclick = function(){ $('aPx').value = Math.ceil(beInfo(a).cashUsd); dir = 'above'; $('aDir').querySelector('[data-v="above"]').click(); $('aPx').value = Math.ceil(beInfo(a).cashUsd); };
+  $('aGo').onclick = function(){ var v = numIn($('aPx').value); if(!(v > 0)){ toast('Enter a price'); return; } V.alerts.push({a: a, dir: dir, usd: v, on: true}); save(); closeSheet(); toast('Alert set'); try{ if(window.Notification && Notification.permission === 'default') Notification.requestPermission(); }catch(e){} };
+  document.querySelectorAll('[data-delal]').forEach(function(b){ b.onclick = function(){ V.alerts.splice(+b.getAttribute('data-delal'), 1); save(); alertSheet(a); }; });
 }
 function checkAlerts(){
   if(!V) return;
   V.alerts.forEach(function(x){
-    if(!x.on) return; var p = px(x.a); if(!p) return;
-    if((x.dir === 'above' && p >= x.px) || (x.dir === 'below' && p <= x.px)){
+    if(!x.on || !MK.t[x.a]) return; var p = MK.t[x.a].p, lvl = x.usd || (x.px && MK.rate ? x.px / MK.rate : null); if(!lvl) return;
+    if((x.dir === 'above' && p >= lvl) || (x.dir === 'below' && p <= lvl)){
       x.on = false; x.hit = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}); save();
-      var m = x.a + ' is ' + (x.dir === 'above' ? 'above ' : 'below ') + idrS(x.px) + ' (now ' + idrS(p) + ')';
+      var m = x.a + ' is ' + x.dir + ' ' + usd(lvl) + ' (now ' + usd(p) + ')';
       toast('🔔 ' + m); vibe([100, 60, 100]);
       try{ if(window.Notification && Notification.permission === 'granted') new Notification('IBRAZ Intelligence', {body: m, icon: '/icon-192.png', tag: 'ii-' + x.a}); }catch(e){}
     }
   });
+}
+function feesSheet(){
+  sheet('<div class="sh-h"><h2>Fees per exchange</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
+    '<p class="muted" style="margin:-6px 0 10px;font-size:13px">% per transaction. Sell includes tax. On = rupiah into the exchange, Off = back to your bank.</p>' +
+    '<div class="fee-row f5 small faint"><span></span><span>Buy</span><span>Sell</span><span>On</span><span>Off</span></div>' +
+    EXCH.map(function(x){ var f = feeOf(x); return '<div class="fee-row f5"><span>' + x + '</span>' + ['buy', 'sell', 'on', 'off'].map(function(k){ return '<input class="inp num" type="number" step="0.01" min="0" data-fx="' + x + '" data-fk="' + k + '" value="' + f[k] + '">'; }).join('') + '</div><p class="note" style="margin:0 0 8px">' + esc(f.src || '') + '</p>'; }).join('') +
+    '<button class="btn sec sm" id="fReset" type="button">Reset to defaults</button>');
+  document.querySelectorAll('[data-fx]').forEach(function(i){ i.onchange = function(){ var x = i.getAttribute('data-fx'); V.fees[x] = V.fees[x] || clone(FEE_DEF[x]); V.fees[x][i.getAttribute('data-fk')] = Math.max(0, +i.value || 0); save(); render(false); }; });
+  $('fReset').onclick = function(){ V.fees = clone(FEE_DEF); save(); feesSheet(); render(false); };
 }
 
 /* ---------- sheet + settings ---------- */
@@ -1057,14 +1424,14 @@ function settings(){
     '<div class="set-row"><div><b>Face unlock</b><div class="small muted">' + (!FACE_OK ? 'Not available in this browser' : hasFace ? 'On' + (META.face.mode === 'prf' ? ' · face key encrypts your data' : ' · unlocks a key kept on this device') : 'Off') + '</div></div>' + (FACE_OK ? '<button class="btn ' + (hasFace ? 'sec' : '') + ' sm" id="stFace" type="button">' + (hasFace ? 'Turn off' : 'Turn on') + '</button>' : '') + '</div>' +
     '<div class="set-row"><div><b>Change PIN</b><div class="small muted">6 digits</div></div><button class="btn sec sm" id="stPin" type="button">Change</button></div>' +
     '<div class="set-row"><div><b>Auto-lock</b><div class="small muted">After no taps for</div></div><select class="inp" id="stAuto" style="width:auto"><option value="1">1 min</option><option value="5">5 min</option><option value="15">15 min</option></select></div>' +
-    '<div class="set-row" style="display:block"><b>Fees &amp; tax per exchange</b><div class="small muted" style="margin:4px 0 8px">Set these to what your app actually charges. Tax applies on sells: 0.21% on licensed Indonesian exchanges, 1% self-reported for foreign ones (PMK 50/2025).</div><div class="fee-row small faint"><span></span><span>Fee %</span><span>Tax %</span></div>' + EXCH.map(function(x){ var f = V.fees[x] || {fee:0, tax:0}; return '<div class="fee-row"><span>' + x + '</span><input class="inp num" type="number" step="0.01" min="0" data-fx="' + x + '" data-fk="fee" value="' + f.fee + '"><input class="inp num" type="number" step="0.01" min="0" data-fx="' + x + '" data-fk="tax" value="' + f.tax + '"></div>'; }).join('') + '</div>' +
+    '<div class="set-row"><div><b>Fees per exchange</b><div class="small muted">Buy, sell (incl. tax), rupiah in and out</div></div><button class="btn sec sm" id="stFees" type="button">Edit</button></div>' +
     '<div class="set-row"><div><b>Backup</b><div class="small muted">An encrypted file. It opens only with your PIN. Use it to move to a new phone or to share with your husband.</div></div></div><div class="row"><button class="btn sec sm" id="stExp" type="button">Download backup</button><button class="btn sec sm" id="stImp" type="button">Restore a backup</button></div>' +
     '<div class="set-row"><div><b>Theme</b></div><button class="btn sec sm" id="stTheme" type="button">' + (document.documentElement.getAttribute('data-theme') === 'light' ? 'Dark' : 'Light') + '</button></div>' +
     '<div class="set-row"><div><b>Erase this device</b><div class="small muted">Deletes all Intelligence data here.</div></div><button class="btn dan sm" id="stErase" type="button">Erase</button></div>' +
     '<p class="note">Everything is encrypted (AES-256) and stays on this device. Nothing is sent anywhere except public price requests.</p>');
   $('stAuto').value = String(V.autolock || 5);
   $('stAuto').onchange = function(){ V.autolock = +this.value; save(); };
-  document.querySelectorAll('[data-fx]').forEach(function(i){ i.onchange = function(){ var x = i.getAttribute('data-fx'); V.fees[x] = V.fees[x] || {fee:0, tax:0}; V.fees[x][i.getAttribute('data-fk')] = Math.max(0, +i.value || 0); save(); }; });
+  $('stFees').onclick = feesSheet;
   if($('stFace')) $('stFace').onclick = async function(){
     if(hasFace){ disableFace(); toast('Face unlock is off'); settings(); return; }
     try{ await enableFace(); toast('Face unlock is on'); }catch(e){ toast(e && e.name === 'NotAllowedError' ? 'Cancelled' : 'Couldn’t turn on Face unlock'); }
