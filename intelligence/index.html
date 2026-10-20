@@ -258,6 +258,18 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 @keyframes sk{to{background-position:-200% 0}}
 
 /* v2 */
+.rpc{width:100%;display:block;height:260px}
+.verdict{margin-top:12px;padding:12px 14px;border-radius:14px;font-size:13.5px;line-height:1.5;border:1px solid var(--gline)}
+.verdict.g{background:color-mix(in srgb,var(--up) 10%,transparent)}.verdict.r{background:color-mix(in srgb,var(--down) 10%,transparent)}
+.bcmp{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:6px;align-items:center;text-align:right;padding:10px 6px;border-top:1px solid var(--gline);font-size:13px}
+.bcmp span:first-child{text-align:left;display:flex;flex-direction:column}
+.bcmp small{color:var(--faint);font-size:10.5px}
+.bcmp.head{border-top:0;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-top:0}
+.bcmp.on{background:color-mix(in srgb,var(--gold) 10%,transparent);border-radius:12px}
+.hist{display:flex;gap:2px;height:100px;margin:14px 0 4px;border-bottom:0;position:relative}
+.hist::after{content:"";position:absolute;left:0;right:0;top:50px;border-top:1px dashed var(--line2)}
+.hist i{flex:1;border-radius:2px;min-width:2px}
+#jv button{font-size:13px}
 .tk{display:block;padding:4px 14px;border-radius:16px;background:rgba(127,127,127,.07);border:1px solid var(--gline)}
 .tk:empty{display:none}
 .be-need{margin:10px 0;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--warn) 12%,transparent);color:var(--warn);font-size:13px;line-height:1.5}
@@ -842,7 +854,7 @@ function go(v, first){
   cur = v;
   [].forEach.call(document.querySelectorAll('.view'), function(s){ s.classList.toggle('on', s.getAttribute('data-v') === v); if(s.getAttribute('data-v') !== v) s.innerHTML = ''; });
   [].forEach.call($('tabs').querySelectorAll('button'), function(b){ b.classList.toggle('on', b.getAttribute('data-v') === v); });
-  moveLens(); $('fab').hidden = v !== 'journal' || JV === 'practice';
+  moveLens(); $('fab').hidden = v !== 'journal' || JV !== 'real';
   render(false);
   if(!first) window.scrollTo({top: 0, behavior: RM ? 'auto' : 'smooth'});
 }
@@ -1493,6 +1505,7 @@ function depositSheet(){
 var EMO = ['Calm', 'Confident', 'FOMO', 'Fear', 'Bored', 'Revenge'];
 function rJournal(live){
   if(JV === 'practice'){ rPractice(live); return; }
+  if(JV === 'bots'){ rBots(live); return; }
   var el = $('vJournal'), b = book();
   if(live && el.firstChild) return;
   var ts = V.trades.slice().sort(function(x, y){ return x.d < y.d ? 1 : x.d > y.d ? -1 : y.at - x.at; });
@@ -1581,7 +1594,7 @@ function tradeSheet(id, pre){
 /* ================= Practice mode: fake money, live prices, real fees ================= */
 var JV = 'real', PCOINS = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE'], SLIP = .0005;
 var PT = {side: 'buy', a: 'BTC', type: 'market', amt: '', lim: ''};
-function jSwitch(){ return '<div class="seg big2" id="jv" style="margin:0 0 14px"><button type="button" data-v="real"' + (JV === 'real' ? ' class="on"' : '') + '>Real trades</button><button type="button" data-v="practice"' + (JV === 'practice' ? ' class="on"' : '') + '>Practice (fake money)</button></div>'; }
+function jSwitch(){ return '<div class="seg big2" id="jv" style="margin:0 0 14px">' + [['real', 'Real'], ['practice', 'Practice'], ['bots', 'Bot lab']].map(function(x){ return '<button type="button" data-v="' + x[0] + '"' + (JV === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>'; }).join('') + '</div>'; }
 function wireJ(){ $('jv').onclick = function(e){ var b = e.target.closest('button'); if(!b || b.getAttribute('data-v') === JV) return; JV = b.getAttribute('data-v'); $('vJournal').innerHTML = ''; $('fab').hidden = JV !== 'real'; if(JV === 'practice' && V.paper) refresh(); rJournal(); window.scrollTo({top: 0}); }; }
 function paperMirror(){
   if(!V.deposits.length) return false;
@@ -1763,6 +1776,207 @@ function practiceLive(){
     (hs.length ? hs.map(function(t){ return '<div class="tr" style="cursor:default"><div class="sd ' + t.side + '">' + t.side.toUpperCase() + '</div><div><b>' + esc(t.a) + '</b> <span class="small faint">' + t.type + '</span><small>' + fmtDate(t.d) + ' · ' + qtyF(t.qty) + ' @ ' + idrS(t.px) + ' · fee ' + idrS(t.fee) + (t.why ? ' · ' + esc(t.why.slice(0, 30)) : '') + '</small></div><div class="r">' + idrS(t.gross) + (t.pnl != null && t.side === 'sell' ? '<small class="' + cls(t.pnl) + '">' + idrSigned(t.pnl) + '</small>' : '') + '</div></div>'; }).join('') : '<div class="empty">No practice trades yet.</div>') +
     ((P.rounds || []).length ? '<div class="small faint" style="margin:12px 0 4px">Past rounds</div>' + P.rounds.slice(-5).reverse().map(function(r){ var n = r.end - r.start; return '<div class="al"><span>' + fmtDate(r.from) + '–' + fmtDate(r.to) + ' · ' + esc(r.ex) + ' · ' + r.trades + ' trades</span><span class="num ' + cls(n) + '">' + idrSigned(n) + ' <small class="faint">fees ' + idrS(r.fees) + '</small></span></div>'; }).join('') : '');
   ticket();
+}
+
+
+/* ================= Bot lab: real past prices, real fees ================= */
+var BL = {bot: 'grid', per: '4h', coin: 'BTC', tax: true, ex: null, cap: null, grid: {r: 10, n: 10}, dca: {n: 20}, trend: {f: 20, s: 50}, rsi: {lo: 30, hi: 70}, play: null, res: null, win: null};
+var BOTDEF = {
+  grid: {name: 'Grid bot', what: 'Splits your money into price levels around today’s price. Buys each time the price dips to a level and sells one level higher. Earns small gaps over and over while the price swings sideways.'},
+  dca: {name: 'DCA bot', what: 'Buys the same amount at regular times, whatever the price. No selling. It’s the step plan, automated.'},
+  trend: {name: 'Trend bot', what: 'Buys when the short-term average rises above the long-term average, sells when it falls below. Tries to ride big moves.'},
+  rsi: {name: 'RSI bot', what: 'Buys after a fast drop (RSI under 30), sells after a fast rise (RSI over 70). Bets that moves bounce back.'},
+  hold: {name: 'Just hold', what: 'Buy once and wait. The benchmark every bot must beat.'}
+};
+var PERS = {'1h': ['Last ~40 days', '1h', 240, 24, 'hourly'], '4h': ['Last ~5 months', '4h', 180, 18, '4-hour'], '1d': ['Last ~2.7 years', '1d', 90, 9, 'daily']};
+MK.bk = {};
+async function loadBk(coin, per){
+  var k = coin + per; if(MK.bk[k] && Date.now() - MK.bk[k].ts < 30 * 60000) return MK.bk[k].c;
+  var j = await getJSON(API + '/klines?symbol=' + coin + 'USDT&interval=' + PERS[per][1] + '&limit=1000');
+  var c = j.map(function(r){ return {t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4]}; });
+  MK.bk[k] = {ts: Date.now(), c: c}; return c;
+}
+function botOpt(){
+  var ex = BL.ex || 'Binance', f = feeOf(ex), tax = ex === 'Binance' ? 1 : .21;
+  var adj = function(sellPct){ return (BL.tax ? sellPct : Math.max(0, sellPct - tax)) / 100; };
+  return {ex: ex, fb: f.buy / 100, fs: adj(f.sell), mb: (f.mb != null ? f.mb : f.buy) / 100, ms: adj(f.ms != null ? f.ms : f.sell), cap: (BL.cap || capital() || 10000000) / (MK.rate || 16500)};
+}
+function simRun(kind, c, o){
+  var cash = o.cap, coin = 0, fees = 0, trades = [], eq = [], feeAt = [], levels = null, N = c.length;
+  function buy(i, px, usd, mk){ if(usd <= 1e-9) return 0; var f = mk ? o.mb : o.fb, fee = usd * f, q = (usd - fee) / px; coin += q; cash -= usd; fees += fee; trades.push({i: i, s: 'b', p: px}); return q; }
+  function sell(i, px, q, mk){ if(q <= 1e-12) return 0; var f = mk ? o.ms : o.fs, g = q * px, fee = g * f; coin -= q; cash += g - fee; fees += fee; trades.push({i: i, s: 's', p: px}); return g - fee; }
+  var cl = c.map(function(x){ return x.c; });
+  if(kind === 'grid'){
+    var P0 = c[0].o, n = BL.grid.n, lo = P0 * (1 - BL.grid.r / 100), hi = P0 * (1 + BL.grid.r / 100), L = [];
+    for(var k = 0; k <= n; k++) L.push(lo * Math.pow(hi / lo, k / n));
+    levels = L;
+    var per = o.cap / n, slots = [];
+    for(var k2 = 0; k2 < n; k2++){ var sl = {cash: 0, coin: 0}; if(L[k2] >= P0){ sl.coin = buy(0, P0, per, false); } else sl.cash = per; slots.push(sl); }
+    cash = slots.reduce(function(a, x){ return a + x.cash; }, 0);
+  }
+  if(kind === 'hold') buy(0, c[0].o, cash, false);
+  var step = Math.max(1, Math.floor(N / BL.dca.n)), dcaAmt = o.cap / BL.dca.n, dcaDone = 0;
+  var rg = 0, rl = 0, rsiV = null;
+  for(var i = 0; i < N; i++){
+    var x = c[i];
+    if(kind === 'grid'){
+      var phases = x.c >= x.o ? ['l', 'h'] : ['h', 'l'];
+      phases.forEach(function(ph){
+        for(var s2 = 0; s2 < slots.length; s2++){
+          var sl2 = slots[s2];
+          if(ph === 'l' && sl2.cash > 0 && x.l <= L[s2]){ var q = buy(i, L[s2], sl2.cash, true); sl2.coin = q; sl2.cash = 0; }
+          else if(ph === 'h' && sl2.coin > 0 && x.h >= L[s2 + 1]){ sl2.cash = sell(i, L[s2 + 1], sl2.coin, true); sl2.coin = 0; }
+        }
+      });
+    } else if(kind === 'dca'){
+      if(i % step === 0 && dcaDone < BL.dca.n){ buy(i, x.c, Math.min(dcaAmt, cash), false); dcaDone++; }
+    } else if(kind === 'trend' && i >= BL.trend.s){
+      var fa = sma(cl.slice(0, i + 1), BL.trend.f), sa = sma(cl.slice(0, i + 1), BL.trend.s);
+      if(fa > sa && coin === 0) buy(i, x.c, cash, false); else if(fa < sa && coin > 0) sell(i, x.c, coin, false);
+    } else if(kind === 'rsi' && i > 0){
+      var d = cl[i] - cl[i - 1];
+      if(i <= 14){ rg += Math.max(d, 0) / 14; rl += Math.max(-d, 0) / 14; }
+      else { rg = (rg * 13 + Math.max(d, 0)) / 14; rl = (rl * 13 + Math.max(-d, 0)) / 14; }
+      if(i >= 14){ rsiV = rl === 0 ? 100 : 100 - 100 / (1 + rg / rl);
+        if(rsiV < BL.rsi.lo && coin === 0) buy(i, x.c, cash, false); else if(rsiV > BL.rsi.hi && coin > 0) sell(i, x.c, coin, false); }
+    }
+    eq.push(cash + coin * x.c); feeAt.push(fees);
+  }
+  var last = c[N - 1].c, exitFee = coin * last * o.fs, end = cash + coin * last - exitFee;
+  return {kind: kind, eq: eq, feeAt: feeAt, trades: trades, fees: fees + exitFee, end: end, ret: (end / o.cap - 1) * 100, levels: levels, n: trades.length};
+}
+function rBots(live){
+  var el = $('vJournal');
+  if(live && el.firstChild){ return; }
+  BL.ex = BL.ex || ((book().pos[mainAsset()] || {}).ex) || 'Binance';
+  BL.cap = BL.cap || capital() || 10000000;
+  el.innerHTML = jSwitch() +
+    '<h1>Bot lab</h1><p class="sub">Watch trading bots run on real past prices, paying real fees. It shows how they behave. It can’t tell you the future.</p>' +
+    '<div class="card"><div class="form">' +
+      '<div class="emo" id="blBot" style="margin:0">' + ['grid', 'dca', 'trend', 'rsi'].map(function(k){ return '<button type="button" data-v="' + k + '">' + BOTDEF[k].name + '</button>'; }).join('') + '</div>' +
+      '<p class="muted" style="margin:0;font-size:13.5px" id="blWhat"></p>' +
+      '<div id="blParams"></div>' +
+      '<div class="two"><label class="f">Coin<select class="inp" id="blCoin"><option>BTC</option><option>ETH</option><option>SOL</option></select></label><label class="f">Period<select class="inp" id="blPer">' + Object.keys(PERS).map(function(k){ return '<option value="' + k + '">' + PERS[k][0] + '</option>'; }).join('') + '</select></label></div>' +
+      '<div class="two"><label class="f">Money (IDR)<input class="inp" id="blCap" inputmode="numeric" value="' + (+BL.cap).toLocaleString('id-ID') + '"></label><label class="f">Exchange<select class="inp" id="blEx">' + EXCH.map(function(x){ return '<option>' + x + '</option>'; }).join('') + '</select></label></div>' +
+      '<label class="set-row" style="cursor:pointer;padding:4px 0"><span class="small">Include tax on every sell (' + '1% foreign / 0.21% local' + ')</span><input type="checkbox" class="ck" id="blTax"' + (BL.tax ? ' checked' : '') + '></label>' +
+      '<button class="btn full" id="blRun" type="button">▶ Run the bot</button></div></div>' +
+    '<div class="card" id="blReplay"><div class="empty">Pick a bot and tap Run.</div></div>' +
+    '<div class="card" id="blCmp" hidden></div>' +
+    '<div class="card" id="blWin" hidden></div>' +
+    '<div class="card"><div class="card-h"><h2>Can a bot really earn?</h2></div>' +
+      '<details class="lesson" open><summary>A bot only follows rules</summary><p>It doesn’t know the future. A grid bot wins when the price swings sideways, loses to holding when the price climbs fast, and holds falling coins in a crash. A trend bot wins big moves and bleeds fees in choppy markets. Each one has markets it’s built for.</p></details>' +
+      '<details class="lesson"><summary>Fees decide most bots</summary><p>Bots trade often, so every fee counts many times. On Binance with the 1% sell tax, a grid bot pays more per trade than the small gaps it earns. Turn the tax off above to see how much it changes.</p></details>' +
+      '<details class="lesson"><summary>Past results flatter</summary><p>Settings that look perfect on the past (the exact range, the exact averages) are tuned to a market that is gone. Use “Test many periods” to see how often a bot wins, not just once.</p></details>' +
+      '<details class="lesson"><summary>“Guaranteed profit” robots are scams</summary><p>In Indonesia, several “robot trading” schemes promising fixed monthly profits were shut down as fraud, with members losing their money. A real bot never promises a return. Check any platform with OJK before you join.</p></details></div>';
+  var segOn = function(box, v){ box.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v') === v); }); };
+  function params(){
+    segOn($('blBot'), BL.bot); $('blWhat').textContent = BOTDEF[BL.bot].what;
+    var h = '';
+    if(BL.bot === 'grid') h = '<div class="two"><label class="f">Range ± %<input class="inp" type="number" min="2" max="50" id="bpA" value="' + BL.grid.r + '"></label><label class="f">Levels<input class="inp" type="number" min="3" max="60" id="bpB" value="' + BL.grid.n + '"></label></div>';
+    if(BL.bot === 'dca') h = '<label class="f">Number of buys<input class="inp" type="number" min="2" max="200" id="bpA" value="' + BL.dca.n + '"></label>';
+    if(BL.bot === 'trend') h = '<div class="two"><label class="f">Fast average (candles)<input class="inp" type="number" min="2" max="200" id="bpA" value="' + BL.trend.f + '"></label><label class="f">Slow average<input class="inp" type="number" min="3" max="400" id="bpB" value="' + BL.trend.s + '"></label></div>';
+    if(BL.bot === 'rsi') h = '<div class="two"><label class="f">Buy under RSI<input class="inp" type="number" min="5" max="50" id="bpA" value="' + BL.rsi.lo + '"></label><label class="f">Sell over RSI<input class="inp" type="number" min="50" max="95" id="bpB" value="' + BL.rsi.hi + '"></label></div>';
+    $('blParams').innerHTML = h;
+    var A = $('bpA'), B = $('bpB');
+    if(A) A.onchange = function(){ var v = +A.value; if(BL.bot === 'grid') BL.grid.r = v; if(BL.bot === 'dca') BL.dca.n = v; if(BL.bot === 'trend') BL.trend.f = v; if(BL.bot === 'rsi') BL.rsi.lo = v; };
+    if(B) B.onchange = function(){ var v = +B.value; if(BL.bot === 'grid') BL.grid.n = v; if(BL.bot === 'trend') BL.trend.s = v; if(BL.bot === 'rsi') BL.rsi.hi = v; };
+  }
+  $('blBot').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; BL.bot = b.getAttribute('data-v'); params(); };
+  $('blCoin').value = BL.coin; $('blPer').value = BL.per; $('blEx').value = BL.ex;
+  $('blCoin').onchange = function(){ BL.coin = this.value; };
+  $('blPer').onchange = function(){ BL.per = this.value; };
+  $('blEx').onchange = function(){ BL.ex = this.value; };
+  $('blTax').onchange = function(){ BL.tax = this.checked; };
+  $('blCap').onchange = function(){ var n = numIn(this.value); if(n > 0){ BL.cap = n; this.value = n.toLocaleString('id-ID'); } };
+  $('blRun').onclick = runBot;
+  params();
+}
+async function runBot(){
+  var btn = $('blRun'); btn.disabled = true; btn.textContent = 'Loading prices…';
+  var c;
+  try{ c = await loadBk(BL.coin, BL.per); }catch(e){ toast('Couldn’t load past prices'); btn.disabled = false; btn.textContent = '▶ Run the bot'; return; }
+  btn.disabled = false; btn.textContent = '▶ Run again';
+  var o = botOpt(), r = simRun(BL.bot, c, o), hold = simRun('hold', c, o);
+  BL.res = {c: c, o: o, r: r, hold: hold};
+  replay();
+  compareAll(c, o);
+  winTest(c, o, false);
+}
+function replay(){
+  var box = $('blReplay'), R = BL.res; if(!box || !R) return;
+  if(BL.play) cancelAnimationFrame(BL.play);
+  var rate = MK.rate || 16500, f = function(u){ return idrS(u * rate); };
+  box.innerHTML = '<div class="card-h"><h2>' + BOTDEF[BL.bot].name + ' · ' + BL.coin + '</h2><span class="small faint" id="rpD"></span></div>' +
+    '<canvas id="rpC" class="rpc" aria-label="Price with the bot’s buys and sells, and the value of the bot vs just holding"></canvas>' +
+    '<div class="row small" style="gap:14px;margin:6px 0 10px"><span><i class="sw" style="background:var(--up)"></i>buy</span><span><i class="sw" style="background:var(--down)"></i>sell</span><span><i class="sw" style="background:var(--gold)"></i>bot value</span><span><i class="sw" style="background:var(--violet)"></i>just hold</span></div>' +
+    '<div class="grid2"><div class="kv"><span>Bot</span><b id="rpB">—</b><small id="rpBr"></small></div><div class="kv"><span>Just hold</span><b id="rpH">—</b><small id="rpHr"></small></div><div class="kv"><span>Trades</span><b id="rpT">0</b></div><div class="kv"><span>Fees paid</span><b class="down" id="rpF">Rp 0</b></div></div>' +
+    '<div class="row" style="margin-top:12px"><button class="btn sec sm" id="rpP" type="button">⏸ Pause</button><button class="btn sec sm" id="rpS" type="button">Speed ×1</button><button class="btn sec sm" id="rpE" type="button">Skip to end</button></div>' +
+    '<div id="rpV"></div>';
+  var cv = $('rpC'), ctx = cv.getContext('2d'), DPR = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = 260;
+  cv.width = W * DPR; cv.height = H * DPR; cv.style.height = H + 'px'; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  var cs = getComputedStyle(document.documentElement), col = function(v){ return cs.getPropertyValue(v).trim(); };
+  var c = R.c, N = c.length, pmin = Math.min.apply(null, c.map(function(x){ return x.l; })), pmax = Math.max.apply(null, c.map(function(x){ return x.h; }));
+  if(R.r.levels){ pmin = Math.min(pmin, R.r.levels[0]); pmax = Math.max(pmax, R.r.levels[R.r.levels.length - 1]); }
+  var eAll = R.r.eq.concat(R.hold.eq), emin = Math.min.apply(null, eAll.concat(R.o.cap)), emax = Math.max.apply(null, eAll.concat(R.o.cap));
+  var PH = 160, EH = 80, gap = 16, X = function(i){ return 4 + i / (N - 1) * (W - 8); }, Yp = function(v){ return 6 + (1 - (v - pmin) / (pmax - pmin || 1)) * (PH - 12); }, Ye = function(v){ return PH + gap + (1 - (v - emin) / (emax - emin || 1)) * (EH - 8) + 4; };
+  var i = 0, speed = 1, paused = false, last = 0, ti = 0;
+  function draw(upto){
+    ctx.clearRect(0, 0, W, H);
+    if(R.r.levels){ ctx.strokeStyle = col('--line2'); ctx.lineWidth = 1; ctx.setLineDash([3, 4]); R.r.levels.forEach(function(L){ ctx.beginPath(); ctx.moveTo(0, Yp(L)); ctx.lineTo(W, Yp(L)); ctx.stroke(); }); ctx.setLineDash([]); }
+    ctx.strokeStyle = col('--fg'); ctx.globalAlpha = .8; ctx.lineWidth = 1.4; ctx.beginPath();
+    for(var k = 0; k <= upto; k++){ var y = Yp(c[k].c); if(k) ctx.lineTo(X(k), y); else ctx.moveTo(X(k), y); } ctx.stroke(); ctx.globalAlpha = 1;
+    R.r.trades.forEach(function(t){ if(t.i > upto) return; var x = X(t.i), y = Yp(t.p); ctx.fillStyle = t.s === 'b' ? col('--up') : col('--down'); ctx.beginPath(); if(t.s === 'b'){ ctx.moveTo(x, y + 2); ctx.lineTo(x - 4, y + 9); ctx.lineTo(x + 4, y + 9); } else { ctx.moveTo(x, y - 2); ctx.lineTo(x - 4, y - 9); ctx.lineTo(x + 4, y - 9); } ctx.fill(); });
+    ctx.strokeStyle = col('--line2'); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(0, Ye(R.o.cap)); ctx.lineTo(W, Ye(R.o.cap)); ctx.stroke(); ctx.setLineDash([]);
+    [[R.hold.eq, col('--violet') || '#A78BFF', 1.4], [R.r.eq, col('--gold'), 2.2]].forEach(function(L){ ctx.strokeStyle = L[1]; ctx.lineWidth = L[2]; ctx.beginPath(); for(var k2 = 0; k2 <= upto; k2++){ var y2 = Ye(L[0][k2]); if(k2) ctx.lineTo(X(k2), y2); else ctx.moveTo(X(k2), y2); } ctx.stroke(); });
+    ctx.fillStyle = col('--faint'); ctx.font = '600 10px ' + col('--mono'); ctx.fillText('PRICE', 6, 14); ctx.fillText('VALUE', 6, PH + gap + 12);
+    var b = R.r.eq[upto], hv = R.hold.eq[upto], tr = R.r.trades.filter(function(t){ return t.i <= upto; }).length;
+    $('rpB').textContent = f(b); $('rpBr').className = 'num ' + cls(b - R.o.cap); $('rpBr').textContent = pct((b / R.o.cap - 1) * 100, 2);
+    $('rpH').textContent = f(hv); $('rpHr').className = 'num ' + cls(hv - R.o.cap); $('rpHr').textContent = pct((hv / R.o.cap - 1) * 100, 2);
+    $('rpT').textContent = tr; $('rpF').textContent = f(R.r.feeAt[upto]);
+    $('rpD').textContent = new Date(c[upto].t).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: '2-digit'});
+  }
+  function verdict(){
+    var r = R.r, h = R.hold, beat = r.end > h.end, f2 = function(u){ return idrS(u * rate); };
+    $('rpV').innerHTML = '<div class="verdict ' + (r.end > R.o.cap ? 'g' : 'r') + '"><b>' + (r.end >= R.o.cap ? 'The bot ended up ' : 'The bot ended down ') + idrSigned((r.end - R.o.cap) * rate) + ' (' + pct(r.ret, 1) + ')</b> after ' + r.n + ' trades and ' + f2(r.fees) + ' in fees and tax. ' +
+      (beat ? 'It beat just holding (' + pct(h.ret, 1) + ').' : 'Just holding did better (' + pct(h.ret, 1) + ').') +
+      (r.fees > 0 && r.end - R.o.cap + r.fees > 0 ? ' Without fees it would have made ' + idrSigned((r.end - R.o.cap + r.fees) * rate) + (r.end <= R.o.cap ? ', so the fees turned a profit into a loss.' : ', so fees took ' + Math.round(r.fees / (r.end - R.o.cap + r.fees) * 100) + '% of the profit.') : '') + '</div>';
+  }
+  function frame(now){
+    if(!$('rpC')) return;
+    if(!paused){ var dt = last ? now - last : 16; ti += dt * speed; i = Math.min(N - 1, Math.floor(ti / 7000 * N)); draw(i); }
+    last = now;
+    if(i < N - 1) BL.play = requestAnimationFrame(frame); else { $('rpP').textContent = '↺ Replay'; verdict(); }
+  }
+  $('rpP').onclick = function(){ if(i >= N - 1){ i = 0; ti = 0; last = 0; paused = false; this.textContent = '⏸ Pause'; $('rpV').innerHTML = ''; BL.play = requestAnimationFrame(frame); return; } paused = !paused; this.textContent = paused ? '▶ Play' : '⏸ Pause'; };
+  $('rpS').onclick = function(){ speed = speed === 1 ? 3 : speed === 3 ? 8 : 1; this.textContent = 'Speed ×' + speed; };
+  $('rpE').onclick = function(){ ti = 7000; i = N - 1; };
+  if(RM){ draw(N - 1); verdict(); } else BL.play = requestAnimationFrame(frame);
+}
+function compareAll(c, o){
+  var box = $('blCmp'); box.hidden = false;
+  var rate = MK.rate || 16500, rows = ['hold', 'grid', 'dca', 'trend', 'rsi'].map(function(k){ return simRun(k, c, o); }).sort(function(a, b){ return b.end - a.end; });
+  var noFee = {fb: 0, fs: 0, mb: 0, ms: 0, cap: o.cap};
+  box.innerHTML = '<div class="card-h"><h2>All bots, same period</h2><span class="small faint">' + esc(o.ex) + (BL.tax ? ' · with tax' : '') + '</span></div>' +
+    '<div class="bcmp head"><span></span><span>Result</span><span>Fees</span><span>No fees</span></div>' +
+    rows.map(function(r){ var nf = simRun(r.kind, c, noFee); return '<div class="bcmp' + (r.kind === BL.bot ? ' on' : '') + '"><span><b>' + BOTDEF[r.kind].name + '</b><small>' + r.n + ' trades</small></span><span class="num ' + cls(r.ret) + '">' + pct(r.ret, 1) + '</span><span class="num down">' + idrS(r.fees * rate) + '</span><span class="num faint">' + pct(nf.ret, 1) + '</span></div>'; }).join('') +
+    '<p class="note">' + c.length + ' ' + PERS[BL.per][4] + ' candles of ' + BL.coin + ' from ' + new Date(c[0].t).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) + '. “No fees” shows what the same rules would make if trading were free.</p>';
+}
+function winTest(c, o, show){
+  var box = $('blWin'); box.hidden = false;
+  if(!show){ box.innerHTML = '<div class="card-h"><h2>Was it luck?</h2></div><p class="muted" style="margin:0 0 12px;font-size:13.5px">One period proves little. Run the ' + BOTDEF[BL.bot].name.toLowerCase() + ' on many shorter periods and count how often it wins.</p><button class="btn sec full" id="wtGo" type="button">Test many periods</button>'; $('wtGo').onclick = function(){ winTest(c, o, true); }; return; }
+  var W = PERS[BL.per][2], st = PERS[BL.per][3], res = [];
+  for(var s0 = 0; s0 + W <= c.length; s0 += st){ var w = c.slice(s0, s0 + W); res.push({b: simRun(BL.bot, w, o).ret, h: simRun('hold', w, o).ret}); }
+  var n = res.length, pos = res.filter(function(r){ return r.b > 0; }).length, beat = res.filter(function(r){ return r.b > r.h; }).length, srt = res.map(function(r){ return r.b; }).sort(function(a, b){ return a - b; });
+  var med = srt[Math.floor(n / 2)], len = {'1h': W / 24 + ' days', '4h': W / 6 + ' days', '1d': W + ' days'}[BL.per];
+  box.innerHTML = '<div class="card-h"><h2>Was it luck?</h2><span class="small faint">' + n + ' periods of ' + len + '</span></div>' +
+    '<div class="grid2"><div class="kv"><span>Ended in profit</span><b class="' + (pos / n >= .5 ? 'up' : 'down') + '">' + Math.round(pos / n * 100) + '%</b><small class="muted">' + pos + ' of ' + n + '</small></div><div class="kv"><span>Beat just holding</span><b class="' + (beat / n >= .5 ? 'up' : 'down') + '">' + Math.round(beat / n * 100) + '%</b><small class="muted">' + beat + ' of ' + n + '</small></div>' +
+    '<div class="kv"><span>Typical result</span><b class="' + cls(med) + '">' + pct(med, 1) + '</b><small class="muted">middle of all periods</small></div><div class="kv"><span>Worst / best</span><b><span class="down">' + pct(srt[0], 1) + '</span> / <span class="up">' + pct(srt[n - 1], 1) + '</span></b></div></div>' +
+    '<div class="hist">' + histo(srt) + '</div>' +
+    '<p class="note">Each bar is one period. If most bars are red, or the bot rarely beats holding, the strategy isn’t an edge, whatever one lucky run showed.</p>';
+}
+function histo(v){
+  var mx = Math.max.apply(null, v.map(Math.abs)) || 1;
+  return v.map(function(x){ return '<i style="height:' + Math.max(2, Math.abs(x) / mx * 50).toFixed(1) + 'px;' + (x >= 0 ? 'align-self:flex-end;margin-bottom:50px;background:var(--up)' : 'align-self:flex-start;margin-top:50px;background:var(--down)') + '"></i>'; }).join('');
 }
 
 /* ---------- LEARN + AI ---------- */
