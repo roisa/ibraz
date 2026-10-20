@@ -258,6 +258,23 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 @keyframes sk{to{background-position:-200% 0}}
 
 /* v2 */
+.seg.big2 button{padding:11px 8px;font-size:13.5px}
+.scn{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
+.scn div{padding:12px 10px;border-radius:16px;background:rgba(127,127,127,.07);border:1px solid var(--gline);display:flex;flex-direction:column;gap:2px;min-width:0}
+.scn span{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.scn b{font-size:15px;font-weight:700;white-space:nowrap}
+.scn small{font-size:11px}
+.rbar{position:relative;height:10px;border-radius:6px;background:rgba(127,127,127,.15);margin:30px 4px 6px}
+.rbar .rb{position:absolute;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,var(--down),var(--warn) 45%,var(--up))}
+.rbar em{position:absolute;top:-6px;width:2px;height:22px;background:var(--fg);transform:translateX(-1px)}
+.rbar em::before{content:attr(data-l);position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font:600 9.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.rbar u{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--gold);transform:translate(-50%,-50%)}
+.cmp{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:6px;align-items:center;width:100%;text-align:right;padding:10px 6px;border:0;border-top:1px solid var(--gline);background:none;color:var(--fg);font-size:12.5px;border-radius:0}
+div.cmp{border-top:0;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-top:0}
+button.cmp span:first-child{text-align:left;display:flex;flex-direction:column}
+button.cmp small{color:var(--faint);font-size:10.5px;line-height:1.3;margin-top:2px}
+button.cmp.on{background:color-mix(in srgb,var(--gold) 10%,transparent);border-radius:12px}
+.ckdot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--fg);transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--card)}
 .mx{padding:12px 0;border-top:1px solid var(--gline)}
 .mx:first-of-type{border-top:0}
 .mx-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
@@ -364,7 +381,7 @@ details.lesson p{margin:8px 0 0;color:var(--muted);font-size:14px}
     <span class="tab-lens" id="tabLens" aria-hidden="true"></span>
     <button type="button" data-v="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
     <button type="button" data-v="be"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/></svg>Break-even</button>
-    <button type="button" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-6H4zM10 20h4V9h-4zM16 20h4V4h-4z"/></svg>100M</button>
+    <button type="button" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-6H4zM10 20h4V9h-4zM16 20h4V4h-4z"/></svg>Plans</button>
     <button type="button" data-v="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6M9 13h6"/></svg>Journal</button>
     <button type="button" data-v="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg>Learn</button>
   </nav>
@@ -1073,11 +1090,12 @@ function planState(){
 }
 function routeCost(x, amt){ var g = feeOf(x); return {x: x, on: amt * g.on / 100, buy: amt * g.buy / 100, sell: amt * g.sell / 100, off: amt * g.off / 100, t: amt * (+g.on + +g.buy + +g.sell + +g.off) / 100, now: amt * (+g.on + +g.buy) / 100, unv: g.unv}; }
 function rPlan(live){
+  if(PLV === 'goal'){ if(!(live && $('vPlan').firstChild)) rGoal(); else goalLive(); return; }
   var el = $('vPlan'), s = V.sched;
   if(live && el.firstChild){ planWhen(); planPark(); return; }
   var tsum = BUCKETS.reduce(function(a, k){ return a + (+V.target[k.k] || 0); }, 0), rd = READY.filter(function(r){ return V.ready[r[0]]; }).length;
   el.innerHTML =
-    '<h1>The 100M plan</h1><p class="sub">Where it goes, when to add it, how to split it, and where it costs least.</p>' +
+    planSwitch() + '<h1>The 100M plan</h1><p class="sub">Where it goes, when to add it, how to split it, and where it costs least.</p>' +
     '<div class="seg" id="plSeg" style="margin-bottom:14px"><button type="button" data-v="mix" class="on">Options</button><button type="button" data-v="when">When</button><button type="button" data-v="how">How</button><button type="button" data-v="where">Exchange</button><button type="button" data-v="ready">Ready?</button></div>' +
     '<div data-pl="mix"><div id="plMix"></div></div>' +
     '<div data-pl="when" hidden><div class="card hero-c" id="plWhen"></div><div class="card" id="plPark"></div>' +
@@ -1115,7 +1133,7 @@ function rPlan(live){
   $('sEv').addEventListener('change', function(){ s.every = this.value; schedTbl(); planWhen(); save(); });
   $('wAmt').addEventListener('input', whereTbl);
   el.querySelectorAll('[data-rd]').forEach(function(c){ c.onchange = function(){ V.ready[c.getAttribute('data-rd')] = c.checked; save(); var n = READY.filter(function(r){ return V.ready[r[0]]; }).length; $('rdN').textContent = n + '/' + READY.length; $('rdN').className = 'chip ' + (n === READY.length ? 'g' : 'y'); }; });
-  showPl(); rMix(); planWhen(); planPark(); planBars(); schedTbl(); whereTbl();
+  wireSwitch(); showPl(); rMix(); planWhen(); planPark(); planBars(); schedTbl(); whereTbl();
 }
 
 /* ---------- 100M: where across safety levels ---------- */
@@ -1181,6 +1199,114 @@ function mixSum(){
     (crypto > 0 && !synced ? '<button class="btn sec full" id="mxSync" type="button" style="margin-top:12px">Use ' + idrS(crypto) + ' as my crypto steps (now ' + idrS(+V.sched.amount) + ')</button>' : crypto > 0 ? '<p class="note">Crypto part = your step plan (' + V.sched.n + ' steps). See When.</p>' : '');
   if($('mxSync')) $('mxSync').onclick = function(){ V.sched.amount = Math.round(crypto); save(); toast('Crypto steps set to ' + idrS(crypto)); rPlan(); };
 }
+
+/* ---------- Plans switcher + 2-year goal ---------- */
+var PLV = 'steps';
+function planSwitch(){ return '<div class="seg big2" id="plv" style="margin:0 0 14px"><button type="button" data-v="steps"' + (PLV === 'steps' ? ' class="on"' : '') + '>100M step plan</button><button type="button" data-v="goal"' + (PLV === 'goal' ? ' class="on"' : '') + '>' + esc(goal().name) + '</button></div>'; }
+function wireSwitch(){ $('plv').onclick = function(e){ var b = e.target.closest('button'); if(!b || b.getAttribute('data-v') === PLV) return; PLV = b.getAttribute('data-v'); $('vPlan').innerHTML = ''; rPlan(); window.scrollTo({top:0}); }; }
+function goal(){
+  if(!V.goals || !V.goals.length) V.goals = [{id:'g1', name:'50M · 2 years', amt: 50000000, months: 24, start: today(), mix: {sbn:40, mm:20, dep:0, gold:10, stock:15, crypto:15}, hope: 5000000, checks: []}];
+  return V.goals[0];
+}
+/* 2-year outcomes per option: [bad, middle, good] as % over 24 months. Safe options come from their yields. */
+var SCN2 = {gold: [-20, 10, 35], stock: [-30, 15, 45], crypto: [-65, 20, 150]};
+var ENTRY = {gold: 5, stock: .5};
+function annual(k, i){
+  var o = OPTS.filter(function(x){ return x.k === k; })[0];
+  if(k === 'sbn' || k === 'mm' || k === 'dep'){ var y = optY(k) * (1 - o.tax / 100); if(k === 'mm') y = [y - 1, y, y + .5][i]; return y / 100; }
+  return Math.pow(1 + SCN2[k][i] / 100, .5) - 1;
+}
+function entryCost(k){ if(k === 'crypto'){ var r = whereRank(1e6)[0]; return r.t / 1e6; } return (ENTRY[k] || 0) / 100; }
+function goalAt(g, mix, i, m){
+  var tot = 0;
+  OPTS.forEach(function(o){ var a = (+g.amt || 0) * (+mix[o.k] || 0) / 100; if(!a) return; tot += a * (1 - entryCost(o.k)) * Math.pow(1 + annual(o.k, i), m / 12); });
+  return tot;
+}
+var GPRE = {safe: ['Safe', {sbn:60, mm:40, dep:0, gold:0, stock:0, crypto:0}], bal: ['Balanced', {sbn:40, mm:20, dep:0, gold:10, stock:15, crypto:15}], grow: ['Growth', {sbn:20, mm:10, dep:0, gold:10, stock:30, crypto:30}], cry: ['All crypto', {sbn:0, mm:0, dep:0, gold:0, stock:0, crypto:100}]};
+function rGoal(){
+  var el = $('vPlan'), g = goal();
+  el.innerHTML = planSwitch() +
+    '<h1>' + esc(g.name) + '</h1><p class="sub">Money you set aside for a fixed time. See what could realistically come back, from bad to good.</p>' +
+    '<div class="card"><div class="form"><div class="two"><label class="f">Amount (IDR)<input class="inp" id="gAmt" inputmode="numeric" value="' + (+g.amt).toLocaleString('id-ID') + '"></label><label class="f">For<select class="inp" id="gM"><option value="12">1 year</option><option value="24">2 years</option><option value="36">3 years</option><option value="60">5 years</option></select></label></div>' +
+    '<div class="two"><label class="f">Start<input class="inp" type="date" id="gS" value="' + esc(g.start) + '"></label><label class="f">I hope to gain (IDR)<input class="inp" id="gH" inputmode="numeric" value="' + (+g.hope || 0).toLocaleString('id-ID') + '"></label></div></div></div>' +
+    '<div class="card hero-c" id="gRes"></div>' +
+    '<div class="card"><div class="card-h"><h2>Compare</h2><span class="small faint">tap one to use it</span></div><div id="gCmp"></div></div>' +
+    '<div class="card"><div class="card-h"><h2>Your split</h2><span class="chip" id="gPct"></span></div>' +
+      OPTS.map(function(o){ return '<div class="mx"><div class="mx-h"><b><i style="background:' + o.c + '"></i>' + o.short + ' <span class="faint num" id="gP-' + o.k + '"></span></b><span class="num" id="gA-' + o.k + '"></span></div><input type="range" min="0" max="100" step="5" value="' + (+g.mix[o.k] || 0) + '" data-gm="' + o.k + '" style="accent-color:' + o.c + '" aria-label="' + o.short + ' %"></div>'; }).join('') + '</div>' +
+    '<div class="card"><div class="card-h"><h2>Path &amp; check-ins</h2><button class="btn sec sm" id="gCk" type="button">+ Check-in</button></div><div id="gPath"></div><div id="gCks"></div><p class="note">Once a month, enter what the pot is worth. You’ll see if it’s on the bad, middle or good path, and AI reviews can use it.</p></div>' +
+    '<div class="card"><div class="card-h"><h2>For a ' + (g.months / 12) + '-year horizon</h2></div>' +
+      '<details class="lesson" open><summary>Match the end date</summary><p>Sukuk Tabungan usually comes in a 2-year option, so it can end right when your goal does. ST017 is offered 6 Nov – 2 Dec 2026. Check the tenor and coupon when it opens.</p></details>' +
+      '<details class="lesson"><summary>Volatile money needs time</summary><p>Crypto and stocks can be down a lot at the exact moment you need the money. The shorter the horizon, the more of it should sit in the safe options.</p></details>' +
+      '<details class="lesson"><summary>Costs come first</summary><p>Gold loses about 5% to the buy–sell gap on day one. Crypto loses your round-trip fee. These are already included in the scenarios.</p></details>' +
+      '<details class="lesson"><summary>Decide your exit now</summary><p>Write down what you’ll do if the pot is down 20% at month 12: hold, add, or move to safe. Put it in your rules (Learn tab), so fear doesn’t decide for you.</p></details></div>' +
+    '<p class="note" style="margin:0 0 14px">Scenarios are examples to think with, not forecasts. Safe options use your yields (Options tab); gold, stocks and crypto use rough past ranges: gold −20% / +10% / +35%, stocks −30% / +15% / +45%, crypto −65% / +20% / +150% over 2 years. Reality can fall outside them.</p>';
+  wireSwitch();
+  $('gM').value = String(g.months);
+  $('gAmt').onchange = function(){ var n = numIn(this.value); if(n > 0){ g.amt = n; this.value = n.toLocaleString('id-ID'); save(); goalLive(); } };
+  $('gH').onchange = function(){ var n = numIn(this.value); g.hope = n > 0 ? n : 0; this.value = (+g.hope).toLocaleString('id-ID'); save(); goalLive(); };
+  $('gM').onchange = function(){ g.months = +this.value; save(); rGoal(); };
+  $('gS').onchange = function(){ g.start = this.value || today(); save(); goalLive(); };
+  el.querySelectorAll('[data-gm]').forEach(function(r){ r.oninput = function(){ g.mix[r.getAttribute('data-gm')] = +r.value; goalLive(); }; r.onchange = save; });
+  $('gCk').onclick = checkinSheet;
+  goalLive();
+}
+function goalLive(){
+  var g = goal(), box = $('gRes'); if(!box) return;
+  var sum = OPTS.reduce(function(a, o){ return a + (+g.mix[o.k] || 0); }, 0), M = g.months;
+  OPTS.forEach(function(o){ $('gA-' + o.k).textContent = idrS((+g.amt || 0) * (+g.mix[o.k] || 0) / 100); $('gP-' + o.k).textContent = (+g.mix[o.k] || 0) + '%'; });
+  $('gPct').textContent = sum + '%'; $('gPct').className = 'chip ' + (sum === 100 ? 'g' : 'y');
+  var ends = [0, 1, 2].map(function(i){ return goalAt(g, g.mix, i, M); }), gains = ends.map(function(e){ return e - g.amt; });
+  var safe = OPTS.filter(function(o){ return o.k === 'sbn' || o.k === 'mm' || o.k === 'dep'; }).reduce(function(a, o){ return a + (+g.mix[o.k] || 0); }, 0);
+  var hope = +g.hope || 0, mid = gains[1];
+  var lab = ['Bad', 'Middle', 'Good'], col = ['var(--down)', 'var(--fg)', 'var(--up)'];
+  box.innerHTML = '<div class="eyebrow">After ' + (M % 12 ? M + ' months' : (M / 12) + ' year' + (M > 12 ? 's' : '')) + ' · ' + fmtDate(addM(g.start, M)) + '</div>' +
+    '<div class="scn">' + [0, 1, 2].map(function(i){ return '<div><span>' + lab[i] + '</span><b class="num" style="color:' + col[i] + '">' + idrS(ends[i]) + '</b><small class="num ' + cls(gains[i]) + '">' + idrSigned(gains[i]) + ' · ' + pct(gains[i] / g.amt * 100, 1) + '</small></div>'; }).join('') + '</div>' +
+    rangeBar(g, ends) +
+    (sum !== 100 ? '<div class="warn">Your split adds up to ' + sum + '%. Make it 100%.</div>' : '') +
+    (hope ? '<p style="margin:12px 0 0">Your hope: <b class="num">+' + idrS(hope) + '</b>. ' + (mid >= hope ? '<span class="up">The middle path reaches it.</span>' : '<span style="color:var(--warn)">The middle path gives ' + idrSigned(mid) + ', short by ' + idrS(hope - mid) + '.</span>') + (gains[0] < 0 ? ' In a bad case you could be down ' + idrS(-gains[0]) + '.' : ' Even the bad case keeps your money whole.') + '</p>' : '') +
+    '<p class="note">' + safe + '% sits in safe options. Middle-path gain is about ' + idrS(mid / (M / 12)) + ' a year (' + pct((Math.pow(ends[1] / g.amt, 12 / M) - 1) * 100, 1) + '/yr).</p>';
+  var keys = Object.keys(GPRE);
+  $('gCmp').innerHTML = '<div class="cmp"><span></span><span>Bad</span><span>Middle</span><span>Good</span></div>' + keys.map(function(k){
+    var m = GPRE[k][1], e = [0, 1, 2].map(function(i){ return goalAt(g, m, i, M) - g.amt; }), on = OPTS.every(function(o){ return (+m[o.k] || 0) === (+g.mix[o.k] || 0); });
+    return '<button type="button" class="cmp' + (on ? ' on' : '') + '" data-gp="' + k + '"><span><b>' + GPRE[k][0] + '</b><small>' + OPTS.filter(function(o){ return m[o.k]; }).map(function(o){ return o.short + ' ' + m[o.k]; }).join(' · ') + '</small></span>' + e.map(function(v){ return '<span class="num ' + cls(v) + '">' + idrSigned(v) + '</span>'; }).join('') + '</button>';
+  }).join('');
+  $('gCmp').querySelectorAll('[data-gp]').forEach(function(b){ b.onclick = function(){ g.mix = clone(GPRE[b.getAttribute('data-gp')][1]); save(); document.querySelectorAll('[data-gm]').forEach(function(r){ r.value = g.mix[r.getAttribute('data-gm')]; }); goalLive(); }; });
+  goalPath(g);
+}
+function addM(d, m){ var x = new Date((d || today()) + 'T00:00:00'); x.setMonth(x.getMonth() + m); return ymd(x); }
+function rangeBar(g, ends){
+  var lo = Math.min(ends[0], g.amt), hi = Math.max(ends[2], g.amt), sp = hi - lo || 1, x = function(v){ return ((v - lo) / sp * 100).toFixed(1); };
+  return '<div class="rbar"><i class="rb" style="left:' + x(ends[0]) + '%;width:' + (x(ends[2]) - x(ends[0])) + '%"></i><em style="left:' + x(g.amt) + '%" data-l="Put in"></em><u style="left:' + x(ends[1]) + '%"></u></div>';
+}
+function goalPath(g){
+  var box = $('gPath'); if(!box) return;
+  var M = g.months, W = 600, H = 170, pts = [0, 1, 2].map(function(i){ var a = []; for(var m = 0; m <= M; m++) a.push(goalAt(g, g.mix, i, m)); return a; });
+  var cks = (g.checks || []).map(function(c){ return {m: Math.max(0, (new Date(c.d) - new Date(g.start)) / (30.44 * 864e5)), v: c.v}; });
+  var all = pts[0].concat(pts[2], [g.amt], cks.map(function(c){ return c.v; })), mn = Math.min.apply(null, all), mx = Math.max.apply(null, all), sp = mx - mn || 1;
+  var X = function(m){ return (m / M * W).toFixed(1); }, Y = function(v){ return (8 + (1 - (v - mn) / sp) * (H - 16)).toFixed(1); };
+  var line = function(a){ return a.map(function(v, m){ return (m ? 'L' : 'M') + X(m) + ' ' + Y(v); }).join(' '); };
+  var band = line(pts[2]) + ' ' + pts[0].slice().reverse().map(function(v, j){ return 'L' + X(M - j) + ' ' + Y(v); }).join(' ') + 'Z';
+  var nowM = Math.max(0, Math.min(M, (new Date(today()) - new Date(g.start)) / (30.44 * 864e5)));
+  box.innerHTML = '<div style="position:relative"><svg class="eq" style="height:' + H + 'px" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Bad, middle and good paths">' +
+    '<path d="' + band + '" fill="var(--gold)" opacity=".1"/>' +
+    '<line x1="0" x2="' + W + '" y1="' + Y(g.amt) + '" y2="' + Y(g.amt) + '" stroke="var(--faint)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>' +
+    '<path d="' + line(pts[0]) + '" fill="none" stroke="var(--down)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' +
+    '<path d="' + line(pts[2]) + '" fill="none" stroke="var(--up)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' +
+    '<path d="' + line(pts[1]) + '" fill="none" stroke="var(--gold)" stroke-width="2.4" vector-effect="non-scaling-stroke"/>' +
+    '<line x1="' + X(nowM) + '" x2="' + X(nowM) + '" y1="0" y2="' + H + '" stroke="var(--fg)" stroke-opacity=".35" vector-effect="non-scaling-stroke"/>' +
+    (cks.length ? '<path d="' + cks.map(function(c, i){ return (i ? 'L' : 'M') + X(c.m) + ' ' + Y(c.v); }).join(' ') + '" fill="none" stroke="var(--fg)" stroke-width="2" vector-effect="non-scaling-stroke"/>' : '') +
+    '</svg>' + cks.map(function(c){ return '<span class="ckdot" style="left:' + (c.m / M * 100) + '%;top:' + (Y(c.v) / H * 100) + '%"></span>'; }).join('') + '</div>' +
+    '<div class="row small faint" style="justify-content:space-between;margin-top:4px"><span>' + fmtDate(g.start) + '</span><span><span class="up">good</span> · <span style="color:var(--gold)">middle</span> · <span class="down">bad</span> · dashed = put in</span><span>' + fmtDate(addM(g.start, M)) + '</span></div>';
+  $('gCks').innerHTML = (g.checks || []).slice(-6).reverse().map(function(c, i){ var mI = Math.round((new Date(c.d) - new Date(g.start)) / (30.44 * 864e5)), mid = goalAt(g, g.mix, 1, Math.max(0, mI)); return '<div class="al"><span>' + fmtDate(c.d) + ' · <span class="num">' + idrS(c.v) + '</span></span><span class="small ' + cls(c.v - mid) + '">' + (c.v >= mid ? 'ahead of middle' : 'behind middle') + ' by ' + idrS(Math.abs(c.v - mid)) + '</span></div>'; }).join('');
+}
+function checkinSheet(){
+  var g = goal();
+  sheet('<div class="sh-h"><h2>Check-in</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form"><div class="two"><label class="f">Date<input class="inp" type="date" id="ckD" value="' + today() + '"></label><label class="f">Pot worth now (IDR)<input class="inp" id="ckV" inputmode="numeric"></label></div><button class="btn full" id="ckGo" type="button">Save</button>' +
+    ((g.checks || []).length ? (g.checks.map(function(c, i){ return '<div class="al"><span>' + fmtDate(c.d) + ' · ' + idrS(c.v) + '</span><button class="btn sec sm" type="button" data-ckx="' + i + '">✕</button></div>'; }).join('')) : '') + '</div>');
+  $('ckGo').onclick = function(){ var v = numIn($('ckV').value); if(!(v > 0)){ toast('Enter the value'); return; } g.checks = g.checks || []; g.checks.push({d: $('ckD').value || today(), v: v}); g.checks.sort(function(a, b){ return a.d < b.d ? -1 : 1; }); save(); closeSheet(); goalLive(); };
+  document.querySelectorAll('[data-ckx]').forEach(function(b){ b.onclick = function(){ g.checks.splice(+b.getAttribute('data-ckx'), 1); save(); checkinSheet(); goalLive(); }; });
+}
+
 var PARK = {mm:'Money-market fund', dep:'Bank deposit', sbn:'Government bonds (SBN)', bank:'Bank savings', ex:'Left on the exchange'};
 function planPark(){
   var box = $('plPark'); if(!box) return;
@@ -1501,6 +1627,7 @@ function aiText(focus, q){
   L.push('', '## 100M plan', '- Total ' + n(V.sched.amount) + ' in ' + V.sched.n + ' steps, every ' + ({week:'week', '2w':'2 weeks', month:'month'})[V.sched.every] + ', from ' + V.sched.start, '- Pace rules: Fear & Greed ' + (V.pace.fng ? 'on' : 'off') + ', Mayer ' + (V.pace.mayer ? 'on' : 'off') + ' · today’s multiplier ×' + S.pm.m.toFixed(2) + ' → next step ' + n(S.sug), '- Target mix: ' + BUCKETS.map(function(k){ return k.k + ' ' + (V.target[k.k] || 0) + '%'; }).join(', '), '- Done: ' + (S.nDone ? S.L.filter(function(r){ return r.done; }).map(function(r){ return '#' + (r.i + 1) + ' ' + r.done.d + ' ' + n(r.done.amt) + ' on ' + r.done.ex + ' (×' + r.done.mult + ')'; }).join('; ') : 'none yet'), '- Cheapest route now: ' + whereRank(100000000).slice(0, 3).map(function(r){ return r.x + ' ' + (r.t / 1e6).toFixed(2) + 'M round trip on 100M'; }).join(', '), '- Readiness: ' + READY.map(function(r){ return (V.ready[r[0]] ? '[x] ' : '[ ] ') + r[1]; }).join('; '));
   var ms = mixStats(); L.push('', '## Where the 100M could go (my draft split of ' + n(V.mixTotal) + ')'); OPTS.forEach(function(o){ if(+V.mix[o.k]) L.push('- ' + o.name + ': ' + V.mix[o.k] + '% = ' + n(mixAmt(o.k)) + (optY(o.k) != null ? ' (est. ' + optY(o.k) + '%/yr before tax)' : '')); });
   L.push('- Kept safe: ' + (ms.tot ? Math.round(ms.safe / ms.tot * 100) : 0) + '% · guaranteed ' + n(ms.guar) + ' · steady income ' + n(ms.inc) + '/yr after tax · rough bad-year drop ' + n(ms.bad), '- Waiting money parked in: ' + PARK[V.park || 'mm']);
+  (function(){ var g = goal(), e = [0, 1, 2].map(function(i){ return goalAt(g, g.mix, i, g.months); }); L.push('', '## Goal: ' + g.name, '- ' + n(g.amt) + ' for ' + g.months + ' months from ' + g.start + ', hoping to gain ' + n(g.hope), '- Split: ' + OPTS.filter(function(o){ return +g.mix[o.k]; }).map(function(o){ return o.short + ' ' + g.mix[o.k] + '%'; }).join(', '), '- Scenario end values (bad / middle / good): ' + e.map(n).join(' / '), '- Check-ins: ' + ((g.checks || []).map(function(c){ return c.d + ' ' + n(c.v); }).join(', ') || 'none yet')); })();
   L.push('', '## My rules'); V.rules.forEach(function(r){ L.push('- ' + r); });
   if(V.reviews.length){ L.push('', '## Weekly reviews'); V.reviews.slice(-8).forEach(function(r){ L.push('- ' + r.d + ': good: ' + r.good + ' | bad: ' + r.bad + ' | change: ' + r.change); }); }
   if(V.notes.length){ L.push('', '## Notes'); V.notes.slice(-20).forEach(function(x){ L.push('- ' + x.d + ': ' + x.t); }); }
