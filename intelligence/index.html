@@ -857,9 +857,19 @@ setInterval(paintLive, 1000);
 
 /* ================= Views ================= */
 var cur = 'home';
+/* default first position: Rp 10M sent to Binance, Rp 200K cut, BTC bought at $81,600 (amount estimated until Binance history is imported) */
+async function seedDefault(){
+  if(!MK.rate) await loadRate();
+  if(!V || V.deposits.length || V.seeded) return;
+  var rate = MK.rate || 16500, amt = 10000000, fee = 200000, pxU = 81600, bf = feePct('Binance', 'buy'), net = amt - fee, qty = net / (pxU * rate * (1 + bf)), d = '2026-10-18';
+  V.deposits.push({d: d, amt: amt, fee: fee, ex: 'Binance', note: 'First deposit'});
+  V.trades.push({id: 'T' + Date.now().toString(36), at: Date.parse(d + 'T12:00:00+07:00'), d: d, ex: 'Binance', side: 'buy', a: 'BTC', qty: qty, px: pxU * rate, pxUsd: pxU, rate: Math.round(rate), fee: net - qty * pxU * rate, why: 'My first position. Learning with it.', label: 'My first BTC', emo: '', conf: 0, ctx: null, est: true});
+  V.seeded = true; save(); render(false); toast('Your first BTC position is filled in');
+}
 function boot(){
   go(cur, true); startLive(); remember();
   if(PRET){ var ptx = PRET; PRET = null; setTimeout(function(){ importSheet(ptx); }, 600); }
+  if(!PRE && !V.deposits.length && !V.seeded) seedDefault();
   if(PRE){ var pp = PRE; PRE = null; if(!V.deposits.length) setTimeout(function(){ setupSheet(pp); }, 600); else toast('Your position is already saved'); }
 }
 function go(v, first){
@@ -2143,7 +2153,7 @@ function importSheet(str){
   if(firstSell){
     var buys = V.trades.filter(function(t){ return t.a === firstSell.a && t.side === 'buy'; }).sort(function(x, y){ return x.d < y.d ? -1 : 1; }), b0 = buys[0];
     if(b0 && b0.d > firstSell.d){ var dd = new Date(firstSell.d + 'T00:00:00'); dd.setDate(dd.getDate() - 1); fix.date = ymd(dd); fix.t = b0; notes.push('Your first buy is dated ' + fmtDate(b0.d) + ', after this sale on ' + fmtDate(firstSell.d) + '. It will move to ' + fmtDate(fix.date) + ' so the order makes sense.'); }
-    if(b0 && Math.abs(b0.qty - firstSell.qty) / firstSell.qty < .02 && b0.qty !== firstSell.qty && buys.length === 1){ fix.qty = firstSell.qty; fix.t = b0; notes.push('Your first buy was an estimate (' + qtyF(b0.qty) + ' BTC). It will be set to the exact ' + qtyF(firstSell.qty) + ' from Binance.'); }
+    if(b0 && buys.length === 1 && b0.qty !== firstSell.qty && (b0.est || Math.abs(b0.qty - firstSell.qty) / firstSell.qty < .02)){ fix.qty = firstSell.qty; fix.t = b0; notes.push('Your first buy was an estimate (' + qtyF(b0.qty) + ' BTC). It will be set to the exact ' + qtyF(firstSell.qty) + ' from Binance.'); }
     if(!b0) notes.push('There’s no saved buy for this ' + firstSell.a + ' yet. Add your first position first, or the sale will look odd.');
   }
   sheet('<div class="sh-h"><h2>Add ' + fresh.length + ' trade' + (fresh.length === 1 ? '' : 's') + '?</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
@@ -2155,7 +2165,7 @@ function importSheet(str){
     '<p class="note">Fees use your ' + esc(L[0].ex) + ' settings (limit orders pay the maker fee). Rupiah values use today’s USD/IDR.</p>');
   $('imGo').onclick = function(){
     var why = $('imW').value.trim();
-    if(fix.t){ if(fix.date) fix.t.d = fix.date; if(fix.qty){ var r0 = fix.t.qty; fix.t.qty = fix.qty; fix.t.est = false; if(fix.t.px) fix.t.fee = Math.max(0, (+fix.t.fee || 0)); } }
+    if(fix.t){ if(fix.date) fix.t.d = fix.date; if(fix.qty){ var g0 = fix.t.qty * fix.t.px; fix.t.qty = fix.qty; fix.t.px = g0 / fix.qty; if(fix.t.pxUsd) fix.t.rate = Math.round(fix.t.px / fix.t.pxUsd); fix.t.est = false; } }
     fresh.forEach(function(t){
       var pxIdr = t.ex === 'Binance' ? t.pxIn * rate : t.pxIn, g = t.qty * pxIdr, fee = g * (t.type === 'limit' ? ((t.side === 'buy' ? feeOf(t.ex).mb : feeOf(t.ex).ms) / 100) : feePct(t.ex, t.side));
       var tax = 0; if(t.ex === 'Binance' && t.side === 'sell'){ tax = g * .01; fee = Math.max(0, fee - tax); }
