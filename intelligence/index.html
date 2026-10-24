@@ -430,7 +430,8 @@ var te = new TextEncoder(), td = new TextDecoder();
 var ITER = 600000;
 var K_META = 'ii-meta', K_VAULT = 'ii-vault';
 var PRE = null;
-try{ var pm = location.hash.match(/^#add=([^&]+)/); if(pm){ PRE = decodeURIComponent(pm[1]).split(','); history.replaceState(null, '', location.pathname + location.search); } }catch(e){}
+var PRET = null;
+try{ var pm = location.hash.match(/^#add=([^&]+)/), pt = location.hash.match(/^#trades=([^&]+)/); if(pm) PRE = decodeURIComponent(pm[1]).split(','); if(pt) PRET = decodeURIComponent(pt[1]); if(pm || pt) history.replaceState(null, '', location.pathname + location.search); }catch(e){}
 
 /* ---------- small helpers ---------- */
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -777,7 +778,7 @@ function book(){
     if(t.side === 'buy'){ p.qty += t.qty; p.cost += gross + fee; cash -= gross + fee; p.uq += t.qty; p.uv += t.qty * (t.pxUsd || (t.rate ? t.px / t.rate : MK.rate ? t.px / MK.rate : 0)); p.ex = t.ex; t._pnl = null; }
     else {
       var avg = p.qty > 0 ? p.cost / p.qty : t.px, q = Math.min(t.qty, p.qty || t.qty), basis = avg * q;
-      var pnl = gross - fee - basis; t._pnl = pnl;
+      var tax = +t.tax || 0, pnl = gross - fee - tax - basis; t._pnl = pnl; p.realized = (p.realized || 0) + pnl + tax;
       p.qty = Math.max(0, p.qty - t.qty); p.cost = Math.max(0, p.cost - basis); if(p.qty < 1e-12){ p.qty = 0; p.cost = 0; }
       cash += gross - fee; realized += pnl; sells++; if(pnl > 0) wins++;
       curve.push({d: t.d, v: realized});
@@ -858,6 +859,7 @@ setInterval(paintLive, 1000);
 var cur = 'home';
 function boot(){
   go(cur, true); startLive(); remember();
+  if(PRET){ var ptx = PRET; PRET = null; setTimeout(function(){ importSheet(ptx); }, 600); }
   if(PRE){ var pp = PRE; PRE = null; if(!V.deposits.length) setTimeout(function(){ setupSheet(pp); }, 600); else toast('Your position is already saved'); }
 }
 function go(v, first){
@@ -907,7 +909,7 @@ function mainAsset(){ var P = portfolio(); return P.rows.length ? P.rows[0].a : 
 function beInfo(a, usdOverride, rateOverride){
   var b = book(), p = b.pos[a]; if(!a || !p || p.qty <= 0) return null;
   var f = feeOf(p.ex), share = b.openCost > 0 ? p.cost / b.openCost : 1;
-  var depShare = b.depFees * share, allIn = p.cost + depShare;
+  var depShare = b.depFees * share, allIn = p.cost + depShare - (p.realized || 0);
   var rate = rateOverride || MK.rate, now = usdOverride || (MK.t[a] ? MK.t[a].p : null);
   var outPct = (+f.sell + +f.off) / 100;
   var buyFees = V.trades.filter(function(t){ return t.a === a && t.side === 'buy'; }).reduce(function(s, t){ return s + (+t.fee || 0); }, 0) * (p.uq ? p.qty / p.uq : 1);
@@ -1623,13 +1625,14 @@ function rJournal(live){
     jSwitch() + '<h1>Trade journal</h1><p class="sub">Every buy and sell, why, how you felt, and what the market looked like. This is what your AI reviews learn from.</p>' +
     '<div class="grid2" style="margin-bottom:14px"><div class="kv"><span>Realized P&amp;L</span><b class="' + cls(b.realized) + '">' + idrSigned(b.realized) + '</b></div><div class="kv"><span>Win rate</span><b>' + (wr == null ? '—' : wr.toFixed(0) + '%') + ' <small class="faint" style="font-size:11px">' + b.wins + '/' + b.sells + '</small></b></div><div class="kv"><span>Fees paid</span><b>' + idrS(b.fees + b.depFees) + '</b></div><div class="kv"><span>Trades</span><b>' + V.trades.length + '</b></div></div>' +
     (b.curve.length > 1 ? '<div class="card"><div class="card-h"><h2>Realized P&amp;L over time</h2></div>' + eqChart(b.curve) + '</div>' : '') +
-    '<div class="card"><div class="card-h"><h2>Trades</h2><span class="row" style="gap:6px"><button class="btn sec sm" type="button" id="jSize">Size</button><button class="btn sm" type="button" id="jAdd">+ Trade</button></span></div><div id="jList">' +
+    '<div class="card"><div class="card-h"><h2>Trades</h2><span class="row" style="gap:6px"><button class="btn sec sm" type="button" id="jImp">Import</button><button class="btn sec sm" type="button" id="jSize">Size</button><button class="btn sm" type="button" id="jAdd">+ Trade</button></span></div><div id="jList">' +
     (ts.length ? ts.map(function(t){
       return '<div class="tr" data-id="' + t.id + '"><div class="sd ' + t.side + '">' + t.side.toUpperCase() + '</div><div><b>' + esc(t.a) + '</b> <span class="small faint">' + esc(t.ex) + '</span>' + (t.emo ? ' <span class="chip ' + (/FOMO|Fear|Revenge|Bored/.test(t.emo) ? 'y' : 'b') + '" style="padding:2px 8px;font-size:10.5px">' + esc(t.emo) + '</span>' : '') + '<small>' + fmtDate(t.d) + ' · ' + qtyF(t.qty) + ' @ ' + (t.pxUsd && t.ex === 'Binance' ? usd(t.pxUsd) : idrS(t.px)) + (t.why ? ' · ' + esc(t.why.slice(0, 40)) + (t.why.length > 40 ? '…' : '') : '') + '</small></div><div class="r">' + idrS(t.qty * t.px) + (t._pnl != null ? '<small class="' + cls(t._pnl) + '">' + idrSigned(t._pnl) + '</small>' : '') + '</div></div>';
     }).join('') : '<div class="empty">No trades yet.</div>') + '</div></div>' +
     '<p class="note">P&amp;L uses your average buy cost, after fees and tax.</p>';
   wireJ(); $('jAdd').onclick = function(){ tradeSheet(); };
   $('jSize').onclick = function(){ riskSheet(); };
+  $('jImp').onclick = function(){ pasteSheet(); };
   $('jList').addEventListener('click', function(e){ var r = e.target.closest('.tr'); if(r) tradeSheet(r.getAttribute('data-id')); });
 }
 $('fab').addEventListener('click', function(){ tradeSheet(); });
@@ -2111,6 +2114,58 @@ function histo(v){
   return v.map(function(x){ return '<i style="height:' + Math.max(2, Math.abs(x) / mx * 50).toFixed(1) + 'px;' + (x >= 0 ? 'align-self:flex-end;margin-bottom:50px;background:var(--up)' : 'align-self:flex-start;margin-top:50px;background:var(--down)') + '"></i>'; }).join('');
 }
 
+
+/* ---------- import trades from a code/link: date,side,coin,qty,price[,exchange[,type]];... ---------- */
+function parseTrades(str){
+  var m = String(str || '').match(/trades=([^&\s]+)/); if(m) str = decodeURIComponent(m[1]);
+  return String(str).split(';').map(function(r){
+    var f = r.trim().split(','); if(f.length < 5) return null;
+    var dt = f[0].trim(), side = f[1].trim().toLowerCase(), a = f[2].trim().toUpperCase(), q = parseFloat(f[3]), p = parseFloat(f[4]), ex = (f[5] || 'Binance').trim(), ty = (f[6] || 'limit').trim().toLowerCase();
+    if(!/^\d{4}-\d{2}-\d{2}/.test(dt) || (side !== 'buy' && side !== 'sell') || !(q > 0) || !(p > 0)) return null;
+    if(EXCH.indexOf(ex) < 0) ex = 'Binance';
+    return {dt: dt, d: dt.slice(0, 10), side: side, a: a, qty: q, pxUsd: ex === 'Binance' ? p : null, pxIn: p, ex: ex, type: ty === 'market' ? 'market' : 'limit', at: Date.parse(dt.length > 10 ? dt.replace(' ', 'T') + ':00+07:00' : dt + 'T12:00:00+07:00') || Date.now()};
+  }).filter(Boolean);
+}
+function pasteSheet(){
+  sheet('<div class="sh-h"><h2>Import trades</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div><div class="form"><label class="f">Paste the import code or link<textarea class="inp" id="ipT" style="font-family:var(--mono);font-size:13px" placeholder="2026-10-22T14:55,buy,BTC,0.00337,81300,Binance"></textarea></label><button class="btn full" id="ipGo" type="button">Check</button><p class="note">One trade per part: date and time, buy or sell, coin, amount, price, exchange. Parts are separated by ;</p></div>');
+  $('ipGo').onclick = function(){ var v = $('ipT').value.trim(); if(/add=/.test(v)){ var m = v.match(/add=([^&\s]+)/); closeSheet(); setTimeout(function(){ setupSheet(decodeURIComponent(m[1]).split(',')); }, 300); return; } importSheet(v); };
+}
+function importSheet(str){
+  var L = parseTrades(str);
+  if(!L.length){ toast('Nothing to import in that code'); return; }
+  var rate = MK.rate || (lsGet('ii-rate') || {}).r || 16500;
+  L.sort(function(x, y){ return x.at - y.at; });
+  L.forEach(function(t){ t.dup = V.trades.some(function(e){ return e.side === t.side && e.a === t.a && Math.abs(e.qty - t.qty) < 1e-9 && e.d === t.d && Math.abs((e.pxUsd || e.px) - (t.pxUsd || t.pxIn)) / (t.pxUsd || t.pxIn) < 1e-4; }); });
+  var fresh = L.filter(function(t){ return !t.dup; });
+  /* checks against the position already saved */
+  var notes = [], fix = {};
+  var firstSell = fresh.filter(function(t){ return t.side === 'sell'; })[0];
+  if(firstSell){
+    var buys = V.trades.filter(function(t){ return t.a === firstSell.a && t.side === 'buy'; }).sort(function(x, y){ return x.d < y.d ? -1 : 1; }), b0 = buys[0];
+    if(b0 && b0.d > firstSell.d){ var dd = new Date(firstSell.d + 'T00:00:00'); dd.setDate(dd.getDate() - 1); fix.date = ymd(dd); fix.t = b0; notes.push('Your first buy is dated ' + fmtDate(b0.d) + ', after this sale on ' + fmtDate(firstSell.d) + '. It will move to ' + fmtDate(fix.date) + ' so the order makes sense.'); }
+    if(b0 && Math.abs(b0.qty - firstSell.qty) / firstSell.qty < .02 && b0.qty !== firstSell.qty && buys.length === 1){ fix.qty = firstSell.qty; fix.t = b0; notes.push('Your first buy was an estimate (' + qtyF(b0.qty) + ' BTC). It will be set to the exact ' + qtyF(firstSell.qty) + ' from Binance.'); }
+    if(!b0) notes.push('There’s no saved buy for this ' + firstSell.a + ' yet. Add your first position first, or the sale will look odd.');
+  }
+  sheet('<div class="sh-h"><h2>Add ' + fresh.length + ' trade' + (fresh.length === 1 ? '' : 's') + '?</h2><button class="ibtn" data-close type="button" aria-label="Close">✕</button></div>' +
+    L.map(function(t){ var g = t.qty * t.pxIn * (t.ex === 'Binance' ? rate : 1), fee = g * (t.type === 'limit' ? ((t.side === 'buy' ? feeOf(t.ex).mb : feeOf(t.ex).ms) / 100) : feePct(t.ex, t.side));
+      return '<div class="tr" style="cursor:default' + (t.dup ? ';opacity:.45' : '') + '"><div class="sd ' + t.side + '">' + t.side.toUpperCase() + '</div><div><b>' + esc(t.a) + '</b> <span class="small faint">' + esc(t.ex) + ' · ' + t.type + '</span><small>' + fmtDate(t.d) + ' ' + (t.dt.slice(11, 16) || '') + ' · ' + qtyF(t.qty) + ' @ ' + (t.pxUsd ? usd(t.pxUsd) : idrS(t.pxIn)) + (t.dup ? ' · already saved' : '') + '</small></div><div class="r">' + idrS(g) + '<small class="faint">fee ~' + idrS(fee) + '</small></div></div>'; }).join('') +
+    (notes.length ? '<div class="warn" style="font-weight:500">' + notes.join('<br>') + '</div>' : '') +
+    '<label class="f" style="margin-top:12px">Why did you make these? (optional, saved on each)<input class="inp" id="imW" style="font-family:var(--body)" placeholder="e.g. Sold near break-even, bought back the dip"></label>' +
+    '<button class="btn full" id="imGo" type="button" style="margin-top:12px"' + (fresh.length ? '' : ' disabled') + '>' + (fresh.length ? 'Add to my journal' : 'Already saved') + '</button>' +
+    '<p class="note">Fees use your ' + esc(L[0].ex) + ' settings (limit orders pay the maker fee). Rupiah values use today’s USD/IDR.</p>');
+  $('imGo').onclick = function(){
+    var why = $('imW').value.trim();
+    if(fix.t){ if(fix.date) fix.t.d = fix.date; if(fix.qty){ var r0 = fix.t.qty; fix.t.qty = fix.qty; fix.t.est = false; if(fix.t.px) fix.t.fee = Math.max(0, (+fix.t.fee || 0)); } }
+    fresh.forEach(function(t){
+      var pxIdr = t.ex === 'Binance' ? t.pxIn * rate : t.pxIn, g = t.qty * pxIdr, fee = g * (t.type === 'limit' ? ((t.side === 'buy' ? feeOf(t.ex).mb : feeOf(t.ex).ms) / 100) : feePct(t.ex, t.side));
+      var tax = 0; if(t.ex === 'Binance' && t.side === 'sell'){ tax = g * .01; fee = Math.max(0, fee - tax); }
+      V.trades.push({id: 'T' + t.at.toString(36) + Math.random().toString(36).slice(2, 5), at: t.at, d: t.d, ex: t.ex, side: t.side, a: t.a, qty: t.qty, px: pxIdr, pxUsd: t.pxUsd || (MK.rate ? t.pxIn / MK.rate : null), rate: Math.round(rate), fee: fee, tax: tax, type: t.type, why: why || 'Imported from ' + t.ex + ' order history', emo: '', conf: 0, imported: true});
+    });
+    save(); closeSheet(); toast(fresh.length + ' trade' + (fresh.length === 1 ? '' : 's') + ' added'); vibe(15);
+    JV = 'real'; if(cur === 'journal') rJournal(); else go('journal');
+  };
+}
+
 /* ---------- LEARN + AI ---------- */
 var FOCUS = {
   fees: ['Fees & break-even', 'Look at my fees and break-even. Where am I losing money to costs, and how should I set things up to pay less, especially before adding the 100M?'],
@@ -2230,6 +2285,7 @@ function settings(){
     '<div class="set-row"><div><b>Change PIN</b><div class="small muted">6 digits</div></div><button class="btn sec sm" id="stPin" type="button">Change</button></div>' +
     '<div class="set-row"><div><b>Stay unlocked on this phone</b><div class="small muted">No PIN or Face needed during this time. The lock button always locks right away.</div></div><select class="inp" id="stStay" style="width:auto"><option value="0">Off (lock after 5 min)</option><option value="60">1 hour</option><option value="1440">1 day</option><option value="10080">7 days</option></select></div>' +
     '<div class="set-row"><div><b>Fees per exchange</b><div class="small muted">Buy, sell (incl. tax), rupiah in and out</div></div><button class="btn sec sm" id="stFees" type="button">Edit</button></div>' +
+    '<div class="set-row"><div><b>Import trades</b><div class="small muted">Paste an import code or link</div></div><button class="btn sec sm" id="stImpT" type="button">Paste</button></div>' +
     '<div class="set-row"><div><b>Backup</b><div class="small muted">An encrypted file. It opens only with your PIN. Use it to move to a new phone or to share with your husband.</div></div></div><div class="row"><button class="btn sec sm" id="stExp" type="button">Download backup</button><button class="btn sec sm" id="stImp" type="button">Restore a backup</button></div>' +
     '<div class="set-row"><div><b>Theme</b></div><button class="btn sec sm" id="stTheme" type="button">' + (document.documentElement.getAttribute('data-theme') === 'light' ? 'Dark' : 'Light') + '</button></div>' +
     '<div class="set-row"><div><b>Erase this device</b><div class="small muted">Deletes all Intelligence data here.</div></div><button class="btn dan sm" id="stErase" type="button">Erase</button></div>' +
@@ -2243,6 +2299,7 @@ function settings(){
     settings();
   };
   $('stPin').onclick = pinSheet;
+  $('stImpT').onclick = pasteSheet;
   $('stExp').onclick = function(){
     saveVault().then(function(){
       var j = {kind:'ibraz-intelligence-backup', v:1, at: Date.now(), meta: {salt: META.salt, pinWrap: META.pinWrap}, vault: lsGet(K_VAULT)};
