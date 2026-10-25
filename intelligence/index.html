@@ -258,6 +258,24 @@ textarea.inp{font-family:var(--body);min-height:70px;resize:vertical}
 @keyframes sk{to{background-position:-200% 0}}
 
 /* v2 */
+.zl{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:stretch;height:210px}
+.zl-bar{position:relative;border-radius:11px;overflow:hidden}
+.zl-bar div{position:absolute;left:0;right:0;opacity:.55}
+.zl-bar u{position:absolute;left:-4px;right:-4px;height:4px;border-radius:2px;background:var(--fg);box-shadow:0 0 0 3px var(--card),0 0 14px var(--fg);transform:translateY(-50%);transition:top 1s}
+.zl-lab{display:grid;grid-template-rows:repeat(5,1fr);font-size:12.5px}
+.zl-lab div{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 8px;border-radius:10px;color:var(--muted)}
+.zl-lab div.on{background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--fg)}
+.zl-lab b{font:700 13px var(--display)}
+.zl-lab span{font:500 11.5px var(--mono)}
+.say{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:16px;border:1px solid var(--gline)}
+.say span{font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.say b{font:800 20px var(--display)}
+.say small{color:var(--muted);font-size:12.5px}
+.say.buy{background:color-mix(in srgb,var(--up) 10%,transparent)}.say.buy b{color:var(--up)}
+.say.sell{background:color-mix(in srgb,var(--warn) 12%,transparent)}.say.sell b{color:var(--warn)}
+.mt{display:grid;grid-template-columns:1.1fr repeat(5,1fr);gap:4px;text-align:right;padding:8px 0;border-top:1px solid var(--gline);font-size:12.5px}
+.mt.head{border-top:0;font:600 11px var(--mono);padding-top:0}
+.mt span:first-child{text-align:left}
 .smp{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--gline);padding:12px 2px;color:var(--fg);font:inherit;cursor:pointer}
 .smp:first-of-type{border-top:0}
 .smp.open{background:color-mix(in srgb,var(--gold) 6%,transparent);border-radius:14px;padding:12px 10px}
@@ -410,7 +428,7 @@ details.lesson p{margin:8px 0 0;color:var(--muted);font-size:14px}
   <nav class="tabs" id="tabs" aria-label="Sections">
     <span class="tab-lens" id="tabLens" aria-hidden="true"></span>
     <button type="button" data-v="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
-    <button type="button" data-v="be"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/></svg>Break-even</button>
+    <button type="button" data-v="be"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/></svg>Coins</button>
     <button type="button" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-6H4zM10 20h4V9h-4zM16 20h4V4h-4z"/></svg>Plans</button>
     <button type="button" data-v="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6M9 13h6"/></svg>Journal</button>
     <button type="button" data-v="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg>Learn</button>
@@ -1008,13 +1026,14 @@ function valueChart(h){
 /* ---------- BREAK-EVEN ---------- */
 var BE = {move: 0, fx: 0};
 function rBe(live){
+  if(CV === 'eth'){ rEth(live); return; }
   var el = $('vBe'), a = mainAsset();
   if(!a){
-    el.innerHTML = '<h1>Break-even</h1><p class="sub">When your fees are paid back, and what each trade really costs you.</p><div class="card"><p style="margin:0 0 12px">Add the position you already have first.</p><button class="btn full" type="button" id="beSet">Add my position</button></div>';
-    $('beSet').onclick = setupSheet; return;
+    el.innerHTML = coinSwitch() + '<h1>Break-even</h1><p class="sub">When your fees are paid back, and what each trade really costs you.</p><div class="card"><p style="margin:0 0 12px">Add the position you already have first.</p><button class="btn full" type="button" id="beSet">Add my position</button></div>';
+    wireCoin(); $('beSet').onclick = setupSheet; return;
   }
   if(live && el.firstChild){ beLive(); return; }
-  el.innerHTML =
+  el.innerHTML = coinSwitch() +
     '<h1>Break-even</h1><p class="sub">When your fees are paid back, and what each trade really costs you.</p>' +
     '<div class="card hero-c" id="beHead"></div>' +
     '<div class="card"><div class="card-h"><h2>Price path</h2><span class="small faint">last 30 days · 4h</span></div><div id="beChart"><div class="skel" style="height:150px"></div></div></div>' +
@@ -1028,7 +1047,7 @@ function rBe(live){
   $('beMove').oninput = function(){ BE.move = +this.value; beWhat(); };
   $('beFx').oninput = function(){ BE.fx = +this.value; beWhat(); };
   $('beReset').onclick = function(){ BE.move = 0; BE.fx = 0; $('beMove').value = 0; $('beFx').value = 0; beWhat(); };
-  $('beEdit').onclick = feesSheet; $('beSize').onclick = function(){ riskSheet(); };
+  wireCoin(); $('beEdit').onclick = feesSheet; $('beSize').onclick = function(){ riskSheet(); };
   beLive();
   loadH4(a).then(function(){ if(cur === 'be') beChart(); });
 }
@@ -2174,6 +2193,164 @@ function importSheet(str){
     save(); closeSheet(); toast(fresh.length + ' trade' + (fresh.length === 1 ? '' : 's') + ' added'); vibe(15);
     JV = 'real'; if(cur === 'journal') rJournal(); else go('journal');
   };
+}
+
+
+/* ================= Coins: switch + ETH desk ================= */
+var CV = 'btc';
+function coinSwitch(){ return '<div class="seg big2" id="cv" style="margin:0 0 14px"><button type="button" data-v="btc"' + (CV === 'btc' ? ' class="on"' : '') + '>My BTC</button><button type="button" data-v="eth"' + (CV === 'eth' ? ' class="on"' : '') + '>ETH desk</button></div>'; }
+function wireCoin(){ $('cv').onclick = function(e){ var b = e.target.closest('button'); if(!b || b.getAttribute('data-v') === CV) return; CV = b.getAttribute('data-v'); $('vBe').innerHTML = ''; rBe(); window.scrollTo({top: 0}); }; }
+var ETH = {days: 365, amt: 10000000, open: null, route: 'best', d: null, fan: null};
+async function ethData(){
+  if(ETH.d && Date.now() - ETH.d.ts < 30 * 60000) return ETH.d;
+  var e = await loadBk('ETH', '1d'), b = await loadBk('BTC', '1d');
+  ETH.d = {e: e, b: b, ts: Date.now()}; ETH.fan = null; return ETH.d;
+}
+function ethInd(D){
+  var c = D.e, cl = c.map(function(x){ return x.c; }), n = cl.length, live = MK.t.ETH && Math.abs(MK.t.ETH.p / cl[n - 1] - 1) < .25 ? MK.t.ETH.p : cl[n - 1];
+  var ma = sma(cl, 200), r = rsi(cl.slice(-150)), ath = Math.max.apply(null, c.map(function(x){ return x.h; }));
+  var ch = function(k){ return (live / cl[n - 1 - k] - 1) * 100; };
+  var lr = function(a){ var r2 = []; for(var i = a.length - 30; i < a.length; i++) r2.push(Math.log(a[i] / a[i - 1])); var m = r2.reduce(function(x, y){ return x + y; }, 0) / r2.length; return Math.sqrt(r2.reduce(function(x, y){ return x + (y - m) * (y - m); }, 0) / (r2.length - 1)) * Math.sqrt(365) * 100; };
+  var bmap = {}; D.b.forEach(function(x){ bmap[x.t] = x.c; });
+  var ratio = c.map(function(x){ return bmap[x.t] ? x.c / bmap[x.t] : null; }).filter(function(v){ return v; });
+  var rn = ratio.length, rNow = MK.t.ETH && MK.t.BTC ? MK.t.ETH.p / MK.t.BTC.p : ratio[rn - 1];
+  return {last: live, ma: ma, m: live / ma, rsi: r, ath: ath, fromAth: (live / ath - 1) * 100, ch7: ch(7), ch30: ch(30), ch90: ch(90), vol: lr(cl), volB: lr(D.b.map(function(x){ return x.c; })), ratio: rNow, ratio90: rn > 90 ? (rNow / ratio[rn - 91] - 1) * 100 : null, ratioS: ratio.slice(-180)};
+}
+function ethZone(m){
+  if(m < .8) return {k: 0, label: 'Deep discount', c: 'var(--up)', note: 'Price is well under its 200-day average. Historically rare and fearful times.'};
+  if(m < 1) return {k: 1, label: 'Below trend', c: '#7FD8A8', note: 'Price is under its 200-day average. Cheaper than usual, but trends can keep falling.'};
+  if(m < 1.4) return {k: 2, label: 'Normal', c: 'var(--muted)', note: 'Price is near or a bit above its 200-day average.'};
+  if(m < 2) return {k: 3, label: 'Stretched', c: 'var(--warn)', note: 'Price is far above its average. Rallies here often cool down.'};
+  return {k: 4, label: 'Overheated', c: 'var(--down)', note: 'Price is extremely far above its average. Past tops formed in this zone.'};
+}
+function ethSay(m, r){ if(m < 1 && r < 45) return ['buy', 'Buy a part', 'The zone rules would buy a quarter of the waiting cash this week.']; if(m > 1.4 || r > 75) return ['sell', 'Sell a part', 'The zone rules would sell a third of the ETH this week.']; return ['wait', 'Wait', 'Neither rule is triggered. The zone rules would do nothing this week.']; }
+function ethCosts(){
+  var x = ETH.route === 'binance' ? 'Binance' : whereRank(1e6).filter(function(r){ return r.x !== CARD; })[0].x, f = feeOf(x);
+  return {x: x, inC: (+f.on + +f.buy) / 100, outC: (+f.sell + +f.off) / 100, sellC: +f.sell / 100, buyC: +f.buy / 100};
+}
+function rEth(live){
+  var el = $('vBe');
+  if(live && el.firstChild && $('ethHead')){ ethLive(); return; }
+  el.innerHTML = coinSwitch() +
+    '<h1>ETH desk</h1><p class="sub">Where Ethereum is now, what it could make or lose, and how simple rules would have done. Data and rules, not predictions.</p>' +
+    '<div class="card hero-c" id="ethHead"><div class="skel"></div><div class="skel" style="margin-top:10px;width:60%"></div></div>' +
+    '<div class="card" id="ethZone"></div>' +
+    '<div class="card" id="ethHow"></div>' +
+    '<div class="card"><div class="card-h"><h2>If you had started…</h2></div><div class="seg" id="ethD" style="margin-bottom:8px"><button type="button" data-v="182">6 months</button><button type="button" data-v="365">1 year</button><button type="button" data-v="730">2 years</button></div><div class="seg" id="ethA"><button type="button" data-v="5000000">Rp 5M</button><button type="button" data-v="10000000">Rp 10M</button><button type="button" data-v="20000000">Rp 20M</button></div><div id="ethSmp" style="margin-top:12px"></div></div>' +
+    '<div class="card" id="ethFan"></div>' +
+    '<div class="card"><div class="card-h"><h2>ETH, in short</h2></div>' +
+      '<details class="lesson" open><summary>It swings harder than BTC</summary><p id="ethVolTxt">ETH usually moves more than Bitcoin, both up and down. The same news can mean a bigger gain or a deeper loss.</p></details>' +
+      '<details class="lesson"><summary>Watch ETH against BTC</summary><p>When the ETH/BTC ratio falls, ETH is losing ground to Bitcoin even if its price rises. Many people only add more ETH when that ratio stops falling.</p></details>' +
+      '<details class="lesson"><summary>Staking pays a little extra</summary><p>Some platforms pay a yield (roughly 3% a year) for staking ETH. Check whether your exchange offers it, whether it locks your coins, and the platform risk.</p></details>' +
+      '<details class="lesson"><summary>Fees decide small trades</summary><p>A round trip costs about 0.6% on a local exchange and about 4% through Binance with rupiah. A trade has to move more than that before it earns anything.</p></details>' +
+      '<details class="lesson"><summary>Practice it first</summary><p>Journal → Practice lets you buy and sell ETH with fake money at live prices. Bot lab can replay any bot on ETH.</p></details></div>' +
+    '<p class="note" style="margin:0 0 14px">Readings use real Binance daily prices (about 2.7 years). The zone rules are simple, well-known rules of thumb. Past patterns don’t promise future results. Not financial advice.</p>';
+  wireCoin();
+  var seg = function(id, val, fn){ var b0 = $(id); b0.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', +b.getAttribute('data-v') === val); }); b0.onclick = function(e){ var b = e.target.closest('button'); if(!b) return; fn(+b.getAttribute('data-v')); b0.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); }; };
+  seg('ethD', ETH.days, function(v){ ETH.days = v; ETH.open = null; ethSamples(); });
+  seg('ethA', ETH.amt, function(v){ ETH.amt = v; ethSamples(); ethFanRender(); });
+  ethData().then(function(){ if(CV !== 'eth' || !$('ethHead')) return; ethLive(); ethHow(); ethSamples(); ethFanRender(); }).catch(function(){ $('ethHead').innerHTML = '<div class="empty">Couldn’t load ETH history. Check your connection and open this again.</div>'; });
+}
+function ethLive(){
+  if(!ETH.d || !$('ethHead')) return;
+  var I = ethInd(ETH.d), t = MK.t.ETH, z = ethZone(I.m), say = ethSay(I.m, I.rsi);
+  $('ethHead').innerHTML = '<div class="eyebrow">Ethereum</div><div class="big num">' + usd(I.last) + '</div><p class="muted" style="margin:2px 0 10px">' + idrS(I.last * (MK.rate || 16500)) + ' per ETH</p>' +
+    '<div class="row">' + [['24h', t ? t.ch : null], ['7d', I.ch7], ['30d', I.ch30], ['90d', I.ch90]].map(function(x){ return x[1] == null ? '' : '<span class="chip ' + (x[1] >= 0 ? 'g' : 'r') + '">' + x[0] + ' ' + pct(x[1], 1) + '</span>'; }).join('') + '</div>' +
+    '<div class="grid2" style="margin-top:14px"><div class="kv"><span>From its high</span><b class="down">' + pct(I.fromAth, 0) + '</b><small class="muted">high ' + usd(I.ath) + ' (2.7 yrs)</small></div><div class="kv"><span>ETH / BTC</span><b>' + I.ratio.toFixed(4) + '</b><small class="' + (I.ratio90 >= 0 ? 'up' : 'down') + '">' + (I.ratio90 == null ? '' : pct(I.ratio90, 0) + ' in 90d · ' + (I.ratio90 >= 0 ? 'gaining on BTC' : 'losing to BTC')) + '</small></div></div>';
+  $('ethVolTxt').textContent = 'Over the last 30 days ETH moved about ' + I.vol.toFixed(0) + '% a year in volatility terms, against ' + I.volB.toFixed(0) + '% for Bitcoin (' + (I.vol / I.volB).toFixed(1) + '×). The same news can mean a bigger gain or a deeper loss.';
+  var bands = [[0, .8], [.8, 1], [1, 1.4], [1.4, 2], [2, 2.6]], lo = 0, hi = 2.6, y = function(m){ return Math.max(0, Math.min(100, (1 - (m - lo) / (hi - lo)) * 100)); };
+  $('ethZone').innerHTML = '<div class="card-h"><h2>When: where ETH is now</h2><button class="btn sec sm" type="button" id="ethAl">🔔 Alert</button></div>' +
+    '<div class="zl"><div class="zl-bar">' + bands.map(function(b, i){ var zz = ethZone((b[0] + b[1]) / 2); return '<div style="top:' + y(b[1]) + '%;height:' + (y(b[0]) - y(b[1])) + '%;background:' + zz.c + '"></div>'; }).join('') + '<u style="top:' + y(I.m) + '%"></u></div>' +
+    '<div class="zl-lab">' + bands.slice().reverse().map(function(b){ var zz = ethZone((b[0] + b[1]) / 2), on = zz.k === z.k; return '<div class="' + (on ? 'on' : '') + '"><b>' + zz.label + '</b><span>' + (b[0] ? usd(I.ma * b[0], 0) + '–' + usd(I.ma * b[1], 0) : 'under ' + usd(I.ma * b[1], 0)) + '</span></div>'; }).join('') + '</div></div>' +
+    '<p style="margin:12px 0 4px"><b style="color:' + z.c + '">' + z.label + '.</b> ' + z.note + '</p><p class="muted" style="margin:0 0 10px;font-size:13px">200-day average ' + usd(I.ma) + ' · price is ' + pct((I.m - 1) * 100, 0) + ' from it · RSI ' + Math.round(I.rsi) + (I.rsi > 70 ? ' (stretched up)' : I.rsi < 30 ? ' (stretched down)' : '') + '</p>' +
+    '<div class="say ' + say[0] + '"><span>Zone rules today</span><b>' + say[1] + '</b><small>' + say[2] + '</small></div>' +
+    '<p class="note">Zone rules: buy a part when price is under its 200-day average and RSI is under 45; sell a part when price is 40%+ above the average or RSI is over 75. Check once a week. Their past results are in the simulation below.</p>';
+  $('ethAl').onclick = function(){ alertSheet('ETH'); };
+}
+function ethHow(){
+  var box = $('ethHow'); if(!box) return;
+  var C = ethCosts(), mv = [-30, -10, 10, 30, 50], amts = [5000000, 10000000, 20000000];
+  var be = (1 / ((1 - C.inC) * (1 - C.outC)) - 1) * 100;
+  box.innerHTML = '<div class="card-h"><h2>How much: what a move means</h2></div>' +
+    '<div class="seg" id="ethR" style="margin-bottom:10px"><button type="button" data-v="best"' + (ETH.route !== 'binance' ? ' class="on"' : '') + '>' + esc(whereRank(1e6).filter(function(r){ return r.x !== CARD; })[0].x) + ' (cheapest)</button><button type="button" data-v="binance"' + (ETH.route === 'binance' ? ' class="on"' : '') + '>Binance</button></div>' +
+    '<div class="mt head"><span></span>' + mv.map(function(m){ return '<span class="' + (m < 0 ? 'down' : 'up') + '">' + (m > 0 ? '+' : '') + m + '%</span>'; }).join('') + '</div>' +
+    amts.map(function(a){ return '<div class="mt"><span><b>Rp ' + (a / 1e6) + 'M</b></span>' + mv.map(function(m){ var net = a * (1 - C.inC) * (1 + m / 100) * (1 - C.outC) - a; return '<span class="num ' + cls(net) + '">' + (net >= 0 ? '+' : '−') + (Math.abs(net) / 1e6).toFixed(Math.abs(net) < 1e6 ? 2 : 1) + 'M</span>'; }).join('') + '</div>'; }).join('') +
+    '<p style="margin:12px 0 0;font-size:14px">ETH has to rise <b>' + pct(be, 1) + '</b> just to break even after buying, selling and getting back to rupiah on ' + esc(C.x) + '.</p>' +
+    '<p class="note">Money back in your bank after all costs, if ETH moves this much after you buy. ETH has moved 30% in a single month many times. Size it so the −30% column is a loss you can sit through.</p>';
+  $('ethR').onclick = function(e){ var b = e.target.closest('button'); if(!b) return; ETH.route = b.getAttribute('data-v'); ethHow(); ethSamples(); ethFanRender(); };
+}
+function ethSim(kind, D, days, amt){
+  var E = kind === 'btc' ? D.b : D.e, N = E.length, s0 = Math.max(200, N - 1 - days), rate = MK.rate || 16500, C = ethCosts();
+  var yMM = Math.pow(1 + (optY('mm') || 0) / 100, 1 / 365), cash = amt, qty = 0, fees = 0, ser = [], buys = [], last = -99, n = 0;
+  var cl = E.map(function(x){ return x.c; }), sum = 0; for(var k = s0 - 199; k <= s0; k++) sum += cl[k];
+  var rg = 0, rl = 0; for(var k2 = s0 - 140; k2 <= s0; k2++){ var d0 = cl[k2] - cl[k2 - 1]; rg = (rg * 13 + Math.max(d0, 0)) / 14; rl = (rl * 13 + Math.max(-d0, 0)) / 14; }
+  function buy(i, a, px){ if(a <= 0) return; var f = a * (C.inC); qty += (a - f) / (px * rate); cash -= a; fees += f; buys.push({i: i, s: 'b', p: px}); n++; }
+  function sell(i, q, px){ if(q <= 0) return; var g = q * px * rate, f = g * C.sellC; qty -= q; cash += g - f; fees += f; buys.push({i: i, s: 's', p: px}); n++; }
+  var combo = null;
+  if(kind === 'combo'){ var o = {fb: C.inC, fs: C.sellC, mb: C.inC, ms: C.sellC, cap: amt / rate}; combo = simRun('combo', E.slice(s0 - BL.combo.s), o); }
+  for(var d = s0; d < N; d++){
+    var px = cl[d];
+    if(d > s0){ sum += cl[d] - cl[d - 200]; var dd = cl[d] - cl[d - 1]; rg = (rg * 13 + Math.max(dd, 0)) / 14; rl = (rl * 13 + Math.max(-dd, 0)) / 14; cash *= yMM; }
+    var m = px / (sum / 200), r = rl === 0 ? 100 : 100 - 100 / (1 + rg / rl), i = d - s0;
+    if(kind === 'lump' || kind === 'btc'){ if(i === 0) buy(i, cash, px); }
+    else if(kind === 'dca'){ if(i % 7 === 0 && i / 7 < 10) buy(i, i / 7 === 9 ? cash : amt / 10, px); }
+    else if(kind === 'zone' && i - last >= 7){
+      if(m < 1 && r < 45 && cash > amt * .02){ buy(i, Math.max(cash / 4, Math.min(cash, amt * .1)), px); last = i; }
+      else if((m > 1.4 || r > 75) && qty > 0){ sell(i, qty / 3, px); last = i; }
+    }
+    ser.push(combo ? combo.eq[i + BL.combo.s] * rate : cash + qty * px * rate);
+  }
+  if(combo){ fees = combo.fees * rate; n = combo.n; }
+  var end = ser[ser.length - 1], pk = -Infinity, mdd = 0; ser.forEach(function(v){ pk = Math.max(pk, v); mdd = Math.min(mdd, (v / pk - 1) * 100); });
+  return {kind: kind, ser: ser, end: end, gain: end - amt, ret: (end / amt - 1) * 100, dd: mdd, fees: fees, n: n, inMkt: qty * cl[N - 1] * rate, from: E[s0].t, p0: cl[s0], p1: cl[N - 1]};
+}
+var ETHS = [
+  {k: 'lump', name: 'All in on day one', desc: 'Buy ETH with everything on the first day and hold.', c: '#FF8A8A'},
+  {k: 'dca', name: '10 weekly buys', desc: 'Buy the same amount every week for 10 weeks, then hold. Waiting money earns in a money-market fund.', c: '#F7931A'},
+  {k: 'zone', name: 'Zone rules', desc: 'Once a week: buy a part when ETH is under its 200-day average and RSI is under 45; sell a third when it’s 40% above or RSI is over 75. Cash waits in a money-market fund.', c: '#5BE1FF'},
+  {k: 'combo', name: 'Combo bot', desc: 'The Bot lab combo: trend filter, buys dips in parts, takes profit, trailing stop.', c: '#A78BFF'},
+  {k: 'btc', name: 'BTC instead', desc: 'The same money into Bitcoin on day one, for comparison.', c: '#F5B544'}
+];
+function ethSamples(){
+  var box = $('ethSmp'); if(!box || !ETH.d) return;
+  var R = ETHS.map(function(S){ var r = ethSim(S.k, ETH.d, ETH.days, ETH.amt); r.S = S; return r; });
+  var best = R.slice().sort(function(a, b){ return b.end - a.end; })[0], calm = R.slice().sort(function(a, b){ return b.dd - a.dd; })[0], from = new Date(R[0].from).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
+  var lump = R[0], ethCh = (lump.p1 / lump.p0 - 1) * 100;
+  box.innerHTML = '<p class="small muted" style="margin:0 0 6px">ETH went from ' + usd(lump.p0) + ' to ' + usd(lump.p1) + ' (' + pct(ethCh, 0) + ') since ' + from + '. Fees on ' + esc(ethCosts().x) + '.</p>' +
+    R.slice().sort(function(a, b){ return b.end - a.end; }).map(function(r){
+      var o = ETH.open === r.S.k;
+      return '<button type="button" class="smp' + (o ? ' open' : '') + '" data-e="' + r.S.k + '"><div class="smp-h"><span><i class="sw" style="background:' + r.S.c + '"></i><b>' + r.S.name + '</b>' + (r === best ? ' <span class="chip g">most gained</span>' : '') + (r === calm ? ' <span class="chip b">calmest</span>' : '') + '</span><span class="num ' + cls(r.gain) + '">' + idrSigned(r.gain) + '</span></div>' +
+        spark2(r.ser, ETH.amt, r.S.c, o ? 110 : 44) +
+        '<div class="smp-f small"><span>Now <b class="num">' + idrS(r.end) + '</b></span><span>Worst drop <b class="num down">' + pct(r.dd, 0) + '</b></span><span>' + r.n + ' trades</span></div>' +
+        (o ? '<div class="smp-d"><p>' + r.S.desc + '</p><div class="small muted">Return ' + pct(r.ret, 1) + ' · fees ' + idrS(r.fees) + (r.inMkt ? ' · still in coins ' + idrS(r.inMkt) : '') + '</div></div>' : '') + '</button>';
+    }).join('') +
+    '<p class="note">' + (R[2].dd > R[0].dd + 3 ? 'The zone rules fell less than holding (' + pct(R[2].dd, 0) + ' vs ' + pct(R[0].dd, 0) + ')' + (R[2].end < R[0].end ? ' but made less.' : ' and made more.') : 'In this period the zone rules didn’t reduce the drops much.') + ' ' + (R[4].end > R[0].end ? 'Bitcoin beat ETH here.' : 'ETH beat Bitcoin here.') + ' Try the other start dates: the winner changes.</p>';
+  box.querySelectorAll('[data-e]').forEach(function(b){ b.onclick = function(){ var k = b.getAttribute('data-e'); ETH.open = ETH.open === k ? null : k; ethSamples(); }; });
+}
+function ethFanRender(){
+  var box = $('ethFan'); if(!box || !ETH.d) return;
+  var cl = ETH.d.e.map(function(x){ return x.c; }), rets = []; for(var i = 1; i < cl.length; i++) rets.push(Math.log(cl[i] / cl[i - 1]));
+  var C = ethCosts(), amt = ETH.amt, H = 365, P = 600, M = 12, paths = [], seed = 7;
+  var rnd2 = function(){ seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  for(var p0 = 0; p0 < P; p0++){
+    var v = amt * (1 - C.inC), pt = [v], dd = 0;
+    while(dd < H){ var st = Math.floor(rnd2() * (rets.length - 7)); for(var b = 0; b < 7 && dd < H; b++, dd++){ v *= Math.exp(rets[st + b]); if((dd + 1) % Math.round(H / M) === 0 && pt.length <= M) pt.push(v); } }
+    while(pt.length <= M) pt.push(v);
+    paths.push(pt);
+  }
+  var q = function(arr, p){ var a = arr.slice().sort(function(x, y){ return x - y; }); return a[Math.floor(p * (a.length - 1))]; };
+  var bands = []; for(var mth = 0; mth <= M; mth++){ var col = paths.map(function(pp){ return pp[mth]; }); bands.push({p10: q(col, .1), p25: q(col, .25), p50: q(col, .5), p75: q(col, .75), p90: q(col, .9)}); }
+  var ends = paths.map(function(pp){ return pp[M] * (1 - C.outC); }), loss = ends.filter(function(e){ return e < amt; }).length / P * 100;
+  var e10 = q(ends, .1), e50 = q(ends, .5), e90 = q(ends, .9), dbl = ends.filter(function(e){ return e >= amt * 1.5; }).length / P * 100, half = ends.filter(function(e){ return e <= amt * .6; }).length / P * 100;
+  var W = 600, Hh = 170, all = bands.map(function(b){ return b.p90; }).concat(bands.map(function(b){ return b.p10; }), [amt]), mn = Math.min.apply(null, all), mx = Math.max.apply(null, all);
+  var X = function(m){ return (m / M * W).toFixed(1); }, Y = function(v){ return (6 + (1 - (v - mn) / (mx - mn)) * (Hh - 12)).toFixed(1); };
+  var area = function(a, b){ return bands.map(function(x, m){ return (m ? 'L' : 'M') + X(m) + ' ' + Y(x[a]); }).join(' ') + ' ' + bands.slice().reverse().map(function(x, j){ return 'L' + X(M - j) + ' ' + Y(x[b]); }).join(' ') + 'Z'; };
+  box.innerHTML = '<div class="card-h"><h2>Possible next 12 months</h2><span class="small faint">' + idrS(amt) + ' held</span></div>' +
+    '<svg class="eq" style="height:' + Hh + 'px" viewBox="0 0 ' + W + ' ' + Hh + '" preserveAspectRatio="none" role="img" aria-label="Range of possible values over 12 months"><path d="' + area('p90', 'p10') + '" fill="var(--violet)" opacity=".14"/><path d="' + area('p75', 'p25') + '" fill="var(--violet)" opacity=".24"/><line x1="0" x2="' + W + '" y1="' + Y(amt) + '" y2="' + Y(amt) + '" stroke="var(--faint)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/><path d="' + bands.map(function(x, m){ return (m ? 'L' : 'M') + X(m) + ' ' + Y(x.p50); }).join(' ') + '" fill="none" stroke="var(--violet)" stroke-width="2.2" vector-effect="non-scaling-stroke"/></svg>' +
+    '<div class="row small faint" style="justify-content:space-between"><span>Today</span><span>dark band: middle half · light: 8 in 10 · dashed: put in</span><span>12 mo</span></div>' +
+    '<div class="scn" style="margin-top:12px"><div><span>Bad (1 in 10)</span><b class="num down">' + idrS(e10) + '</b><small class="num ' + cls(e10 - amt) + '">' + idrSigned(e10 - amt) + '</small></div><div><span>Middle</span><b class="num">' + idrS(e50) + '</b><small class="num ' + cls(e50 - amt) + '">' + idrSigned(e50 - amt) + '</small></div><div><span>Good (1 in 10)</span><b class="num up">' + idrS(e90) + '</b><small class="num ' + cls(e90 - amt) + '">' + idrSigned(e90 - amt) + '</small></div></div>' +
+    '<p style="margin:12px 0 0;font-size:14px">In <b>' + Math.round(loss) + '%</b> of the paths you’d end with less than you put in. <b>' + Math.round(dbl) + '%</b> ended +50% or more, and <b>' + Math.round(half) + '%</b> lost 40% or more.</p>' +
+    '<p class="note">' + P + ' possible years built by shuffling real ETH weeks from the last 2.7 years, after fees on ' + esc(C.x) + '. It shows the range ETH has produced, not a forecast. If the next year is unlike the last few, reality can fall outside it.</p>';
 }
 
 /* ---------- LEARN + AI ---------- */
